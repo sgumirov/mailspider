@@ -11,17 +11,15 @@ import java.util.HashMap;
  * Date: 4/1/2017 Time: 00:38<br/>
  */
 public class TaskContext {
+
   private String taskId;
+
   private Date startTime;
+
+  private ArrayList<TaskFile> files;
+
   /**
    * Used to store which plugin processed this workload. Actually this is a free-form log.
    */
   private ArrayList<String> processingLog;
-
-  private ArrayList<TaskFile> files;
-}
-
-class TaskFile {
-  String name;
-  File path;
 }

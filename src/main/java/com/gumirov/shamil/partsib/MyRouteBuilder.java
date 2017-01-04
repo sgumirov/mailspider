@@ -1,46 +1,53 @@
 package com.gumirov.shamil.partsib;
 
-import org.apache.camel.ErrorHandlerFactory;
-import org.apache.camel.LoggingLevel;
+import com.gumirov.shamil.partsib.endpoints.OutputEndpoint;
+import com.gumirov.shamil.partsib.processors.CompressDetectProcessor;
+import com.gumirov.shamil.partsib.processors.PluginsProcessor;
+import com.gumirov.shamil.partsib.processors.UnpackerProcessor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.impl.GzipDataFormat;
-import org.apache.camel.processor.ErrorHandler;
 
 /**
  * A Camel Java DSL Router
  */
 public class MyRouteBuilder extends RouteBuilder {
 
-  /**
-   * Let's configure the Camel routing rules using Java code...
-   */
-  public void configure() {
+  public static final String COMPRESS_TYPE = "compress.type";
 
-    // here is a sample which processes the input files
-    // (leaving them in place - see the 'noop' flag)
-    // then performs content based routing on the message using XPath
-        /*from("file:src/data?noop=true")
-            .choice()
-                .when(xpath("/person/city = 'London'"))
-                    .log("UK message")
-                    .to("file:target/messages/uk")
-                .otherwise()
-                    .log("Other message")
-                    .to("file:target/messages/others");*/
-        /*from("file:/opt/ftp")
-                .choice()
-                .when(header("CamelFileName").contains(".gz")).unmarshal().gzip().log("gzipped").to("file:target/files")
-                .when(header("CamelFileName").contains(".zip")).unmarshal().zip().log("zipped").to("file:target/files")
-                .otherwise()
-                .log("not gzipped")
-                .to("file:target/files")
-        ;*/
+  public void configure() {
 //        from("imaps://sh.roller:gfhjkm12@imap.mail.ru?consumer.delay=10000&delete=false").
 //                log("new email");
+
+    //debug
     getContext().setTracing(true);
-    from("ftp://192.168.50.55/home/pi/1?username=pi&password=gfhjkm&binary=true&passiveMode=true&runLoggingLevel=TRACE").
-        errorHandler(loggingErrorHandler("mylogger.name").level(LoggingLevel.DEBUG)).
-        log("new ftp file");
+
+    CompressDetectProcessor comprDetect = new CompressDetectProcessor();
+    UnpackerProcessor unpack = new UnpackerProcessor();
+    OutputEndpoint outputEndpoint = new OutputEndpoint(); //todo
+    PluginsProcessor pluginsProcessor = new PluginsProcessor();
+
+    //FTP test
+//    from("ftp://192.168.50.55/home/pi/1?username=pi&password=gfhjkm&binary=true&passiveMode=true&runLoggingLevel=TRACE").
+    //to("direct:packed")
+
+    //file test
+    from("file:///j:/java/projects/mailspider/target/files/?runLoggingLevel=TRACE").
+        to("direct:packed");
+
+    from("direct:packed").
+        process(comprDetect).
+        choice().
+          when(header(COMPRESS_TYPE).isNotNull()).process(unpack).to("direct:unpacked").
+          otherwise().to("direct:unpacked").
+        endChoice();
+
+    from("direct:unpacked").
+        process(pluginsProcessor).to("direct:output");
+
+    from("direct:output").
+        to(outputEndpoint);
+
+//        errorHandler(loggingErrorHandler("mylogger.name").level(LoggingLevel.DEBUG)).
+//        log("new ftp file").process(new PluginsProcessor()).log("Processed");
   }
 }
 
