@@ -17,5 +17,7 @@ public class OutputSender {
   public void onOutput(String body, @Header("filename") String filename)
   {
 
+
+//todo send chunked in application/octet-stream POST body
   }
 }

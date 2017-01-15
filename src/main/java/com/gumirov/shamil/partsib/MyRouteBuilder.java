@@ -1,9 +1,6 @@
 package com.gumirov.shamil.partsib;
 
-import com.gumirov.shamil.partsib.processors.CompressDetectProcessor;
-import com.gumirov.shamil.partsib.processors.OutputProcessor;
-import com.gumirov.shamil.partsib.processors.PluginsProcessor;
-import com.gumirov.shamil.partsib.processors.UnpackerProcessor;
+import com.gumirov.shamil.partsib.processors.*;
 import org.apache.camel.builder.RouteBuilder;
 
 /**
@@ -11,12 +8,13 @@ import org.apache.camel.builder.RouteBuilder;
  */
 public class MyRouteBuilder extends RouteBuilder {
 
-  public static final String COMPRESS_TYPE = "compress.type";
+  public static final String COMPRESSED_TYPE_HEADER_NAME = "compress.type";
+  public static final String ID_HEADER_NAME = "ID_HEADER";
 
   public void configure() {
 
     //debug
-    getContext().setTracing(true);
+    getContext().setTracing(Boolean.TRUE);
 
     CompressDetectProcessor comprDetect = new CompressDetectProcessor();
     UnpackerProcessor unpack = new UnpackerProcessor();
@@ -33,21 +31,28 @@ public class MyRouteBuilder extends RouteBuilder {
 
 //file test
 
-    from("file:///j:/java/projects/mailspider/target/files/?fileName=1.zip&runLoggingLevel=TRACE").
+    from("file:src/data/files/?runLoggingLevel=TRACE&delete=false&noop=true").
+        process(new SourceIdSetterProcessor("ID-1")).
         to("direct:packed");
 
+    //unpack?
     from("direct:packed").
         process(comprDetect).
         choice().
-          when(header(COMPRESS_TYPE).isNotNull()).process(unpack).to("direct:unpacked").
-          otherwise().to("direct:unpacked").
+          when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
+            process(unpack).
+            to("direct:unpacked").
+          otherwise().
+            to("direct:unpacked").
         endChoice();
 
+    //call plugins here
     from("direct:unpacked").
-        process(pluginsProcessor).to("direct:output");
-
-    from("direct:output").
         process(pluginsProcessor).
+        to("direct:output");
+
+    //call output procedure
+    from("direct:output").
         process(outputEndpoint).
         end();
 

@@ -2,7 +2,8 @@ package com.gumirov.shamil.partsib;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.main.Main;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * A Camel Application
@@ -16,6 +17,12 @@ public class MainApp {
 //        Main main = new Main();
 //        main.addRouteBuilder(new MyRouteBuilder());
 //        main.run(args);
+
+    //todo use spring collections to fill config
+//    ApplicationContext bcontext = new ClassPathXmlApplicationContext("Beans.xml");
+//    bcontext.
+
+
     CamelContext context = new DefaultCamelContext();
     context.addRoutes(new MyRouteBuilder());
     context.start();

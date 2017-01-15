@@ -30,11 +30,11 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- Camel -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-mail</artifactId>
@@ -60,6 +60,29 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
       <scope>runtime</scope>
+    </dependency>
+
+    <!--spring -->
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-beans -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>4.3.5.RELEASE</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>4.3.5.RELEASE</version>
+    </dependency>
+
+
+    <!-- mysql -->
+    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>6.0.5</version>
     </dependency>
 
     <!-- testing -->
