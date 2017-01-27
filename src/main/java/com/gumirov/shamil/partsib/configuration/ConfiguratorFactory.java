@@ -22,6 +22,7 @@ public class ConfiguratorFactory {
   }
 
   private void initDefaultValues(HashMap<String, String> kv) {
-    kv.put("", "");
+    kv.put("config.key", "value");
+//    kv.put("", "");
   }
 }

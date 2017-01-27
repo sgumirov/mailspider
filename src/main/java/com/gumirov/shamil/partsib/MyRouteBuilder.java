@@ -17,23 +17,25 @@ public class MyRouteBuilder extends RouteBuilder {
     getContext().setTracing(Boolean.TRUE);
 
     CompressDetectProcessor comprDetect = new CompressDetectProcessor();
-    UnpackerProcessor unpack = new UnpackerProcessor();
+    UnpackerProcessor unpack = new UnpackerProcessor(); //todo
     OutputProcessor outputEndpoint = new OutputProcessor(); //todo
-    PluginsProcessor pluginsProcessor = new PluginsProcessor();
+    PluginsProcessor pluginsProcessor = new PluginsProcessor(); //todo
+    EmailProcessor emailProcessor = new EmailProcessor();
 
 //FTP test
 //    from("ftp://192.168.50.55/home/pi/1?username=pi&password=gfhjkm&binary=true&passiveMode=true&runLoggingLevel=TRACE").
     //to("direct:packed")
 
 //email test
-//        from("imaps://sh.roller:gfhjkm12@imap.mail.ru?consumer.delay=10000&delete=false").
-//                log("new email");
+    from("imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false").
+        process(emailProcessor).
+        to("direct:unpacked");
 
 //file test
 
-    from("file:src/data/files/?runLoggingLevel=TRACE&delete=false&noop=true").
-        process(new SourceIdSetterProcessor("ID-1")).
-        to("direct:packed");
+//    from("file:src/data/files/?runLoggingLevel=TRACE&delete=false&noop=true").
+//        process(new SourceIdSetterProcessor("ID-1")).
+//        to("direct:packed");
 
     //unpack?
     from("direct:packed").
