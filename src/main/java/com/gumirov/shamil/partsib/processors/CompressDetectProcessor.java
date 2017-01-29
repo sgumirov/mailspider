@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.util.Random;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -17,10 +16,6 @@ import java.util.Random;
  */
 public class CompressDetectProcessor implements Processor {
   static Logger logger = LoggerFactory.getLogger(CompressDetectProcessor.class);
-
-  public static enum ARCHIVE {
-    GZIP, ZIP, RAR
-  }
 
   @Override
   public void process(Exchange exchange) throws Exception {
@@ -36,14 +31,14 @@ public class CompressDetectProcessor implements Processor {
     //zip:      50 4B 03 04
     logger.info("Signature read: "+bytesToHex(signature));
     if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b ) {
-      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, ARCHIVE.GZIP.toString());
+      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType.GZIP.toString());
       logger.info("GZIP detected");
     }else if (compare(signature, new int[]{0x50, 0x4B, 03, 04})) {
-      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, ARCHIVE.ZIP.toString());
+      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType.ZIP.toString());
       logger.info("ZIP detected");
     }else if (compare(signature, new int[]{0x52, 0x61, 0x72, 0x21,0x1A, 07, 00}) ||
              compare(signature, new int[]{0x52, 0x61, 0x72, 0x21,0x1A, 07, 01, 0})) {
-      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, ARCHIVE.RAR.toString());
+      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType.RAR.toString());
       logger.info("RAR detected");
     }
     logger.info("No archive detected");

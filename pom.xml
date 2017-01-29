@@ -76,20 +76,31 @@
       <version>4.3.5.RELEASE</version>
     </dependency>
 
-
-    <!-- mysql -->
-    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <!-- mysql : https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>6.0.5</version>
     </dependency>
+    <!-- SQLite : https://github.com/xerial/sqlite-jdbc -->
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.15.1</version>
+    </dependency>
 
-    <!-- testing -->
+    <!-- Compressors -->
+    <!-- https://mvnrepository.com/artifact/org.apache.camel/camel-zipfile -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-zipfile</artifactId>
+      <version>2.18.1</version>
+    </dependency>
+
+    <!-- camel general testing; todo remove? -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

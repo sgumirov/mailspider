@@ -22,7 +22,7 @@ public class ConfiguratorFactory {
   }
 
   private void initDefaultValues(HashMap<String, String> kv) {
-    kv.put("config.key", "value");
+    kv.put("email.enabled", "false");
 //    kv.put("", "");
   }
 }

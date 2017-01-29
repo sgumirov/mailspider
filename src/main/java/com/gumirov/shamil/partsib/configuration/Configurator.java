@@ -21,4 +21,8 @@ public class Configurator {
   public void setStorage(HashMap<String, String> storage) {
     this.storage = storage;
   }
+
+  public String get(String key){
+    return storage.get(key);
+  }
 }

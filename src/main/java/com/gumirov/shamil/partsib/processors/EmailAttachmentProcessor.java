@@ -8,7 +8,7 @@ import org.apache.camel.Processor;
 /**
  * Created by phoenix on 1/16/17.
  */
-public class EmailProcessor implements Processor {
+public class EmailAttachmentProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     Message msg = exchange.getIn();
