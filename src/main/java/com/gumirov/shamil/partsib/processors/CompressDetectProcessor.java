@@ -40,6 +40,9 @@ public class CompressDetectProcessor implements Processor {
              compare(signature, new int[]{0x52, 0x61, 0x72, 0x21,0x1A, 07, 01, 0})) {
       exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType.RAR.toString());
       logger.info("RAR detected");
+    }else if (compare(signature, new int[]{0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c})) {
+      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType._7Z.toString());
+      logger.info("7Z detected");
     }
     logger.info("No archive detected");
   }
