@@ -36,6 +36,6 @@ public class Configurator {
   }
 
   public Map getJsonAsMap(String key) {
-
+    return null;
   }
 }
