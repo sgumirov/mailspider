@@ -1,6 +1,6 @@
 package com.gumirov.shamil.partsib.processors;
 
-import com.gumirov.shamil.partsib.MyRouteBuilder;
+import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -31,17 +31,17 @@ public class CompressDetectProcessor implements Processor {
     //zip:      50 4B 03 04
     logger.info("Signature read: "+bytesToHex(signature));
     if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b ) {
-      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType.GZIP.toString());
+      exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType.GZIP.toString());
       logger.info("GZIP detected");
     }else if (compare(signature, new int[]{0x50, 0x4B, 03, 04})) {
-      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType.ZIP.toString());
+      exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType.ZIP.toString());
       logger.info("ZIP detected");
     }else if (compare(signature, new int[]{0x52, 0x61, 0x72, 0x21,0x1A, 07, 00}) ||
              compare(signature, new int[]{0x52, 0x61, 0x72, 0x21,0x1A, 07, 01, 0})) {
-      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType.RAR.toString());
+      exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType.RAR.toString());
       logger.info("RAR detected");
     }else if (compare(signature, new int[]{0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c})) {
-      exchange.getIn().setHeader(MyRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MyRouteBuilder.CompressorType._7Z.toString());
+      exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType._7Z.toString());
       logger.info("7Z detected");
     }
     logger.info("No archive detected");

@@ -1,6 +1,6 @@
 package com.gumirov.shamil.partsib.processors;
 
-import com.gumirov.shamil.partsib.MyRouteBuilder;
+import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
@@ -16,6 +16,6 @@ public class SourceIdSetterProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    exchange.getIn().setHeader(MyRouteBuilder.ID_HEADER_NAME, id);
+    exchange.getIn().setHeader(MailSpiderRouteBuilder.ID_HEADER_NAME, id);
   }
 }

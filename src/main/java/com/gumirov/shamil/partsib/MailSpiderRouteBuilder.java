@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * A Camel Java DSL Router
  */
-public class MyRouteBuilder extends RouteBuilder {
+public class MailSpiderRouteBuilder extends RouteBuilder {
 
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ID_HEADER_NAME = "ID_HEADER";
@@ -40,22 +40,28 @@ public class MyRouteBuilder extends RouteBuilder {
     ZipSplitter zipSplitter = new ZipSplitter();
     Map endpointsConfig = config.getJsonAsMap("endpoints");
 
-//FTP
+//HTTP <production>
+    //TODO
+
+//FTP <production>
     if (config.is("ftp.enabled")) {
       from("ftp://192.168.50.55/home/pi/1?username=pi&password=gfhjkm&binary=true&passiveMode=true&runLoggingLevel=TRACE").
         to("direct:packed");
     }
 
-//email test
+//email <production>
     if (config.is("email.enabled")) {
-      from("imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false").
+      log.info("Email source endpoint is <enabled>");
+      //fetchSize=1 1 at a time
+      from("imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
               split(splitEmailExpr).
               process(emailAttachmentProcessor).
               to("direct:packed").
               end();
     }
 
-//file test
+//file <test only>
+    //todo remove!
     if (config.is("local.enabled")) {
       from("file:src/data/files/?runLoggingLevel=TRACE&delete=false&noop=true").
           process(new SourceIdSetterProcessor("ID-1")).

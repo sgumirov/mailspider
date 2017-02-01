@@ -10,7 +10,7 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>A Camel Route</name>
-  <url>http://www.myorganization.org</url>
+  <url>https://github.com/sgumirov/mailspider</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
