@@ -1,4 +1,4 @@
-package com.gumirov.shamil.partsib;
+package com.gumirov.shamil.partsib.plugins;
 
 import java.io.File;
 

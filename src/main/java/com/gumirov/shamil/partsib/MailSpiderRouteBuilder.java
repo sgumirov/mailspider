@@ -45,7 +45,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
 //FTP <production>
     if (config.is("ftp.enabled")) {
-      from("ftp://192.168.50.55/home/pi/1?username=pi&password=gfhjkm&binary=true&passiveMode=true&runLoggingLevel=TRACE").
+      from("ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false").
         to("direct:packed");
     }
 

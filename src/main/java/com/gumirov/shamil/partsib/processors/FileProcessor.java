@@ -1,6 +1,6 @@
 package com.gumirov.shamil.partsib.processors;
 
-import com.gumirov.shamil.partsib.TaskContext;
+import com.gumirov.shamil.partsib.plugins.TaskContext;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>

@@ -12,5 +12,6 @@ public class PluginsProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     System.out.println("id="+exchange.getExchangeId());
+    
   }
 }

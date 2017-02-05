@@ -1,9 +1,7 @@
-package com.gumirov.shamil.partsib;
+package com.gumirov.shamil.partsib.plugins;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 /**
  * Context used in plugins API.
