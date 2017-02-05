@@ -1,0 +1,4 @@
+.idea/libraries/*
+target/classes/*
+target/maven-status/*
+target/test-classes/*
