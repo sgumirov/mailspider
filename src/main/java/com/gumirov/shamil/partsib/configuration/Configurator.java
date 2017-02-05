@@ -28,11 +28,12 @@ public class Configurator {
   }
 
   public boolean is(String key) {
+    String v = get(key);
+    if (v == null) return false;
     return
-        "1".equals(get(key)) ||
-        "true".equalsIgnoreCase(get(key)) ||
-        "enabled".equalsIgnoreCase(get(key))
-        ;
+        "1".equals(v) ||
+        "true".equalsIgnoreCase(v) ||
+        "enabled".equalsIgnoreCase(v);
   }
 
   public Map getJsonAsMap(String key) {
