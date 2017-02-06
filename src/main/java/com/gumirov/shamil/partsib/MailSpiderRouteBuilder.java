@@ -2,6 +2,7 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
+import com.gumirov.shamil.partsib.plugins.TaskContext;
 import com.gumirov.shamil.partsib.processors.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
@@ -16,6 +17,9 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ID_HEADER_NAME = "ID_HEADER";
+  public static final String ENDPOINT_ID_HEADER = "endpoint.id";
+  public static final String FILENAME = "filename";
+  private String baseStorageDir = "/tmp";
 
   public static enum CompressorType {
     GZIP, ZIP, RAR, _7Z
@@ -36,8 +40,11 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
     PluginsProcessor pluginsProcessor = new PluginsProcessor(); //todo
     EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
 
+    FileProcessor fileStorageProcessor = new FileProcessor();
     SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
     ZipSplitter zipSplitter = new ZipSplitter();
+    
+    baseStorageDir = config.get("base.dir");
     Map endpointsConfig = config.getJsonAsMap("endpoints");
 
 //HTTP <production>
@@ -45,8 +52,12 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
 //FTP <production>
     if (config.is("ftp.enabled")) {
-      from("ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false").
-        to("direct:packed");
+      String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
+      String producerId = "ftp01";  
+      
+      from(ftpUrl).
+          setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
+          to("direct:packed");
     }
 
 //email <production>
@@ -54,10 +65,11 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       log.info("Email source endpoint is <enabled>");
       //fetchSize=1 1 at a time
       from("imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
-              split(splitEmailExpr).
-              process(emailAttachmentProcessor).
-              to("direct:packed").
-              end();
+          setHeader(ENDPOINT_ID_HEADER, constant("mail01")).
+          split(splitEmailExpr).
+          process(emailAttachmentProcessor).
+          to("direct:packed").
+          end();
     }
 
 //file <test only>
@@ -70,6 +82,9 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
     //unpack?
     from("direct:packed").
+        //todo use idempotent consumer here to skip already processed files from ftp!
+        //process(fileStorageProcessor).
+        //to("file://"+baseStorageDir+"/"+header(ENDPOINT_ID_HEADER)+"?fileName="+header(FILENAME)).
         process(comprDetect).
         choice().
           when(header(COMPRESSED_TYPE_HEADER_NAME).isEqualTo(CompressorType.ZIP)).
