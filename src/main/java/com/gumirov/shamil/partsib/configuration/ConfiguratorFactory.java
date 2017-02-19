@@ -31,6 +31,7 @@ public class ConfiguratorFactory {
     
     //fully qualified, comma separated list of classes to use, in order of execution
     kv.put("plugins.classes", "");
+    kv.put("endpoints.config.filename", "target/classes/endpoints_config.json");
 //    kv.put("", "");
   }
 }
