@@ -30,7 +30,7 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- Camel -->
+    <!-- CAMEL -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
@@ -45,7 +45,7 @@
       <artifactId>camel-ftp</artifactId>
     </dependency>
 
-    <!-- logging -->
+    <!-- LOGGING -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
@@ -62,7 +62,7 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!--spring -->
+    <!-- SPRING -->
     <!-- https://mvnrepository.com/artifact/org.springframework/spring-beans -->
     <dependency>
       <groupId>org.springframework</groupId>
@@ -75,7 +75,15 @@
       <artifactId>spring-context</artifactId>
       <version>4.3.5.RELEASE</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.camel/camel-spring -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring</artifactId>
+      <version>2.18.2</version>
+    </dependency>
 
+
+    <!-- DBs -->
     <!-- mysql : https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
     <dependency>
       <groupId>mysql</groupId>
@@ -116,26 +124,26 @@
       <version>2.18.1</version>
     </dependency>
 
-    <!-- camel general testing; todo remove? -->
+    <!-- TEST -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test</artifactId>
+      <version>2.18.1</version>
     </dependency>
-    
-    <!-- testng -->
-    <!-- https://mvnrepository.com/artifact/org.testng/testng -->
+
+    <!-- TEST-NG -->
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>6.10</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+
+    <!-- OTHERS -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.5</version>
+      <version>2.4</version>
     </dependency>
-
 
   </dependencies>
 

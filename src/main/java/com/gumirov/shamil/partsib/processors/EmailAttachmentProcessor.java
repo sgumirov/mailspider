@@ -6,7 +6,7 @@ import org.apache.camel.Message;
 import org.apache.camel.Processor;
 
 /**
- * Created by phoenix on 1/16/17.
+ * Puts each attachment into file
  */
 public class EmailAttachmentProcessor implements Processor {
   @Override

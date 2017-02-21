@@ -45,7 +45,10 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
     ZipSplitter zipSplitter = new ZipSplitter();
     
     baseStorageDir = config.get("base.dir");
-    Map endpointsConfig = config.getJsonAsMap("endpoints");
+    //todo implement endpointsconfig
+
+    //todo !!! add filename idempotent filter (using class FileNameIdempotentRepoManager)
+    //TODO MAIL save each attachment -> file ?
 
 //HTTP <production>
     //TODO
@@ -80,7 +83,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           to("direct:packed");
     }
 
-    //unpack?
+//Main work <production>
     from("direct:packed").
         //todo use idempotent consumer here to skip already processed files from ftp!
         //process(fileStorageProcessor).

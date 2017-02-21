@@ -35,8 +35,4 @@ public class Configurator {
         "true".equalsIgnoreCase(v) ||
         "enabled".equalsIgnoreCase(v);
   }
-
-  public Map getJsonAsMap(String key) {
-    return null;
-  }
 }
