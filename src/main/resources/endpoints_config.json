@@ -1,0 +1,20 @@
+{
+  "ftp":[
+    {
+      "id":"ftp_supplier_dir",
+      "url":"ftp://127.0.0.1/files/",
+      "user":"anonymous",
+      "pwd":"a@google.com"
+    },
+    {
+      "id":"ftp_supplier_file",
+      "url":"ftp://127.0.0.1/files/1.zip",
+      "user":"anonymous",
+      "pwd":"a@google.com"
+    }
+  ],
+  "http":[
+  ],
+  "email":[
+  ]
+}
