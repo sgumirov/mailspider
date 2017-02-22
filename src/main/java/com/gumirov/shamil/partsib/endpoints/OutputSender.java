@@ -12,10 +12,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -31,15 +28,13 @@ public class OutputSender {
     this.url = url;
   }
   
-  @Consume(uri = "direct:output")
-  public void onOutput(@Header("filename") String filename) throws IOException {
+  public void onOutput(String filename, InputStream is, long len) throws IOException {
     CloseableHttpClient httpclient = HttpClients.createDefault();
     
     try {
       HttpPost httppost = new HttpPost(url);
-      File f = new File(filename);
-      InputStreamEntity reqEntity = new InputStreamEntity(
-          new FileInputStream(f), -1, ContentType.APPLICATION_OCTET_STREAM);
+      InputStreamEntity reqEntity = new InputStreamEntity(is, len, ContentType.APPLICATION_OCTET_STREAM);
+      httppost.setHeader("X-Filename", filename);
       reqEntity.setChunked(true);
       httppost.setEntity(reqEntity);
 

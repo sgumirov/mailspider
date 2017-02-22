@@ -16,6 +16,6 @@ public class SourceIdSetterProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    exchange.getIn().setHeader(MailSpiderRouteBuilder.ID_HEADER_NAME, id);
+    exchange.getIn().setHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER, id);
   }
 }

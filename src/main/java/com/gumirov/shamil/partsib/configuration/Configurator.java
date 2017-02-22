@@ -25,6 +25,11 @@ public class Configurator {
   }
 
   public String get(String key){
+    return get(key, null);
+  }
+
+  public String get(String key, String defVal){
+    if (!storage.containsKey(key)) return defVal;
     return storage.get(key);
   }
 

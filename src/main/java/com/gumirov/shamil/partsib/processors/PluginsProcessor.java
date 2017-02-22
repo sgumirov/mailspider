@@ -5,12 +5,17 @@ import com.gumirov.shamil.partsib.plugins.FileMetaData;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.component.file.GenericFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
  */
 public class PluginsProcessor implements Processor {
+  static Logger log = LoggerFactory.getLogger(PluginsProcessor.class);
   private List<Plugin> plugins;
 
   public PluginsProcessor(List<Plugin> plugins) {
@@ -19,12 +24,15 @@ public class PluginsProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    System.out.println("id="+exchange.getExchangeId());
+    log.info("id="+exchange.getExchangeId()+" in="+exchange.getIn());
     FileMetaData mdata = new FileMetaData(
         exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER).toString(),
-        exchange.getIn().getHeader(MailSpiderRouteBuilder.FILENAME).toString());
+        exchange.getIn().getBody(GenericFile.class).getFileName(),
+        exchange.getIn().getBody(InputStream.class));
     for (Plugin plugin : plugins) {
       plugin.processFile(mdata);
+      //todo chained inputstream
     }
+    //todo return inputstream
   }
 }

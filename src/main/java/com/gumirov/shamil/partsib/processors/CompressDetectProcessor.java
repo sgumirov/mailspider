@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -19,10 +20,9 @@ public class CompressDetectProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    GenericFile f = (GenericFile) exchange.getIn().getBody();
-    //todo
-    String filename = f.getAbsoluteFilePath();
-    FileInputStream fis = new FileInputStream(filename);
+    String filename = exchange.getIn().getBody(GenericFile.class).getFileName();
+    InputStream fis = exchange.getIn().getBody(InputStream.class);
+
     byte [] signature = new byte[8];
     Util.readFully(fis, signature);
     //gzip:     1f 8b
@@ -32,19 +32,20 @@ public class CompressDetectProcessor implements Processor {
     logger.info("Signature read: "+bytesToHex(signature));
     if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b ) {
       exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType.GZIP.toString());
-      logger.info("GZIP detected");
+      logger.info("GZIP detected file="+filename);
     }else if (compare(signature, new int[]{0x50, 0x4B, 03, 04})) {
       exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType.ZIP.toString());
-      logger.info("ZIP detected");
+      logger.info("ZIP detected file="+filename);
     }else if (compare(signature, new int[]{0x52, 0x61, 0x72, 0x21,0x1A, 07, 00}) ||
              compare(signature, new int[]{0x52, 0x61, 0x72, 0x21,0x1A, 07, 01, 0})) {
       exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType.RAR.toString());
-      logger.info("RAR detected");
+      logger.info("RAR detected file="+filename);
     }else if (compare(signature, new int[]{0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c})) {
       exchange.getIn().setHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MailSpiderRouteBuilder.CompressorType._7Z.toString());
-      logger.info("7Z detected");
+      logger.info("7Z detected file="+filename);
     }
-    logger.info("No archive detected");
+    else
+      logger.info("No archive detected file="+filename);
   }
 
   private static String bytesToHex(byte[] in) {
