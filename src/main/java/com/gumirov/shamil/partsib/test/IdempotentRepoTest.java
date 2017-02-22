@@ -75,25 +75,13 @@ public class IdempotentRepoTest extends CamelTestSupport {
         File idempotentRepo = new File("target/idempotent_repo.dat");
         if (!idempotentRepo.exists()) idempotentRepo.createNewFile();
         idempotentRepo.deleteOnExit();
-        from("direct:from").idempotentConsumer(
-          append(append(header("CamelFileName"), simple("-")), header("CamelFileLength")),
-//          ExpressionBuilder.append(simple("header.CamelFileName-"), simple("header.CamelFileLength")),
-//          simple("header.CamelFileName-header.CamelFileLength"),
-          FileIdempotentRepository.fileIdempotentRepository(idempotentRepo,
-          100000, 102400000)).to("mock:result");
+        from("direct:from").
+          idempotentConsumer(
+              append(append(header("CamelFileName"), simple("-")), header("CamelFileLength")),
+              FileIdempotentRepository.fileIdempotentRepository(idempotentRepo,
+                  100000, 102400000)).
+          to("mock:result");
       }
     };
   }
-
-/*
-  @Test
-  public void testSendNotMatchingMessage() throws Exception {
-    resultEndpoint.expectedMessageCount(0);
-
-    template.sendBodyAndHeader("<notMatched/>", "foo", "notMatchedHeaderValue");
-
-    resultEndpoint.assertIsSatisfied();
-  }
-
-*/
 }

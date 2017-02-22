@@ -1,5 +1,6 @@
 package com.gumirov.shamil.partsib.util;
 
+import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import org.apache.camel.Expression;
 import org.apache.camel.builder.SimpleBuilder;
 
@@ -14,16 +15,35 @@ import static org.apache.camel.builder.ExpressionBuilder.append;
  */
 public class FileNameIdempotentRepoManager {
   private static Expression expression;
+
   private String filename = "target/idempotent_repo.dat";
+
+  public FileNameIdempotentRepoManager() throws IOException {
+    startup();
+  }
+
+  public FileNameIdempotentRepoManager(String filename) throws IOException {
+    this.filename = filename;
+    startup();
+  }
 
   public static Expression createExpression(){
     if (expression == null) {
       expression = append(
-          append(SimpleBuilder.simple("header.CamelFileName"),
-          SimpleBuilder.simple("-")),
-          SimpleBuilder.simple("header.CamelFileLength"));
+          append(
+              SimpleBuilder.simple("header."+ MailSpiderRouteBuilder.ENDPOINT_ID_HEADER),
+              SimpleBuilder.simple("-")),
+          append(
+              append(
+                  SimpleBuilder.simple("header.CamelFileName"),
+                  SimpleBuilder.simple("-")),
+              SimpleBuilder.simple("header.CamelFileLength")));
     }
     return expression;
+  }
+
+  public File getRepoFile(){
+    return new File(filename);
   }
 
   public void startup() throws IOException {

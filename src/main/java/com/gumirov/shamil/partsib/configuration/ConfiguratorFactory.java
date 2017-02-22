@@ -27,11 +27,12 @@ public class ConfiguratorFactory {
     kv.put("ftp.enabled", "1");
     kv.put("http.enabled", "false");
     
-    kv.put("base.dir", "/tmp");
+    kv.put("work.dir", "/tmp");
     
     //fully qualified, comma separated list of classes to use, in order of execution
     kv.put("plugins.classes", "");
-    kv.put("endpoints.config.filename", "target/classes/endpoints_config.json");
+    kv.put("endpoints.config.filename", "target/classes/test_endpoints.json");
+    kv.put("output.url", "http://127.0.0.1/1.php");
 //    kv.put("", "");
   }
 }

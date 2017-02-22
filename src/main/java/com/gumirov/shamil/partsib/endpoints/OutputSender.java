@@ -1,12 +1,7 @@
 package com.gumirov.shamil.partsib.endpoints;
 
 import org.apache.camel.Consume;
-import org.apache.camel.Consumer;
-import org.apache.camel.Endpoint;
 import org.apache.camel.Header;
-import org.apache.camel.Processor;
-import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;

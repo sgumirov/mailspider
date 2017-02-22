@@ -16,14 +16,18 @@ import java.io.File;
  */
 public class OutputProcessor implements Processor {
   static Logger logger = LoggerFactory.getLogger(OutputProcessor.class);
+  private Configurator config;
+
+  public OutputProcessor(Configurator config) {
+    this.config = config;
+  }
 
   @Override
   public void process(Exchange exchange) throws Exception {
     logger.info("Output(): file from SOURCE="+exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER));
-    Configurator conf = Configurator.factory.getConfigurator();
     String filename = (String) exchange.getIn().getHeader(MailSpiderRouteBuilder.FILENAME);
     if (filename == null) throw new RuntimeException("[OutputProcessor] Error: filename is null");
     if (!new File(filename).exists()) throw new RuntimeException("[OutputProcessor] Error: cannot find file to send: "+filename);
-    new OutputSender(conf.get("output.url")).onOutput(filename);
+    new OutputSender(config.get("output.url")).onOutput(filename);
   }
 }

@@ -13,7 +13,7 @@ public class Configurator {
   //todo set this via beans annotation for mocks
   public static ConfiguratorFactory factory = new ConfiguratorFactory();
 
-  private Configurator() {
+  Configurator() {
   }
 
   public HashMap<String, String> getStorage() {

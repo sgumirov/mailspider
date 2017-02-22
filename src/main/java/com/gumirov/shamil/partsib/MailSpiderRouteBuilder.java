@@ -5,16 +5,20 @@ import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import com.gumirov.shamil.partsib.plugins.TaskContext;
+import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.processors.*;
+import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
 import org.apache.camel.dataformat.zipfile.ZipSplitter;
+import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Map;
+import java.util.ArrayList;
+
+import static org.apache.camel.builder.ExpressionBuilder.append;
 
 /**
  * A Camel Java DSL Router
@@ -26,38 +30,37 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String FILENAME = "filename";
   public static final java.lang.String BASE_DIR = "base.dir";
-  private String baseStorageDir = "/tmp";
+  private String workDir = "/tmp";
 
   public static enum CompressorType {
     GZIP, ZIP, RAR, _7Z
   }
 
+  //@inject
   public ConfiguratorFactory confFactory = new ConfiguratorFactory();
+  public Configurator config = confFactory.getConfigurator();
 
   public void configure() throws IOException {
-
     //debug
-    getContext().setTracing(Boolean.TRUE);
+//    getContext().setTracing(Boolean.TRUE);
 
-    Configurator config = confFactory.getConfigurator();
 
     CompressDetectProcessor comprDetect = new CompressDetectProcessor();
     UnpackerProcessor unpack = new UnpackerProcessor(); //todo
-    OutputProcessor outputProcessorEndpoint = new OutputProcessor(); //todo
-    PluginsProcessor pluginsProcessor = new PluginsProcessor(); //todo
+    OutputProcessor outputProcessorEndpoint = new OutputProcessor(config); //todo
+    PluginsProcessor pluginsProcessor = new PluginsProcessor(new ArrayList<Plugin>()); //todo
     EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
 
-    FileProcessor fileStorageProcessor = new FileProcessor();
+    FileNameProcessor fileNameProcessor = new FileNameProcessor();
     SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
     ZipSplitter zipSplitter = new ZipSplitter();
+
+    FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(); //todo get filename from config
     
-    baseStorageDir = config.get("base.dir");
+    workDir = config.get("work.dir");
     ObjectMapper mapper = new ObjectMapper();
     String json = IOUtils.toString(getClass().getResourceAsStream( config.get("endpoints.config.filename") ), Charset.defaultCharset());
     Endpoints endpoints = mapper.readValue(json, Endpoints.class);
-
-//HTTP <production>
-    //TODO
 
 //FTP <production>
     if (config.is("ftp.enabled")) {
@@ -69,6 +72,15 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
         from(ftpUrl).
             setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
+            idempotentConsumer(
+                append(append(header("CamelFileName"), simple("-")), header("CamelFileLength")),
+                FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
+                    100000, 102400000)).
+            to("file://"+workDir);
+
+        //additional step of copying so that work dir file remains after Exchange is finished
+
+        from("file://"+workDir).
             to("direct:packed");
       }
     }
@@ -88,6 +100,9 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           end();
     }
 
+//HTTP <production>
+    //TODO
+
 //file <test only>
     //todo remove!
     if (config.is("local.enabled")) {
@@ -96,11 +111,11 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           to("direct:packed");
     }
 
-//Main work <production>
+//Main work [production]
     from("direct:packed").
         //todo use idempotent consumer here to skip already processed files from ftp!
         //process(fileStorageProcessor).
-        //to("file://"+baseStorageDir+"/"+header(ENDPOINT_ID_HEADER)+"?fileName="+header(FILENAME)).
+        //to("file://"+workDir+"/"+header(ENDPOINT_ID_HEADER)+"?fileName="+header(FILENAME)).
         process(comprDetect).
         choice().
           when(header(COMPRESSED_TYPE_HEADER_NAME).isEqualTo(CompressorType.ZIP)).
@@ -120,7 +135,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
     //call output procedure
     from("direct:output").
-        setHeader(BASE_DIR, constant(baseStorageDir)).
+        setHeader(BASE_DIR, constant(workDir)).
         process(outputProcessorEndpoint).
         end();
 

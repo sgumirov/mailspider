@@ -3,7 +3,6 @@ package com.gumirov.shamil.partsib.test;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
-import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import org.junit.Assert;
 import org.testng.annotations.Test;
@@ -29,7 +28,7 @@ public class EndpointsParseUnitTest {
   @Test
   public void testEndpoints() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getResourceAsStream("test_endpoints.json"), Charset.defaultCharset());
+    String json = IOUtils.toString(getClass().getResourceAsStream("test_local_endpoints.json"), Charset.defaultCharset());
     Endpoints endpoints = mapper.readValue(json, Endpoints.class);
     Assert.assertTrue(endpoints.ftp.size() == 2);
     Assert.assertTrue(endpoints.http.size() == 2);
