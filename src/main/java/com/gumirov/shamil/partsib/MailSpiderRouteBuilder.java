@@ -156,7 +156,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           //process(new SourceIdSetterProcessor("ID-1")).
           to("direct:packed");
     }
-  }
+  }                                      
 }
 
 
