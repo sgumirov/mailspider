@@ -33,7 +33,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String FILENAME = "filename";
-  public static final java.lang.String BASE_DIR = "base.dir";
+  public static final String BASE_DIR = "base.dir";
   private String workDir = "/tmp";
 
   public static enum CompressorType {
@@ -45,6 +45,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public Configurator config = confFactory.getConfigurator();
 
   public MailSpiderRouteBuilder() {
+    
   }
 
   public MailSpiderRouteBuilder(Configurator config) {
