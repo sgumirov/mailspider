@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -32,7 +33,6 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
-  public static final String FILENAME = "filename";
   public static final String BASE_DIR = "base.dir";
   private String workDir = "/tmp";
 
@@ -77,7 +77,6 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
     PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
     EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
 
-    FileNameProcessor fileNameProcessor = new FileNameProcessor();
     SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
     ZipSplitter zipSplitter = new ZipSplitter();
 
@@ -92,7 +91,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       for (Endpoint ftp : endpoints.ftp) {
         log.info("FTP source endpoint is added: "+ftp);
         //String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
-        String ftpUrl = ftp.url+"?username="+ftp.user+"&password="+ftp.pwd+"&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
+        String ftpUrl = ftp.url+"?username="+ftp.user+"&password="+ftp.pwd+"&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false&delay="+ftp.delay;
         String producerId = ftp.id;
 
         from(ftpUrl).
@@ -105,14 +104,12 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       }
     }
 
-    //TODO: check if stored into file?
-
-//Main work [production]
+//unzip/unrar
     from("direct:packed").
         process(comprDetect).id("CompressorDetector").
         choice().
           when(header(COMPRESSED_TYPE_HEADER_NAME).isEqualTo(CompressorType.ZIP)).
-            split(zipSplitter).streaming().convertBodyTo(GenericFile.class).
+            split(zipSplitter).streaming().convertBodyTo(InputStream.class).
             to("direct:unpacked").endChoice().
 //          when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()). //TODO process other archive types
 //            process(unpack).id("UnpackProcessor").

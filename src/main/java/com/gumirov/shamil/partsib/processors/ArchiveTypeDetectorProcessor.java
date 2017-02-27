@@ -19,7 +19,7 @@ public class ArchiveTypeDetectorProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    String filename = exchange.getIn().getBody(GenericFile.class).getFileName();
+    String filename = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
     InputStream fis = exchange.getIn().getBody(InputStream.class);
 
     byte [] signature = new byte[8];

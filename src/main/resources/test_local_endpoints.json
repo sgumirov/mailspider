@@ -4,7 +4,8 @@
       "id":"ftp_supplier_dir",
       "url":"ftp://127.0.0.1/test/",
       "user":"anonymous",
-      "pwd":"a@google.com"
+      "pwd":"a@google.com",
+      "delay":"60000"
     }
   ],
   "http":[

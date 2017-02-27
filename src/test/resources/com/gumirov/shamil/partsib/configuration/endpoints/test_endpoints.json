@@ -4,13 +4,15 @@
       "id":"ftp_supplier_01",
       "url":"ftp://192.168.0.1/files/1.zip",
       "user":"username",
-      "pwd":"password"
+      "pwd":"password",
+      "delay":"60000"
     },
     {
       "id":"ftp_supplier_02",
       "url":"ftp://192.168.0.1/files/1.zip",
       "user":"username",
-      "pwd":"password"
+      "pwd":"password",
+      "delay":"60000"
     }
   ],
   "http":[
@@ -18,13 +20,15 @@
       "id":"http_supplier_01",
       "url":"http://192.168.0.1/files/1.zip",
       "user":"username",
-      "pwd":"password"
+      "pwd":"password",
+      "delay":"60000"
     },
     {
       "id":"http_supplier_02",
       "url":"http://192.168.0.1/files/1.zip",
       "user":"username",
-      "pwd":"password"
+      "pwd":"password",
+      "delay":"60000"
     }
   ],
   "email":[
@@ -32,13 +36,15 @@
       "id":"email_inbox_mailru_01",
       "url":"imap.mail.ru",
       "user":"username",
-      "pwd":"password"
+      "pwd":"password",
+      "delay":"60000"
     },
     {
       "id":"email_inbox_mailru_02",
       "url":"imap.mail.ru",
       "user":"username",
-      "pwd":"password"
+      "pwd":"password",
+      "delay":"60000"
     }
   ]
 }

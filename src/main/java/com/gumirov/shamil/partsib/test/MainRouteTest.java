@@ -68,7 +68,6 @@ import java.util.concurrent.TimeUnit;
     } catch (Exception e) {
       e.printStackTrace();
     }
-
   }
 
   @Override
@@ -79,7 +78,9 @@ import java.util.concurrent.TimeUnit;
   @Test
   public void test() throws Exception{
     mockEndpoint.expectedMessageCount(3);
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, new Object[]{"plaintext.txt", "zip2.txt", "ziptxt.txt"});
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt", "zip2.txt", "ziptxt.txt");
+    context.setTracing(true);
+    context.setMessageHistory(true);
     context.start();
     mockEndpoint.assertIsSatisfied();
   }
@@ -104,16 +105,4 @@ import java.util.concurrent.TimeUnit;
     };
     return builder; 
   }
-
-/*
-  public static void main(String[] args) {
-    Result result = JUnitCore.runClasses(MainRouteTest.class);
-
-    for (Failure failure : result.getFailures()) {
-      System.out.println(failure.toString());
-    }
-
-    System.out.println(result.wasSuccessful());
-  }
-*/
 }
