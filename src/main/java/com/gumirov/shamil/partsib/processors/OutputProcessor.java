@@ -17,18 +17,17 @@ import java.io.InputStream;
  */
 public class OutputProcessor implements Processor {
   static Logger log = LoggerFactory.getLogger(OutputProcessor.class);
-  private Configurator config;
+  private String url;
 
-  public OutputProcessor(Configurator config) {
-    this.config = config;
+  public OutputProcessor(String url) {
+    this.url = url;
   }
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    log.info("Output(): file from SOURCE="+exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER));
-    String filename = exchange.getIn().getBody(GenericFile.class).getFileName();
-    long len = exchange.getIn().getBody(GenericFile.class).getFileLength();
+    String filename = exchange.getIn().getHeader(Exchange.FILE_NAME).toString();
+    log.info("Output(): file %s from endpoint.id=%s", filename, exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER));
     InputStream is = exchange.getIn().getBody(InputStream.class);
-    new OutputSender(config.get("output.url")).onOutput(filename, is, len);
+    new OutputSender(url).onOutput(filename, is);
   }
 }

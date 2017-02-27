@@ -7,13 +7,21 @@ import java.io.InputStream;
  * Date: 22/2/2017 Time: 01:04<br/>
  */
 public class FileMetaData {
-  String senderId;
-  String filename;
-  InputStream is;
+  public final String senderId;
+  public final String filename;
+  public InputStream is;
 
   public FileMetaData(String senderId, String filename, InputStream is) {
     this.senderId = senderId;
     this.filename = filename;
     this.is = is;
+  }
+
+  @Override
+  public String toString() {
+    return "FileMetaData{" +
+        "senderId='" + senderId + '\'' +
+        ", filename='" + filename + '\'' +
+        '}';
   }
 }

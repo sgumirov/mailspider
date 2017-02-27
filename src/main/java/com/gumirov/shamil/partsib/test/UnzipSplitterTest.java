@@ -1,9 +1,6 @@
 package com.gumirov.shamil.partsib.test;
 
-import org.apache.camel.EndpointInject;
-import org.apache.camel.FluentProducerTemplate;
-import org.apache.camel.Produce;
-import org.apache.camel.RoutesBuilder;
+import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.dataformat.zipfile.ZipSplitter;
@@ -28,14 +25,15 @@ public class UnzipSplitterTest  extends CamelTestSupport {
   @Produce(uri = "direct:from")
   protected FluentProducerTemplate template;
   
-  private final byte[] contents = "file text contents".getBytes();
+  private final String body = "file text contents";
+  private final byte[] contents = body.getBytes();
 
   @Test
   public void testSendMatchingMessage() throws Exception {
 
     resultEndpoint.expectedMessageCount(2);
-//    resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{contents, contents});
-    resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("CamelFileName", new Object[]{"f1.txt", "dir/f2.txt"});
+    resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{body, body});
+    resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, new Object[]{"f1.txt", "dir/f2.txt"});
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ZipOutputStream zos = new ZipOutputStream(bos);

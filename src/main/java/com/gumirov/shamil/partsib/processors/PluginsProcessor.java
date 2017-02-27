@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.List;
 
+import static com.gumirov.shamil.partsib.MailSpiderRouteBuilder.ENDPOINT_ID_HEADER;
 /**
  */
 public class PluginsProcessor implements Processor {
@@ -25,14 +26,20 @@ public class PluginsProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     log.info("id="+exchange.getExchangeId()+" in="+exchange.getIn());
-    FileMetaData mdata = new FileMetaData(
-        exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER).toString(),
-        exchange.getIn().getBody(GenericFile.class).getFileName(),
-        exchange.getIn().getBody(InputStream.class));
-    for (Plugin plugin : plugins) {
-      plugin.processFile(mdata);
-      //todo chained inputstream
+    Plugin last = null;
+    try {
+      FileMetaData mdata = new FileMetaData(
+          exchange.getIn().getHeader(ENDPOINT_ID_HEADER).toString(),
+          exchange.getIn().getHeader(Exchange.FILE_NAME).toString(),
+          exchange.getIn().getBody(InputStream.class));
+      for (Plugin plugin : plugins) {
+        last = plugin;
+        InputStream is = plugin.processFile(mdata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
+        if (is != null) mdata.is = is;
+      }
+      exchange.getIn().setBody(mdata.is);
+    } catch (Exception e) {
+      log.error("Error while plugins execution (FULL ROLLBACK: skipping execution of ALL plugins): plugin object = "+last+" exception = "+e.getMessage(), e);
     }
-    //todo return inputstream
   }
 }

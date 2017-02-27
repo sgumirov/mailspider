@@ -8,15 +8,14 @@ import org.apache.camel.component.file.GenericFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
  * Date: 4/1/2017 Time: 22:52<br/>
  */
-public class CompressDetectProcessor implements Processor {
-  static Logger logger = LoggerFactory.getLogger(CompressDetectProcessor.class);
+public class ArchiveTypeDetectorProcessor implements Processor {
+  static Logger logger = LoggerFactory.getLogger(ArchiveTypeDetectorProcessor.class);
 
   @Override
   public void process(Exchange exchange) throws Exception {

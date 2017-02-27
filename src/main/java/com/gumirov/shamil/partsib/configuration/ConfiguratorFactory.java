@@ -21,7 +21,7 @@ public class ConfiguratorFactory {
     return c;
   }
 
-  private void initDefaultValues(HashMap<String, String> kv) {
+  protected void initDefaultValues(HashMap<String, String> kv) {
     kv.put("email.enabled", "false");
     kv.put("local.enabled", "false");
     kv.put("ftp.enabled", "1");
@@ -35,6 +35,8 @@ public class ConfiguratorFactory {
     kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
 
     kv.put("output.url", "http://127.0.0.1/1.php");
+
+    kv.put("plugins.config.filename", "target/classes/plugins.json");
 
     kv.put("idempotent.repo", "tmp/idempotent_repo.dat");
 //    kv.put("", "");

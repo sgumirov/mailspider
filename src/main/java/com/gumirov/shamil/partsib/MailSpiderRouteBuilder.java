@@ -5,25 +5,25 @@ import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
+import com.gumirov.shamil.partsib.endpoints.Output;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
-import org.apache.camel.dataformat.zipfile.ZipFileDataFormat;
 import org.apache.camel.dataformat.zipfile.ZipSplitter;
+import org.apache.camel.impl.ProcessorEndpoint;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Iterator;
-
-import static org.apache.camel.builder.ExpressionBuilder.append;
 
 /**
  * A Camel Java DSL Router
@@ -60,15 +60,21 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
     super(context);
     this.config = config;
   }
+  
+  public Endpoints getEndpoints() throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    String json = IOUtils.toString(new FileInputStream(config.get("endpoints.config.filename") ), Charset.defaultCharset());
+    return mapper.readValue(json, Endpoints.class);
+  }
 
   public void configure() throws IOException {
     //debug
     getContext().setTracing(Boolean.TRUE);
 
-    CompressDetectProcessor comprDetect = new CompressDetectProcessor();
+    ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor();
     UnpackerProcessor unpack = new UnpackerProcessor(); //todo add RAR, 7z
-    OutputProcessor outputProcessorEndpoint = new OutputProcessor(config);
-    PluginsProcessor pluginsProcessor = new PluginsProcessor(new ArrayList<Plugin>());
+    OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
+    PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
     EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
 
     FileNameProcessor fileNameProcessor = new FileNameProcessor();
@@ -77,11 +83,8 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
     FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
         config.get("idempotent.repo", "tmp/idempotent_repo.dat"));
-    
     workDir = config.get("work.dir", workDir);
-    ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(new FileInputStream(config.get("endpoints.config.filename") ), Charset.defaultCharset());
-    Endpoints endpoints = mapper.readValue(json, Endpoints.class);
+    Endpoints endpoints = getEndpoints();
 
 //FTP <production>
     if (config.is("ftp.enabled")) {
@@ -123,10 +126,12 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
         to("direct:output");
 
 //output send
-    from("direct:output").
-//        setHeader(BASE_DIR, constant(workDir)).
+    from("direct:output").routeId("output1").
+        to(new Output(outputProcessorEndpoint)).id("outputprocessor").end();
+/*
         process(outputProcessorEndpoint).id("OutputProcessor").
         end();
+*/
 
 //ERROR Handling
 //        errorHandler(loggingErrorHandler("mylogger.name").level(LoggingLevel.DEBUG)).
