@@ -11,11 +11,8 @@ import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.commons.io.FileUtils;
-import org.junit.*;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,11 +23,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * Automation FTP endpoint test with local FTP daemon
  */
-  public class MainRouteTest extends CamelTestSupport {
+  public class EmailRouteTest extends CamelTestSupport {
 
-  static final String ftpDir = "/opt/ftp/files";
+//  static final String ftpDir = "/opt/ftp/files";
+  static final String ftpDir = "/tmp/files";
   static final String resDir = "src/data/test";
   static final String url = "http://127.0.0.1/1.php";
+//  private static final String EMAIL_URL = "ftp://127.0.0.1:2021/files/";
+  private static final String EMAIL_URL = "imap.mail.ru";
 
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
     @Override
@@ -49,17 +49,19 @@ import java.util.concurrent.TimeUnit;
 
   @Before
   public void setupFTP() throws IOException {
+/*
     FileUtils.deleteDirectory(new File(ftpDir));
     FileUtils.copyDirectory(new File(resDir), new File(ftpDir));
-    
+*/
+
     //clear:
-    new File(config.get("idempotent.repo")).delete();
+    new File(config.get("email.idempotent.repo")).delete();
 
+
+//mock output for test:
     AdviceWithRouteBuilder mockresult = new AdviceWithRouteBuilder() {
-
       @Override
       public void configure() throws Exception {
-        // mock the for testing
         weaveById("outputprocessor").replace().to(mockEndpoint);
       }
     };
@@ -78,11 +80,17 @@ import java.util.concurrent.TimeUnit;
   @Test
   public void test() throws Exception{
     mockEndpoint.expectedMessageCount(3);
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt", "zip2.txt", "ziptxt.txt");
-    context.setTracing(true);
-    context.setMessageHistory(true);
+    mockEndpoint.setResultWaitTime(60000);
+//    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt", "zip2.txt", "ziptxt.txt");
+//    context.setTracing(true);
+//    context.setMessageHistory(true);
     context.start();
     mockEndpoint.assertIsSatisfied();
+  }
+
+  @Override
+  protected int getShutdownTimeout() {
+    return 60;
   }
 
   @Override
@@ -91,15 +99,17 @@ import java.util.concurrent.TimeUnit;
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();
-        e.ftp = new ArrayList<Endpoint>();
-        Endpoint ftp = new Endpoint();
-        ftp.id="Test-FTP-01";
-        ftp.url="ftp://127.0.0.1:2021/files/";
-        ftp.user="ftp";
-        ftp.pwd="a@b.com";
-        e.ftp.add(ftp);
-        e.email=new ArrayList<>();
+        e.ftp=new ArrayList<>();
         e.http=new ArrayList<>();
+        e.email = new ArrayList<Endpoint>();
+        //imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
+        Endpoint email = new Endpoint();
+        email.id="Test-EMAIL-01";
+        email.url= EMAIL_URL;
+        email.user="sh.roller@mail.ru";
+        email.pwd="gfhjkm12";
+        email.delay="60000";
+        e.email.add(email);
         return e;
       }
     };

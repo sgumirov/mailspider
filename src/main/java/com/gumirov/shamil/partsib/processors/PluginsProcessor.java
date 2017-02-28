@@ -25,7 +25,7 @@ public class PluginsProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    log.info("id="+exchange.getExchangeId()+" in="+exchange.getIn());
+    log.info("PLUGINS: id="+exchange.getExchangeId()+" file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class));
     Plugin last = null;
     try {
       FileMetaData mdata = new FileMetaData(

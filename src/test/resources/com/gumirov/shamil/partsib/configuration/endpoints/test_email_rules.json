@@ -2,11 +2,12 @@
   {
     "id":"rule_01",
     "apply_id":"email_supplier_id_1",
-    "regexp":"/supplier@mail\\.ru/"
+    "regexp":"(.*)gmail.com"
   },
   {
     "id":"rule_02",
+    "reject":"true",
     "apply_id":"email_supplier_id_2",
-    "regexp":"/supplier2@mail\\.ru/"
+    "regexp":"/supplier2@mail\\.ru/",
   }
 ]

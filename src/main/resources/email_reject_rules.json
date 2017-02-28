@@ -1,0 +1,7 @@
+[
+  {
+    "id":"rule_01",
+    "regexp":"(.*)mail.ru",
+    "reject":"true"
+  }
+]

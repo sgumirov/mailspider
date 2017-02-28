@@ -22,9 +22,9 @@ public class ConfiguratorFactory {
   }
 
   protected void initDefaultValues(HashMap<String, String> kv) {
-    kv.put("email.enabled", "false");
+    kv.put("email.enabled", "1");
     kv.put("local.enabled", "false");
-    kv.put("ftp.enabled", "1");
+    kv.put("ftp.enabled", "0");
     kv.put("http.enabled", "false");
     
     kv.put("work.dir", "tmp");
@@ -32,13 +32,14 @@ public class ConfiguratorFactory {
     //fully qualified, comma separated list of classes to use, in order of execution
     kv.put("plugins.classes", "");
 
-    kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
-
     kv.put("output.url", "http://127.0.0.1/1.php");
 
-    kv.put("plugins.config.filename", "target/classes/plugins.json");
+    kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
+    kv.put("email.rules.config.filename", "target/classes/email_reject_rules.json");
 
+    kv.put("plugins.config.filename", "target/classes/plugins.json");
     kv.put("idempotent.repo", "tmp/idempotent_repo.dat");
+    kv.put("email.idempotent.repo", "tmp/email_idempotent_repo.dat");
 //    kv.put("", "");
   }
 }
