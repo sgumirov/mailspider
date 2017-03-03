@@ -85,7 +85,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       getContext().setTracing(Boolean.TRUE);
 
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor();
-      UnpackerProcessor unpack = new UnpackerProcessor(); //todo add RAR, 7z
+      UnpackerProcessor unpack = new UnpackerProcessor(); //todo add support RAR, 7z
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
@@ -126,7 +126,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
               split(zipSplitter).streaming().
 //              log(LoggingLevel.INFO, "Unzipped file: $simple{in.header.CamelFileName}").
               to("direct:unpacked").endChoice().
-  //          when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()). //TODO process other archive types
+  //          when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()). //TODO process other archive types here
   //            process(unpack).id("UnpackProcessor").
   //            to("direct:unpacked").endChoice().
             otherwise().
@@ -165,7 +165,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
             if (negative == null) negative = p; else negative = PredicateBuilder.or(p);
           }
         }
-        log.info(String.format("[FTP] Setting up %d source endpoints", endpoints.email.size()));
+        log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=false&fetchSize=1",
@@ -184,7 +184,33 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           to("log:REJECT_MAILS?level=INFO&showAll=true");
 
 //HTTP <production>
-      //TODO
+      if (config.is("http.enabled")) {
+        log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
+        for (Endpoint http : endpoints.http) {
+          //String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
+
+          
+          //url1: https://optma.ru/index.php?r=site/login
+          //LoginForm%5Busername%5D=partsib&LoginForm%5Bpassword%5D=partsib5405&LoginForm%5BrememberMe%5D=0&ytf0=&timezoneoffset=-420
+          // application/x-www-form-urlencoded
+          //form data: dwn=1
+          //url2: https://optma.ru/index.php?r=site%2Fproducts
+          
+
+          //content type must be: application/octet-stream
+          String httpUrl = http.url.replaceFirst("://", "4://")+"?authAsername="+http.user+"&authPassword="+http.pwd;
+          String producerId = http.id;                        
+
+          from(httpUrl).
+              setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
+              idempotentConsumer(
+                  repoMan.createExpression(),
+                  FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
+                      100000, 102400000)).
+              to("direct:packed");
+          log.info("HTTP source endpoint is added: "+http);
+        }
+      }
 
 //file <test only>
       //todo remove!
