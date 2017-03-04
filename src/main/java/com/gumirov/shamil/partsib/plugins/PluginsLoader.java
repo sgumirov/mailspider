@@ -29,6 +29,7 @@ public class PluginsLoader {
         Plugin p = (Plugin) Class.forName(c).newInstance();
         plugins.add(p);
       }
+      logger.info(String.format("loaded %d plugins", plugins.size()));
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -1,4 +1,4 @@
-package com.gumirov.shamil.partsib.endpoints;
+package com.gumirov.shamil.partsib.util;
 
 import org.apache.camel.Consume;
 import org.apache.camel.Header;

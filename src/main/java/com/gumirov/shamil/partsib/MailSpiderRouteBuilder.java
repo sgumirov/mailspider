@@ -7,32 +7,19 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import com.gumirov.shamil.partsib.endpoints.Output;
-import com.gumirov.shamil.partsib.factories.OptimaRouteFactory;
 import com.gumirov.shamil.partsib.factories.RouteFactory;
-import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import org.apache.camel.CamelContext;
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.Predicate;
-import org.apache.camel.builder.ExpressionBuilder;
-import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.SimpleBuilder;
-import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
 import org.apache.camel.dataformat.zipfile.ZipSplitter;
-import org.apache.camel.impl.ProcessorEndpoint;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,8 +121,12 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 //          String httpUrl = http.url.replaceFirst("://", "4://")+"?authAsername="+http.user+"&authPassword="+http.pwd;
 
           String startEndpoint = "direct:start"+http.id;
+          String producerId = http.id;
 
-          from("timer://http?fixedRate=true&period=60000").to(startEndpoint);
+          from("timer://http?fixedRate=true&period=60000").
+                  setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
+              to(startEndpoint).
+              end();
 
           RouteFactory factory = (RouteFactory) Class.forName(http.factory).newInstance();
           factory.setStartSubroute(startEndpoint);
@@ -147,14 +138,13 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           RouteBuilder builder = factory.createRouteBuilder();
           builder.addRoutesToCamelContext(getContext());
 
-          String producerId = http.id;
           from("direct:httpidempotent").
-              setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
               idempotentConsumer(
                   repoMan.createExpression(),
                   FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
                       100000, 102400000)).
-              to("direct:packed");
+              to("direct:packed").
+              end();
           log.info("HTTP source endpoint is added: "+http);
         }
       }
@@ -179,15 +169,18 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 //call plugins
       from("direct:unpacked").
           process(pluginsProcessor).id("PluginsProcessor").
-          to("direct:output");
+          to("direct:output").end();
+
+//dead letter channel:
+      from("direct:deadletter").
+          to("log:DeadLetterChannel?level=DEBUG&showAll=true").
+          end();
 
 //output send
-      from("direct:output").routeId("output").
-          to(new Output(outputProcessorEndpoint)).id("outputprocessor");
-
-//ERROR Handling
-//        errorHandler(loggingErrorHandler("mylogger.name").level(LoggingLevel.DEBUG)).
-//        log("new ftp file").process(new PluginsProcessor()).log("Processed");
+      from("direct:output").
+//          routeId("output").
+          process(outputProcessorEndpoint).id("outputprocessor").
+          end();
 
       //email <production>
 /*      if (config.is("email.enabled")) {

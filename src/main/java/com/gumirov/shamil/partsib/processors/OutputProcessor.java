@@ -1,11 +1,9 @@
 package com.gumirov.shamil.partsib.processors;
 
 import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
-import com.gumirov.shamil.partsib.configuration.Configurator;
-import com.gumirov.shamil.partsib.endpoints.OutputSender;
+import com.gumirov.shamil.partsib.util.OutputSender;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.file.GenericFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,7 @@ public class OutputProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME).toString();
-    log.info("Output(): file %s from endpoint.id=%s", filename, exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER));
+    log.info(String.format("Output(): file %s from route id=%s", filename, exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER)));
     InputStream is = exchange.getIn().getBody(InputStream.class);
     new OutputSender(url).onOutput(filename, is);
   }
