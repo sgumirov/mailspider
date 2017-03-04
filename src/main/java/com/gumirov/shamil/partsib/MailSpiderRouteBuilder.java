@@ -215,10 +215,10 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
             to("direct:packed");
           log.info("Email endpoint is added with id="+email.id);
         }
-      }*/
-
+      }
       from("direct:rejected").routeId("REJECTED_EMAILS").
           to("log:REJECT_MAILS?level=INFO&showAll=true");
+      */
 
     } catch (Exception e) {
       log.error("Cannot build route", e);
