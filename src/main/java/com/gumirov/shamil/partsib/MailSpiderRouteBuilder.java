@@ -8,6 +8,8 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.endpoints.Output;
+import com.gumirov.shamil.partsib.factories.OptimaRouteFactory;
+import com.gumirov.shamil.partsib.factories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
@@ -117,6 +119,46 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
         }
       }
 
+      //HTTP <production>
+      if (config.is("http.enabled")) {
+        log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
+        for (Endpoint http : endpoints.http) {
+          //String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
+
+          //url1: https://optma.ru/index.php?r=site/login
+          //LoginForm%5Busername%5D=partsib&LoginForm%5Bpassword%5D=partsib5405&LoginForm%5BrememberMe%5D=0&ytf0=&timezoneoffset=-420
+          // application/x-www-form-urlencoded
+          //form data: dwn=1
+          //url2: https://optma.ru/index.php?r=site/products
+          //content type must be: application/octet-stream
+//          String httpUrl = http.url.replaceFirst("://", "4://")+"?authAsername="+http.user+"&authPassword="+http.pwd;
+
+          String startEndpoint = "direct:start"+http.id;
+
+          from("timer://http?fixedRate=true&period=60000").to(startEndpoint);
+
+          RouteFactory factory = (RouteFactory) Class.forName(http.factory).newInstance();
+          factory.setStartSubroute(startEndpoint);
+          factory.setEndSubrouteSuccess("direct:httpidempotent");
+          factory.setUrl(http.url);
+          factory.setUser(http.user);
+          factory.setPasswd(http.pwd);
+
+          RouteBuilder builder = factory.createRouteBuilder();
+          builder.addRoutesToCamelContext(getContext());
+
+          String producerId = http.id;
+          from("direct:httpidempotent").
+              setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
+              idempotentConsumer(
+                  repoMan.createExpression(),
+                  FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
+                      100000, 102400000)).
+              to("direct:packed");
+          log.info("HTTP source endpoint is added: "+http);
+        }
+      }
+
 //unzip/unrar
       from("direct:packed").
           process(comprDetect).id("CompressorDetector").
@@ -137,23 +179,18 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 //call plugins
       from("direct:unpacked").
           process(pluginsProcessor).id("PluginsProcessor").
-          to("direct:output").
-          end();
+          to("direct:output");
 
 //output send
-      from("direct:output").routeId("output1").
+      from("direct:output").routeId("output").
           to(new Output(outputProcessorEndpoint)).id("outputprocessor");
-/*
-        process(outputProcessorEndpoint).id("OutputProcessor").
-        end();
-*/
 
 //ERROR Handling
 //        errorHandler(loggingErrorHandler("mylogger.name").level(LoggingLevel.DEBUG)).
 //        log("new ftp file").process(new PluginsProcessor()).log("Processed");
 
       //email <production>
-      if (config.is("email.enabled")) {
+/*      if (config.is("email.enabled")) {
         ArrayList<Predicate> negatives = new ArrayList<>();
         Predicate negative = null;
         ArrayList<EmailRule> rules = getEmailRules();
@@ -171,60 +208,23 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=false&fetchSize=1",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).
-            choice().when(negative does nto work).to("direct:rejected").endChoice().otherwise().
+            choice().when(TODO negative predicate does nto work).to("direct:rejected").endChoice().otherwise().
             setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
             split(splitEmailExpr).
             process(emailAttachmentProcessor).
             to("direct:packed");
           log.info("Email endpoint is added with id="+email.id);
         }
-      }
+      }*/
 
       from("direct:rejected").routeId("REJECTED_EMAILS").
           to("log:REJECT_MAILS?level=INFO&showAll=true");
 
-//HTTP <production>
-      if (config.is("http.enabled")) {
-        log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
-        for (Endpoint http : endpoints.http) {
-          //String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
-
-          
-          //url1: https://optma.ru/index.php?r=site/login
-          //LoginForm%5Busername%5D=partsib&LoginForm%5Bpassword%5D=partsib5405&LoginForm%5BrememberMe%5D=0&ytf0=&timezoneoffset=-420
-          // application/x-www-form-urlencoded
-          //form data: dwn=1
-          //url2: https://optma.ru/index.php?r=site%2Fproducts
-          
-
-          //content type must be: application/octet-stream
-          String httpUrl = http.url.replaceFirst("://", "4://")+"?authAsername="+http.user+"&authPassword="+http.pwd;
-          String producerId = http.id;                        
-
-          from(httpUrl).
-              setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
-              idempotentConsumer(
-                  repoMan.createExpression(),
-                  FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
-                      100000, 102400000)).
-              to("direct:packed");
-          log.info("HTTP source endpoint is added: "+http);
-        }
-      }
-
-//file <test only>
-      //todo remove!
-      if (config.is("local.enabled")) {
-        from("file:src/data/files/?runLoggingLevel=TRACE&delete=false&noop=true").
-            setHeader(ENDPOINT_ID_HEADER, constant("id")). //todo add endpoint id from config
-            //process(new SourceIdSetterProcessor("ID-1")).
-            to("direct:packed");
-      }
     } catch (Exception e) {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
-  }                                      
+  }
 }
 
 

@@ -22,10 +22,10 @@ public class ConfiguratorFactory {
   }
 
   protected void initDefaultValues(HashMap<String, String> kv) {
-    kv.put("email.enabled", "1");
-    kv.put("local.enabled", "false");
+    kv.put("email.enabled", "0");
+    kv.put("local.enabled", "0");
     kv.put("ftp.enabled", "0");
-    kv.put("http.enabled", "false");
+    kv.put("http.enabled", "1");
     
     kv.put("work.dir", "tmp");
     

@@ -9,6 +9,14 @@
     }
   ],
   "http":[
+    {
+      "id": "HTTP_Optima",
+      "factory": "com.gumirov.shamil.partsib.factories.OptimaRouteFactory",
+      "url": "https://optma.ru/index.php?r=site/products",
+      "user": "partsib",
+      "pwd": "partsib5405",
+      "delay": "60000"
+    }
   ],
   "email":[
   ]

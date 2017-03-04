@@ -1,0 +1,1 @@
+curl -X POST -v --cookie "PHPSESSID=l81nm5b135qepelsroqcrq1f52" --data "dwn=1" http://im.mad.gd/2.php
