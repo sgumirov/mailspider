@@ -5,21 +5,26 @@ import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.http4.HttpClientConfigurer;
+import org.apache.camel.component.http4.HttpComponent;
 import org.apache.camel.component.http4.HttpConstants;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
+import org.apache.camel.component.http4.HttpEndpoint;
+import org.apache.camel.impl.JndiRegistry;
+import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.*;
+import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,11 +46,11 @@ import static com.gumirov.shamil.partsib.MailSpiderRouteBuilder.ENDPOINT_ID_HEAD
  */
 public class OptimaRouteFactory implements RouteFactory {
 
-  private final String url = "http4://im.mad.gd/1.php?r=site/products"; //not logged in -> redirect to log in
+//  private final String url = "http4://im.mad.gd/1.php?r=site/products"; //not logged in -> redirect to log in
 //  private final String url = "http4://im.mad.gd/2.php?r=site%2Fproducts";
-//  private final String url = "https4://optma.ru/index.php?r=site/products";
-//  private final String loginUrl = "https4://optma.ru/index.php?r=site/login";
-  private final String loginUrl = "http://im.mad.gd/login.php?r=site/products";
+  private final String url = "https4://optma.ru/index.php?r=site/products";
+  private final String loginUrl = "https://optma.ru/index.php?r=site/login";
+//  private final String loginUrl = "http://im.mad.gd/login.php?r=site/products";
 
   private String startSubroute, endSubrouteSuccess;
   private String user;
@@ -76,6 +82,23 @@ public class OptimaRouteFactory implements RouteFactory {
     this.endSubrouteSuccess = endSubrouteSuccess;
   }
 
+  HttpResponseInterceptor contentEncodingFixerInterceptor = new HttpResponseInterceptor()  {
+    @Override
+    public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+      Header contentEncodingHeader = response.getFirstHeader(HTTP.CONTENT_ENCODING);
+      if(contentEncodingHeader != null && ! (
+          "gzip".equals(contentEncodingHeader.getValue()) ||
+              "compress".equals(contentEncodingHeader.getValue()) ||
+              "deflate".equals(contentEncodingHeader.getValue()) ||
+              "identity".equals(contentEncodingHeader.getValue()) ||
+              "br".equals(contentEncodingHeader.getValue()) )
+          ) {
+        response.removeHeaders(HTTP.CONTENT_ENCODING);
+        response.addHeader(HTTP.CONTENT_ENCODING, "identity");
+      }
+    }
+  };
+
   @Override
   public RouteBuilder createRouteBuilder() {
     return new RouteBuilder() {
@@ -83,12 +106,20 @@ public class OptimaRouteFactory implements RouteFactory {
       public void configure() throws Exception {
         OptimaAuthProcessor authorizer = new OptimaAuthProcessor(user, pwd, loginUrl);
         errorHandler(deadLetterChannel("direct:deadletter").logExhaustedMessageBody(true));
+//        HttpComponent http4 = getContext().getComponent("https4", HttpComponent.class);
+//        http4.setHttpClientConfigurer(configurer);
+        HttpEndpoint httpEndpoint = (HttpEndpoint) getContext().getEndpoint(url);
+        HttpProcessor httpProcessor = getHttpProcessor();
+        
+        HttpClient client = HttpClients.custom().setHttpProcessor(httpProcessor).build();
+        httpEndpoint.setHttpClient(client);
+        
         from(startSubroute).
             //see if authorized?
             setHeader(Exchange.HTTP_METHOD, constant(org.apache.camel.component.http4.HttpMethods.POST)).
             setHeader(Exchange.CONTENT_TYPE, constant(HttpConstants.CONTENT_TYPE_WWW_FORM_URLENCODED)).
             setBody(simple("dwn=1")).
-            to(url).
+            to(httpEndpoint).
             choice().
             //not auth? authorize with OptimaAuthProcessor
             when(header(Exchange.CONTENT_TYPE).contains("text/html")). //not authorized
@@ -114,7 +145,32 @@ public class OptimaRouteFactory implements RouteFactory {
       }
     };
   }
-}
+
+  private HttpProcessor getHttpProcessor() {
+    BasicHttpProcessor hp = new BasicHttpProcessor();
+
+    hp.addInterceptor(contentEncodingFixerInterceptor);
+
+    // Required protocol interceptors
+    hp.addInterceptor(new RequestContent());
+    hp.addInterceptor(new RequestTargetHost());
+    hp.addInterceptor(new RequestDefaultHeaders());
+
+    // Recommended protocol interceptors
+    hp.addInterceptor(new RequestConnControl());
+    hp.addInterceptor(new RequestUserAgent());
+    hp.addInterceptor(new RequestExpectContinue());
+
+    // HTTP state management interceptors
+    hp.addInterceptor(new RequestAddCookies());
+    hp.addInterceptor(new ResponseProcessCookies());
+
+    // HTTP authentication interceptors
+    hp.addInterceptor(new RequestTargetAuthentication());
+    hp.addInterceptor(new RequestProxyAuthentication());
+
+    return hp;
+  }}
 
 class OptimaAuthProcessor implements Processor {
   static Logger logger = LoggerFactory.getLogger(OptimaAuthProcessor.class);
@@ -136,9 +192,11 @@ class OptimaAuthProcessor implements Processor {
     logger.info("Logging attempt");
     exchange.getIn().setHeader(AUTH_HEADER, "yep");
 
-    List<String> cookie = doAuth();
-    for (String c : cookie) {
-      exchange.getIn().setHeader("COOKIE", c);
+    List<String> cookies = doAuth();
+    //for (String c : cookies)
+    if (cookies.size() > 0)
+    {
+      exchange.getIn().setHeader("Cookie", cookies.get(cookies.size()-1));
     }
   }
 
@@ -155,7 +213,10 @@ class OptimaAuthProcessor implements Processor {
       System.out.println("Executing request: " + httppost.getRequestLine());
       CloseableHttpResponse response = httpclient.execute(httppost);
       try {
-        System.out.println("----------------------------------------");
+        System.out.println("-------------------auth repsponse---------------------");
+        for (Header h : response.getAllHeaders()) {
+          System.out.println(h.getName()+": "+h.getValue());
+        }
         System.out.println(response.getStatusLine());
         System.out.println(EntityUtils.toString(response.getEntity()));
         ArrayList<String> list = new ArrayList<>();

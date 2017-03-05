@@ -71,7 +71,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public void configure() {
     try {
       //debug
-      getContext().setTracing(Boolean.TRUE);
+//      getContext().setTracing(Boolean.TRUE);
 
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor();
       UnpackerProcessor unpack = new UnpackerProcessor(); //todo add support RAR, 7z
