@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib.configuration;
 
 import java.util.HashMap;
+import java.util.Properties;
 
 /**
  * This is for creating mocks
@@ -9,7 +10,7 @@ import java.util.HashMap;
 public class ConfiguratorFactory {
   public ConfiguratorFactory() {
   }
-
+  
   private Configurator c;
 
   public Configurator getConfigurator(){
