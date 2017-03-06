@@ -23,10 +23,6 @@ public class MainApp {
 //      main.enableTrace();
       main.run(args);
 
-    //todo use spring collections to fill config
-//    ApplicationContext bcontext = new ClassPathXmlApplicationContext("Beans.xml");
-//    bcontext.
-
 
 /*
     CamelContext context = new DefaultCamelContext();

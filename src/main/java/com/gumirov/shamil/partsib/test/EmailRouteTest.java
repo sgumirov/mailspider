@@ -36,11 +36,16 @@ import java.util.concurrent.TimeUnit;
     @Override
     protected void initDefaultValues(HashMap<String, String> kv) {
       super.initDefaultValues(kv);
+      kv.put("email.enabled", "true");
+      kv.put("local.enabled", "0");
+      kv.put("ftp.enabled",   "0");
+      kv.put("http.enabled",  "0");
       kv.put("output.url", url);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
     }
   };
   Configurator config = cfactory.getConfigurator();
+
 
   MailSpiderRouteBuilder builder;
 
@@ -66,7 +71,7 @@ import java.util.concurrent.TimeUnit;
       }
     };
     try {
-      context.getRouteDefinition("output1").adviceWith(context, mockresult);
+      context.getRouteDefinition("output").adviceWith(context, mockresult);
     } catch (Exception e) {
       e.printStackTrace();
     }
