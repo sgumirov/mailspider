@@ -1,11 +1,17 @@
 package com.gumirov.shamil.partsib;
 
+import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
+import com.gumirov.shamil.partsib.configuration.PropertiesConfigutatorFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.main.Main;
 import org.apache.camel.main.MainListener;
 import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 /**
  * A Camel Application
@@ -17,16 +23,15 @@ public class MainApp {
    */
   public static void main(String... args) throws Exception {
       Main main = new Main();
-      main.addRouteBuilder(new MailSpiderRouteBuilder());
+      Properties config = new Properties();
+      FileInputStream is = new FileInputStream("config.properties");
+      config.load(is);
+      main.addRouteBuilder(new MailSpiderRouteBuilder(new PropertiesConfigutatorFactory(config).getConfigurator()));
+//      main.addRouteBuilder(new MailSpiderRouteBuilder());
       // add event listener
       main.addMainListener(new EventsListener());
 //      main.enableTrace();
       main.run(args);
-
-    //todo use spring collections to fill config
-//    ApplicationContext bcontext = new ClassPathXmlApplicationContext("Beans.xml");
-//    bcontext.
-
 
 /*
     CamelContext context = new DefaultCamelContext();

@@ -12,6 +12,9 @@ import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Predicate;
+import org.apache.camel.builder.ExpressionBuilder;
+import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
 import org.apache.camel.dataformat.zipfile.ZipSplitter;
@@ -20,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +75,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public void configure() {
     try {
       //debug
-//      getContext().setTracing(Boolean.TRUE);
+      getContext().setTracing(Boolean.TRUE);
 
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor();
       UnpackerProcessor unpack = new UnpackerProcessor(); //todo add support RAR, 7z
@@ -110,16 +114,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       if (config.is("http.enabled")) {
         log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
         for (Endpoint http : endpoints.http) {
-          //String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
-
-          //url1: https://optma.ru/index.php?r=site/login
-          //LoginForm%5Busername%5D=partsib&LoginForm%5Bpassword%5D=partsib5405&LoginForm%5BrememberMe%5D=0&ytf0=&timezoneoffset=-420
-          // application/x-www-form-urlencoded
-          //form data: dwn=1
-          //url2: https://optma.ru/index.php?r=site/products
-          //content type must be: application/octet-stream
-//          String httpUrl = http.url.replaceFirst("://", "4://")+"?authAsername="+http.user+"&authPassword="+http.pwd;
-
+          
           String startEndpoint = "direct:start"+http.id;
           String producerId = http.id;
 
@@ -139,10 +134,10 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           builder.addRoutesToCamelContext(getContext());
 
           from("direct:httpidempotent").
-              idempotentConsumer(
+              /*idempotentConsumer(
                   repoMan.createExpression(),
                   FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
-                      100000, 102400000)).
+                      100000, 102400000)).*/
               to("direct:packed").
               end();
           log.info("HTTP source endpoint is added: "+http);
@@ -178,12 +173,12 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
 //output send
       from("direct:output").
-//          routeId("output").
+          routeId("output").
           process(outputProcessorEndpoint).id("outputprocessor").
           end();
 
       //email <production>
-/*      if (config.is("email.enabled")) {
+      if (config.is("email.enabled")) {
         ArrayList<Predicate> negatives = new ArrayList<>();
         Predicate negative = null;
         ArrayList<EmailRule> rules = getEmailRules();
@@ -201,7 +196,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=false&fetchSize=1",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).
-            choice().when(TODO negative predicate does nto work).to("direct:rejected").endChoice().otherwise().
+            //choice().when(TODO negative predicate does nto work).to("direct:rejected").endChoice().otherwise().
             setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
             split(splitEmailExpr).
             process(emailAttachmentProcessor).
@@ -211,7 +206,6 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       }
       from("direct:rejected").routeId("REJECTED_EMAILS").
           to("log:REJECT_MAILS?level=INFO&showAll=true");
-      */
 
     } catch (Exception e) {
       log.error("Cannot build route", e);

@@ -170,7 +170,8 @@ public class OptimaRouteFactory implements RouteFactory {
     hp.addInterceptor(new RequestProxyAuthentication());
 
     return hp;
-  }}
+  }
+}
 
 class OptimaAuthProcessor implements Processor {
   static Logger logger = LoggerFactory.getLogger(OptimaAuthProcessor.class);
