@@ -129,6 +129,17 @@
       <artifactId>camel-zipfile</artifactId>
       <version>2.18.1</version>
     </dependency>
+    <dependency>
+      <groupId>net.sf.sevenzipjbinding</groupId>
+      <artifactId>sevenzipjbinding</artifactId>
+      <version>9.20-2.00beta</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.sevenzipjbinding</groupId>
+      <artifactId>sevenzipjbinding-all-platforms</artifactId>
+      <version>9.20-2.00beta</version>
+    </dependency>
+    
     
     <!-- http -->
     <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->

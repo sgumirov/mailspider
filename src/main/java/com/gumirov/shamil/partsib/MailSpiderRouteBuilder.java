@@ -149,15 +149,12 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           process(comprDetect).id("CompressorDetector").
           choice().
             when(header(COMPRESSED_TYPE_HEADER_NAME).isEqualTo(CompressorType.ZIP)).
-//          unzip does not work!
               split(zipSplitter).streaming().
-//              log(LoggingLevel.INFO, "Unzipped file: $simple{in.header.CamelFileName}").
               to("direct:unpacked").endChoice().
-  //          when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()). //TODO process other archive types here
-  //            process(unpack).id("UnpackProcessor").
-  //            to("direct:unpacked").endChoice().
+            when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
+              process(unpack).id("UnpackProcessor").
+              to("direct:unpacked").endChoice().
             otherwise().
-//              log(LoggingLevel.INFO, "Plain file: $simple{in.header.CamelFileName}").
               to("direct:unpacked").endChoice().
           end();
 

@@ -15,9 +15,9 @@ public class UnpackerProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    //todo unpack
     String format = String.valueOf(exchange.getIn().getHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME));
     String id = String.valueOf(exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER));
+    
     logger.info("Unpack(). Format="+format+" id="+id);
   }
 }
