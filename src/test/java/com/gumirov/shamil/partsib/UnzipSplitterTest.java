@@ -1,4 +1,4 @@
-package com.gumirov.shamil.partsib.test;
+package com.gumirov.shamil.partsib;
 
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;

@@ -1,4 +1,4 @@
-package com.gumirov.shamil.partsib.test;
+package com.gumirov.shamil.partsib;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

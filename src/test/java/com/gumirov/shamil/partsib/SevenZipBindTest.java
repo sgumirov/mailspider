@@ -1,4 +1,4 @@
-package com.gumirov.shamil.partsib.test;
+package com.gumirov.shamil.partsib;
 
 import junit.framework.TestCase;
 import net.sf.sevenzipjbinding.IInArchive;
@@ -6,13 +6,11 @@ import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
-import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  *
