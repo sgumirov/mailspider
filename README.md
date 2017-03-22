@@ -14,11 +14,13 @@ for details (see javadoc or source).
 The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS RECEIVED.
 
 Config entry looks like:
-    {
-      "id":"rule_01",
-      "header":"From",
-      "contains":"@gmail.com"
-    }
+```json
+{
+  "id":"rule_01",
+  "header":"From",
+  "contains":"@gmail.com"
+}
+```
 
 Header takes the following values: From, Body, Subject. Please note!! Yes, it's Starting From Big Letter header name!
 Contains MUST NOT contain a double-quote symbol.
@@ -34,7 +36,7 @@ The following file names are configured via config.properties:
 - endpoints.json - endpoints config
 
 Example of configuration file config.properties with comments is below:
-
+```
 # this section enables or disables endpoint groups:
 email.enabled=1
 ftp.enabled=0
@@ -50,4 +52,4 @@ plugins.config.filename=target/classes/plugins.json
 # locations for repeat-filters (lists of name-size pairs) for email and ftp.
 idempotent.repo=tmp/idempotent_repo.dat
 email.idempotent.repo=tmp/email_idempotent_repo.dat
-
+```
