@@ -9,6 +9,20 @@ HTTP POST with 'application/octet-stream' content type).
 For plugins developer notes please refer to com.gumirov.shamil.partsib.plugins.Plugin interface 
 for details (see javadoc or source).
 
+# Email filtering syntax
+
+The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS RECEIVED.
+
+Config entry looks like:
+{
+  "id":"rule_01",
+  "header":"From",
+  "contains":"@gmail.com"
+}
+
+Header takes the following values: From, Body, Subject. Please note!! Yes, it's Starting From Big Letter header name!
+Contains MUST NOT contain a double-quote symbol.
+
 # Configuration
 
 Consists of the following files: 

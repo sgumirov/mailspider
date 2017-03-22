@@ -12,10 +12,13 @@ import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.ExpressionBuilder;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
 import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
@@ -179,32 +182,44 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
       //email <production>
       if (config.is("email.enabled")) {
-        ArrayList<Predicate> negatives = new ArrayList<>();
-        Predicate negative = null;
+        final List<Predicate> predicatesAnyTrue = new ArrayList<>();
         ArrayList<EmailRule> rules = getEmailRules();
         for (EmailRule rule : rules){
-          if (Configurator.isTrue(rule.reject)){
-            Predicate p = PredicateBuilder.regex(ExpressionBuilder.headerExpression("From"),
-                rule.regexp);
-            negatives.add(p);
-            if (negative == null) negative = p; else negative = PredicateBuilder.or(p);
-          }
+          predicatesAnyTrue.add(SimpleBuilder.simple("${in.header."+rule.header+"} contains \""+rule.contains+"\""));
         }
+
+        final Predicate anyTruePredicateSet = new Predicate() {
+          @Override
+          public boolean matches(Exchange exchange) {
+            for (Predicate p : predicatesAnyTrue){
+              if (p.matches(exchange)) {
+                return true;
+              }
+            }
+            return false;
+          }
+        };
+
         log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=false&fetchSize=1",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).
-            //choice().when(TODO negative predicate does nto work).to("direct:rejected").endChoice().otherwise().
-            setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
-            split(splitEmailExpr).
-            process(emailAttachmentProcessor).
-            to("direct:packed");
+            choice().
+              when(anyTruePredicateSet).
+                setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
+                split(splitEmailExpr).
+                process(emailAttachmentProcessor).
+                to("direct:packed").endChoice().
+              otherwise().
+                to("direct:rejected");
           log.info("Email endpoint is added with id="+email.id);
         }
       }
-      from("direct:rejected").routeId("REJECTED_EMAILS").
+      from("direct:rejected").
+          routeId("REJECTED_EMAILS").
+          log(LoggingLevel.INFO, "Rejected email from: ${in.header.From} with subject: ${in.header.Subject}").
           to("log:REJECT_MAILS?level=INFO&showAll=true");
 
     } catch (Exception e) {

@@ -14,15 +14,22 @@ import java.util.List;
 
 public class EndpointsParseUnitTest {
   
+  final String json = "[\n" +
+      "  {\n" +
+      "    \"id\":\"rule_01\",\n" +
+      "    \"header\":\"From\",\n" +
+      "    \"contains\":\"@gmail.com\"\n" +
+      "  }\n" +
+      "]\n";
+  
   @Test
   public void testEmailRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getResourceAsStream("test_email_rules.json"), Charset.defaultCharset());
     List<EmailRule> rules = mapper.readValue(json, new TypeReference<List<EmailRule>>() {});
     Assert.assertTrue(rules.size() == 2);
-    Assert.assertTrue("/supplier2@mail\\.ru/".equals(rules.get(1).regexp));
-    Assert.assertTrue("rule_02".equals(rules.get(1).id));
-    Assert.assertTrue("email_supplier_id_2".equals(rules.get(1).apply_id));
+    Assert.assertTrue("From".equals(rules.get(0).header));
+    Assert.assertTrue("rule_01".equals(rules.get(0).id));
+    Assert.assertTrue("@gmail.com".equals(rules.get(0).contains));
   }
 
   @Test
