@@ -1,16 +1,14 @@
 package com.gumirov.shamil.partsib;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.SupplierTaggingRule;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
-import org.apache.camel.RoutesBuilder;
+import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.component.direct.DirectEndpoint;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
@@ -18,24 +16,13 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 /**
- * Automation FTP endpoint test with local FTP daemon
+ *
  */
-  public class EmailRouteTest extends CamelTestSupport {
-
-//  static final String ftpDir = "/opt/ftp/files";
-  static final String ftpDir = "/tmp/files";
-  static final String resDir = "src/data/test";
-  static final String url = "http://im.mad.gd/2.php";
-//  private static final String EMAIL_URL = "ftp://127.0.0.1:2021/files/";
-  private static final String EMAIL_URL = "imap.mail.ru";
-
+public class SupplierTagFilterTest extends CamelTestSupport {
+  private static final String ENDPID = "Test-EMAIL-01";
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
     @Override
     protected void initDefaultValues(HashMap<String, String> kv) {
@@ -44,7 +31,6 @@ import java.util.concurrent.TimeUnit;
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
-      kv.put("output.url", url);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
       kv.put("email.rules.config.filename=", "src/main/resources/email_reject_rules.json");
     }
@@ -57,30 +43,8 @@ import java.util.concurrent.TimeUnit;
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
 
-  @Before
-  public void setupFTP() throws IOException {
-/*
-    FileUtils.deleteDirectory(new File(ftpDir));
-    FileUtils.copyDirectory(new File(resDir), new File(ftpDir));
-*/
-
-    //clear:
-    new File(config.get("email.idempotent.repo")).delete();
-
-
-//mock output for test:
-    AdviceWithRouteBuilder mockresult = new AdviceWithRouteBuilder() {
-      @Override
-      public void configure() throws Exception {
-        weaveById("outputprocessor").replace().to(mockEndpoint);
-      }
-    };
-    try {
-      context.getRouteDefinition("output").adviceWith(context, mockresult);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
+  @Produce(uri = "direct:start")
+  protected ProducerTemplate template;
 
   @Override
   public boolean isUseAdviceWith() {
@@ -89,13 +53,23 @@ import java.util.concurrent.TimeUnit;
 
   @Test
   public void test() throws Exception{
-    mockEndpoint.expectedMessageCount(1);
-    mockEndpoint.setResultWaitTime(60000);
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt", "zip2.txt", "ziptxt.txt", "rarfile2.txt", "rartxt.txt", "1.txt");
-    context.setTracing(true);
-    context.setMessageHistory(true);
+    AdviceWithRouteBuilder mockemail = new AdviceWithRouteBuilder() {
+      @Override
+      public void configure() throws Exception {
+        replaceFromWith(template.getDefaultEndpoint());
+        weaveById("supplierTagger").after().to(mockEndpoint);
+      }
+    };
+    context.getRouteDefinition(ENDPID).adviceWith(context, mockemail);
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MailSpiderRouteBuilder.SUPPLIER_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
+
     context.start();
-//    Thread.sleep(10000);
+
+    HashMap<String,Object> h = new HashMap<>();
+    h.put("From", "bad");
+    template.sendBodyAndHeaders("", h);
+    h.put("From", "good");
+    template.sendBodyAndHeaders("", h);
     mockEndpoint.assertIsSatisfied();
   }
 
@@ -115,8 +89,8 @@ import java.util.concurrent.TimeUnit;
         e.email = new ArrayList<Endpoint>();
         //imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
         Endpoint email = new Endpoint();
-        email.id="Test-EMAIL-01";
-        email.url= EMAIL_URL;
+        email.id=ENDPID;
+        email.url= "imap.mail.ru";
         email.user="sh.roller@mail.ru";
         email.pwd="gfhjkm12";
         email.delay="5000";
@@ -128,10 +102,10 @@ import java.util.concurrent.TimeUnit;
       public ArrayList<EmailRule> getEmailRules() throws IOException {
         ArrayList<EmailRule> rules = new ArrayList<>();
         EmailRule r1 = new EmailRule();
-        r1.header="Subject";
+        r1.header="From";
         r1.contains="bad";
         EmailRule r2 = new EmailRule();
-        r2.header="Subject";
+        r2.header="From";
         r2.contains="good";
         rules.add(r1);
         rules.add(r2);
@@ -142,12 +116,15 @@ import java.util.concurrent.TimeUnit;
       public List<SupplierTaggingRule> getSupplierConfig() throws IOException {
         SupplierTaggingRule r1 = new SupplierTaggingRule();
         SupplierTaggingRule r2 = new SupplierTaggingRule();
-        r1.header = "Subject";
-        r1.contains = "good";
-        r1.supplierid = "good-supplier";
-        return Arrays.asList(r1, r2);
+        r1.header = "From";
+        r1.contains = "bad";
+        r1.supplierid = "badSupplier";
+        r2.header = "From";
+        r2.contains = "good";
+        r2.supplierid = "goodSupplier";
+        return Arrays.asList(r1, r2); 
       }
     };
-    return builder; 
+    return builder;
   }
 }

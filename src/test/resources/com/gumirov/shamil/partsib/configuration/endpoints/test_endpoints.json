@@ -38,13 +38,6 @@
       "user":"username",
       "pwd":"password",
       "delay":"60000"
-    },
-    {
-      "id":"email_inbox_mailru_02",
-      "url":"imap.mail.ru",
-      "user":"username",
-      "pwd":"password",
-      "delay":"60000"
     }
   ]
 }

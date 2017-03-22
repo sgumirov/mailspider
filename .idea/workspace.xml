@@ -2,12 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f2ea362f-1a64-40ee-b87a-040af409364e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/email_tagging_rules.json" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__mysql_mysql_connector_java_6_0_5.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_xerial_sqlite_jdbc_3_15_1.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MailSpider.iml" afterPath="$PROJECT_DIR$/MailSpider.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.properties" afterPath="$PROJECT_DIR$/config.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/EmailRule.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/EmailRule.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/email_reject_rules.json" afterPath="$PROJECT_DIR$/src/main/resources/email_reject_rules.json" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FilterPredicateRouteTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FilterPredicateRouteTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test_endpoints.json" afterPath="$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test_endpoints.json" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -30,12 +39,45 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="email_reject_rules.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/resources/email_reject_rules.json">
+      <file leaf-file-name="email_tagging_rules.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/resources/email_tagging_rules.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+            <state relative-caret-position="150">
+              <caret line="10" column="28" lean-forward="true" selection-start-line="10" selection-start-column="25" selection-end-line="10" selection-end-column="25" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_local_endpoints.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/resources/test_local_endpoints.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="23" column="36" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="config.properties" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/config.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="90">
+              <caret line="6" column="37" lean-forward="true" selection-start-line="6" selection-start-column="33" selection-end-line="6" selection-end-column="33" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="EmailRouteTest.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#2508#2682#0" expanded="true" />
+                <element signature="e#2681#2682#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -43,8 +85,8 @@
       <file leaf-file-name="MailSpiderRouteBuilder.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="581">
-              <caret line="216" column="19" lean-forward="false" selection-start-line="216" selection-start-column="19" selection-end-line="216" selection-end-column="19" />
+            <state relative-caret-position="379">
+              <caret line="209" column="0" lean-forward="false" selection-start-line="209" selection-start-column="0" selection-end-line="209" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -53,8 +95,8 @@
       <file leaf-file-name="Un7zipSplitterTest.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="461">
-              <caret line="45" column="34" lean-forward="false" selection-start-line="45" selection-start-column="34" selection-end-line="45" selection-end-column="34" />
+            <state relative-caret-position="375">
+              <caret line="25" column="31" lean-forward="false" selection-start-line="25" selection-start-column="31" selection-end-line="25" selection-end-column="31" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -62,24 +104,46 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FilterPredicateRouteTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FilterPredicateRouteTest.java">
+      <file leaf-file-name="OutputProcessor.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="205">
-              <caret line="75" column="33" lean-forward="false" selection-start-line="75" selection-start-column="33" selection-end-line="75" selection-end-column="33" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EmailRouteTest.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
-              <caret line="89" column="155" lean-forward="false" selection-start-line="89" selection-start-column="155" selection-end-line="89" selection-end-column="155" />
+            <state relative-caret-position="345">
+              <caret line="32" column="43" lean-forward="true" selection-start-line="32" selection-start-column="43" selection-end-line="32" selection-end-column="43" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OutputSender.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="37" column="76" lean-forward="true" selection-start-line="37" selection-start-column="76" selection-end-line="37" selection-end-column="76" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SupplierTaggerProcessor.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/SupplierTaggerProcessor.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="349">
+              <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SupplierTagFilterTest.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SupplierTagFilterTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="254">
+              <caret line="113" column="0" lean-forward="true" selection-start-line="100" selection-start-column="0" selection-end-line="113" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -95,13 +159,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>&quot;output&quot;</find>
-      <find>config</find>
-      <find>PluginsLoader</find>
-      <find>plugins</find>
-      <find>idem</find>
-      <find>idempo</find>
-      <find>login</find>
       <find>.addInterceptor</find>
       <find>trace</find>
       <find>сщташп</find>
@@ -122,9 +179,16 @@
       <find>rejected</find>
       <find>accepted</find>
       <find>reject_</find>
-      <find>reject</find>
       <find>accepted email</find>
       <find>went on</find>
+      <find>reject</find>
+      <find>Rejected email from:</find>
+      <find>subject: some</find>
+      <find>plugin</find>
+      <find>objectmapp</find>
+      <find>predicate</find>
+      <find>routeId</find>
+      <find>output</find>
     </findStrings>
     <replaceStrings>
       <replace>.addInterceptorFirst</replace>
@@ -141,11 +205,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/EndpointsParseUnitTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/test/test_email_rules.json" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/Endpoints.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/test/EndpointsParseUnitTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MyRouteBuilder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/StoreFileProcessor.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/TaskFile.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/FileProcessor.java" />
@@ -163,35 +222,40 @@
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/FileNameProcessor.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/Endpoint.java" />
         <option value="$PROJECT_DIR$/src/main/resources/test_local_endpoints.json" />
-        <option value="$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test_endpoints.json" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/test/MainRouteTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/PluginsLoader.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/endpoints/Output.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/test/EmailRouteTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/factories/OptimaRouteFactory.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/PropertiesConfigutarotFactory.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/PropertiesConfigutatorFactory.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainApp.java" />
-        <option value="$PROJECT_DIR$/config.properties" />
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/test/SevenZipBindTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerProcessor.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerSplitter.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/AllTestSuite.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FilterPredicateRouteTets.java" />
         <option value="$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test_email_rules.json" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/EmailRule.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EndpointsParseUnitTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PluginsProcessor.java" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/src/main/resources/email_reject_rules.json" />
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FilterPredicateRouteTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterTest.java" />
+        <option value="$PROJECT_DIR$/src/main/resources/email_reject_rules.json" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/EmailRule.java" />
+        <option value="$PROJECT_DIR$/config.properties" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/SupplierTaggingRule.java" />
+        <option value="$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test_endpoints.json" />
+        <option value="$PROJECT_DIR$/src/main/resources/email_tagging_rules.json" />
+        <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SupplierTagFilter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/SupplierTaggerProcessor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SupplierTagFilterTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java" />
       </list>
     </option>
   </component>
@@ -206,6 +270,20 @@
   </component>
   <component name="MavenProjectNavigator">
     <treeState>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$RootNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="A Camel Route" />
+          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$ProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="Dependencies" />
+          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$DependenciesNode" />
+        </PATH_ELEMENT>
+      </PATH>
       <PATH>
         <PATH_ELEMENT>
           <option name="myItemId" value="" />
@@ -742,6 +820,10 @@
     <property name="FullScreen" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources" />
+      <recent name="$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test" />
+    </key>
     <key name="MoveMembersDialog.RECENTS_KEY">
       <recent name="com.gumirov.shamil.partsib.MyRouteBuilder" />
     </key>
@@ -754,14 +836,13 @@
       <recent name="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/test" />
       <recent name="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints" />
     </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.gumirov.shamil.partsib.configuration.endpoints" />
+    </key>
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.gumirov.shamil.partsib.processors" />
       <recent name="com.gumirov.shamil.partsib.util" />
       <recent name="com.gumirov.shamil.partsib" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources" />
-      <recent name="$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test" />
     </key>
   </component>
   <component name="RunManager" selected="JUnit.EmailRouteTest">
@@ -999,6 +1080,27 @@
       <envs />
       <method />
     </configuration>
+    <configuration default="false" name="SupplierTagFilterTest" type="JUnit" factoryName="JUnit">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="MailSpider" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.gumirov.shamil.partsib" />
+      <option name="MAIN_CLASS_NAME" value="com.gumirov.shamil.partsib.SupplierTagFilterTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
     <configuration default="false" name="7ZBinding" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="MailSpider" />
@@ -1158,15 +1260,16 @@
       <listeners />
       <method />
     </configuration>
-    <list size="8">
+    <list size="9">
       <item index="0" class="java.lang.String" itemvalue="Application.Production" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.7ZBinding" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.7zipSpliltterTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.FilterPredicateTest" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.EmailRouteTest" />
-      <item index="5" class="java.lang.String" itemvalue="JUnit.FTPRouteTest" />
-      <item index="6" class="java.lang.String" itemvalue="JUnit.UnzipSplitterTest" />
-      <item index="7" class="java.lang.String" itemvalue="TestNG.EndpointsParseUnitTest" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.SupplierTagFilterTest" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.7ZBinding" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.7zipSpliltterTest" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.FilterPredicateTest" />
+      <item index="5" class="java.lang.String" itemvalue="JUnit.EmailRouteTest" />
+      <item index="6" class="java.lang.String" itemvalue="JUnit.FTPRouteTest" />
+      <item index="7" class="java.lang.String" itemvalue="JUnit.UnzipSplitterTest" />
+      <item index="8" class="java.lang.String" itemvalue="TestNG.EndpointsParseUnitTest" />
     </list>
   </component>
   <component name="SbtLocalSettings">
@@ -1188,35 +1291,35 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 32m 42s.xml">
+    <history-entry file="EmailRouteTest - 2017.03.22 at 22h 40m 32s.xml">
       <configuration name="EmailRouteTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 34m 33s.xml">
+    <history-entry file="EmailRouteTest - 2017.03.22 at 22h 41m 43s.xml">
       <configuration name="EmailRouteTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 37m 53s.xml">
+    <history-entry file="EmailRouteTest - 2017.03.22 at 22h 42m 34s.xml">
       <configuration name="EmailRouteTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 38m 30s.xml">
+    <history-entry file="EmailRouteTest - 2017.03.22 at 22h 42m 51s.xml">
       <configuration name="EmailRouteTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 40m 20s.xml">
+    <history-entry file="EmailRouteTest - 2017.03.22 at 22h 44m 24s.xml">
       <configuration name="EmailRouteTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 40m 47s.xml">
+    <history-entry file="EmailRouteTest - 2017.03.22 at 22h 45m 12s.xml">
       <configuration name="EmailRouteTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 45m 00s.xml">
-      <configuration name="EmailRouteTest" configurationId="JUnit" />
+    <history-entry file="SupplierTagFilterTest - 2017.03.22 at 22h 31m 14s.xml">
+      <configuration name="SupplierTagFilterTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="EmailRouteTest - 2017.03.22 at 17h 46m 36s.xml">
-      <configuration name="EmailRouteTest" configurationId="JUnit" />
+    <history-entry file="SupplierTagFilterTest - 2017.03.22 at 22h 31m 20s.xml">
+      <configuration name="SupplierTagFilterTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="FilterPredicateTest - 2017.03.22 at 17h 43m 47s.xml">
-      <configuration name="FilterPredicateTest" configurationId="JUnit" />
+    <history-entry file="SupplierTagFilterTest - 2017.03.22 at 22h 31m 29s.xml">
+      <configuration name="SupplierTagFilterTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="FilterPredicateTest - 2017.03.22 at 17h 44m 36s.xml">
-      <configuration name="FilterPredicateTest" configurationId="JUnit" />
+    <history-entry file="SupplierTagFilterTest - 2017.03.22 at 22h 31m 34s.xml">
+      <configuration name="SupplierTagFilterTest" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -1230,14 +1333,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-22" width="1928" height="1106" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Tool Output" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="DB Execution Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32881773" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15416667" sideWeight="0.49233717" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27916667" sideWeight="0.49233717" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1252,7 +1355,7 @@
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.6220238" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13095239" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23489584" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -1347,8 +1450,26 @@
           <properties />
           <option name="timeStamp" value="26" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/SupplierTaggerProcessor.java</url>
+          <line>36</line>
+          <properties />
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java</url>
+          <line>206</line>
+          <properties />
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java</url>
+          <line>209</line>
+          <properties />
+          <option name="timeStamp" value="36" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="27" />
+      <option name="time" value="37" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -1361,56 +1482,13 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/converters/InputStreamToGeneericFileConverter.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/converters/ZipSplitter.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/Plugin.java" />
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/camel/camel-core/2.18.1/camel-core-2.18.1-sources.jar!/org/apache/camel/model/dataformat/TarFileDataFormat.java" />
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/camel/camel-zipfile/2.18.1/camel-zipfile-2.18.1-sources.jar!/org/apache/camel/dataformat/zipfile/ZipIterator.java" />
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/IdempotentRepoTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="82" column="0" lean-forward="false" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/FileNameProcessor.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/Endpoints.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/test/MainRouteTest.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/endpoints/Output.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="28" column="15" lean-forward="false" selection-start-line="28" selection-start-column="15" selection-end-line="28" selection-end-column="15" />
-          <folding>
-            <element signature="e#598#599#0" expanded="false" />
-            <element signature="e#622#623#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/PluginsLoader.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/factories/RouteFactory.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/Endpoint.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/factories/OptimaRouteFactory.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainApp.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="28" column="0" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2040">
-          <caret line="136" column="0" lean-forward="false" selection-start-line="136" selection-start-column="0" selection-end-line="136" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/Configurator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
@@ -1421,18 +1499,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/PropertiesConfigutatorFactory.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config.properties" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/FileNameIdempotentRepoManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -1520,8 +1586,8 @@
         <state relative-caret-position="90">
           <caret line="39" column="0" lean-forward="false" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
           <folding>
-            <element signature="e#2213#2504#0" expanded="true" />
-            <element signature="e#2503#2504#0" expanded="true" />
+            <element signature="e#2213#2504#0" expanded="false" />
+            <element signature="e#2503#2504#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1530,14 +1596,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="30" column="4" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/EmailRule.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="22" lean-forward="false" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
           <folding />
         </state>
       </provider>
@@ -1582,14 +1640,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test_endpoints.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="417">
-          <caret line="41" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/FileMetaData.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -1598,34 +1648,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PluginsProcessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="17" column="3" lean-forward="false" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/NoOpPlugin.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="7" column="33" lean-forward="true" selection-start-line="7" selection-start-column="33" selection-end-line="7" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="142">
           <caret line="74" column="0" lean-forward="false" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/test_local_endpoints.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1640,18 +1666,158 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainApp.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="26" column="71" lean-forward="true" selection-start-line="26" selection-start-column="68" selection-end-line="26" selection-end-column="68" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/NoOpPlugin.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="7" column="33" lean-forward="false" selection-start-line="7" selection-start-column="33" selection-end-line="7" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/PluginsLoader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="22" column="9" lean-forward="false" selection-start-line="22" selection-start-column="9" selection-end-line="22" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PluginsProcessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="36" column="37" lean-forward="false" selection-start-line="36" selection-start-column="37" selection-end-line="36" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/log4j2.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="86">
+          <caret line="90" column="0" lean-forward="false" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/EmailRule.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="29" lean-forward="true" selection-start-line="5" selection-start-column="23" selection-end-line="5" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="362">
+          <caret line="43" column="12" lean-forward="true" selection-start-line="43" selection-start-column="12" selection-end-line="43" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/PropertiesConfigutatorFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="10" column="13" lean-forward="false" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/SupplierTaggingRule.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="29" lean-forward="false" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/init.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/resources/com/gumirov/shamil/partsib/configuration/endpoints/test_endpoints.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="35" column="0" lean-forward="false" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/resources/email_reject_rules.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+        <state relative-caret-position="135">
+          <caret line="9" column="20" lean-forward="false" selection-start-line="9" selection-start-column="20" selection-end-line="9" selection-end-column="20" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/email_tagging_rules.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="28" lean-forward="true" selection-start-line="10" selection-start-column="25" selection-end-line="10" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/test_local_endpoints.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="36" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="37" lean-forward="true" selection-start-line="6" selection-start-column="33" selection-end-line="6" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SupplierTagFilterTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="254">
+          <caret line="113" column="0" lean-forward="true" selection-start-line="100" selection-start-column="0" selection-end-line="113" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
-          <caret line="45" column="34" lean-forward="false" selection-start-line="45" selection-start-column="34" selection-end-line="45" selection-end-column="34" />
+        <state relative-caret-position="375">
+          <caret line="25" column="31" lean-forward="false" selection-start-line="25" selection-start-column="31" selection-end-line="25" selection-end-column="31" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/SupplierTaggerProcessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="349">
+          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1660,16 +1826,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="581">
-          <caret line="216" column="19" lean-forward="false" selection-start-line="216" selection-start-column="19" selection-end-line="216" selection-end-column="19" />
+        <state relative-caret-position="379">
+          <caret line="209" column="0" lean-forward="false" selection-start-line="209" selection-start-column="0" selection-end-line="209" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
-          <caret line="89" column="155" lean-forward="false" selection-start-line="89" selection-start-column="155" selection-end-line="89" selection-end-column="155" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#2508#2682#0" expanded="true" />
+            <element signature="e#2681#2682#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="32" column="43" lean-forward="true" selection-start-line="32" selection-start-column="43" selection-end-line="32" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="37" column="76" lean-forward="true" selection-start-line="37" selection-start-column="76" selection-end-line="37" selection-end-column="76" />
           <folding />
         </state>
       </provider>

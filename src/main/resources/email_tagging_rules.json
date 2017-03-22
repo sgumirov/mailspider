@@ -1,0 +1,14 @@
+[
+  {
+    "id":"rule_01",
+    "header":"From",
+    "contains":"rossko",
+    "supplierid":"10"
+  },
+  {
+    "id":"rule_01",
+    "header":"From",
+    "contains":"rossko1",
+    "supplierid":"11"
+  }
+]

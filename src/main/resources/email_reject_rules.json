@@ -1,7 +1,12 @@
 [
   {
-    "id":"rule_02",
+    "id":"rule_01",
     "header":"Subject",
     "contains":"price"
+  },
+  {
+    "id":"rule_02",
+    "header":"Subject",
+    "contains":"list"
   }
 ]

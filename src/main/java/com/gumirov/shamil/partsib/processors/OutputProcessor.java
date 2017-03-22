@@ -24,8 +24,14 @@ public class OutputProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME).toString();
-    log.info(String.format("Output(): file %s from route id=%s", filename, exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER)));
+    String endpointId = exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER).toString();
+    String supplierId = exchange.getIn().getHeader(MailSpiderRouteBuilder.SUPPLIER_ID_HEADER).toString(); 
+    if (supplierId == null) {
+      supplierId = endpointId;
+    }
+    log.info(String.format("Output(): file %s from route id=%s with supplierID=%s", 
+        filename, endpointId, supplierId));
     InputStream is = exchange.getIn().getBody(InputStream.class);
-    new OutputSender(url).onOutput(filename, is);
+    new OutputSender(url).onOutput(filename, supplierId, is);
   }
 }

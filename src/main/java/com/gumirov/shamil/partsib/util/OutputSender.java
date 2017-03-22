@@ -28,13 +28,14 @@ public class OutputSender {
     this.url = url;
   }
   
-  public void onOutput(String filename, InputStream is) throws IOException {
+  public void onOutput(String filename, String supplierId, InputStream is) throws IOException {
     CloseableHttpClient httpclient = HttpClients.createDefault();
     
     try {
       HttpPost httppost = new HttpPost(url);
       InputStreamEntity reqEntity = new InputStreamEntity(is, -1, ContentType.APPLICATION_OCTET_STREAM);
-      httppost.setHeader("X-Filename", filename);
+      if (filename != null) httppost.setHeader("X-Filename", filename);
+      if (supplierId != null) httppost.setHeader("X-Pricehook", supplierId);
       reqEntity.setChunked(true);
       httppost.setEntity(reqEntity);
 

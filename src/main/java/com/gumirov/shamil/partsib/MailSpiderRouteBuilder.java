@@ -7,6 +7,7 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
+import com.gumirov.shamil.partsib.configuration.endpoints.SupplierTaggingRule;
 import com.gumirov.shamil.partsib.factories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
@@ -25,6 +26,7 @@ import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -39,6 +41,7 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 public class MailSpiderRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
+  public static final String SUPPLIER_ID_HEADER = "supplier.id";
   public static final String BASE_DIR = "base.dir";
 //  private String workDir = "/tmp";
 
@@ -77,6 +80,12 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
   }
 
+  public List<SupplierTaggingRule> getSupplierConfig() throws IOException {
+    String json = IOUtils.toString(new FileInputStream(config.get("supplier.tagging.config.filename")), Charset.defaultCharset());
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.readValue(json, new TypeReference<List<SupplierTaggingRule>>(){});
+  }
+
   public void configure() {
     try {
       //debug
@@ -87,6 +96,8 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
+      List<SupplierTaggingRule> supplierIdConfig = getSupplierConfig();
+      SupplierTaggerProcessor supplierTaggerProcessor = new SupplierTaggerProcessor(supplierIdConfig);
 
       SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
       ZipSplitter zipSplitter = new ZipSplitter();
@@ -205,11 +216,13 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           //fetchSize=1 1 at a time
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=false&fetchSize=1",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
-              email.delay)).
+              email.delay)).id(email.id).
+            routeId(email.id).
             choice().
               when(anyTruePredicateSet).
                 log("accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
+                process(supplierTaggerProcessor).id("supplierTagger"). /**/
                 split(splitEmailExpr).
                 process(emailAttachmentProcessor).
                 to("direct:packed").endChoice().

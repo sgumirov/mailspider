@@ -41,6 +41,7 @@ public class ConfiguratorFactory {
     kv.put("plugins.config.filename", "target/classes/plugins.json");
     kv.put("idempotent.repo", "tmp/idempotent_repo.dat");
     kv.put("email.idempotent.repo", "tmp/email_idempotent_repo.dat");
+    kv.put("supplier.tagging.config.filename", "target/classes/email_tagging_rules.json");
 //    kv.put("", "");
   }
 }
