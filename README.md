@@ -14,11 +14,11 @@ for details (see javadoc or source).
 The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS RECEIVED.
 
 Config entry looks like:
-{
-  "id":"rule_01",
-  "header":"From",
-  "contains":"@gmail.com"
-}
+    {
+      "id":"rule_01",
+      "header":"From",
+      "contains":"@gmail.com"
+    }
 
 Header takes the following values: From, Body, Subject. Please note!! Yes, it's Starting From Big Letter header name!
 Contains MUST NOT contain a double-quote symbol.
