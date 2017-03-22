@@ -14,6 +14,8 @@ import java.util.List;
 
 import static com.gumirov.shamil.partsib.MailSpiderRouteBuilder.ENDPOINT_ID_HEADER;
 /**
+ * NOTE: We abort any changes ("rollback") in case of any error (exception) happened and rolling back to original 
+ * content. 
  */
 public class PluginsProcessor implements Processor {
   static Logger log = LoggerFactory.getLogger(PluginsProcessor.class);
@@ -39,7 +41,7 @@ public class PluginsProcessor implements Processor {
       }
       exchange.getIn().setBody(mdata.is);
     } catch (Exception e) {
-      log.error("Error while plugins execution at plugin instance = "+last+" of class = "+last.getClass().getSimpleName()+" with an exception = "+e.getMessage(), e);
+      log.error("Error occured while plugins execution. ABORTING ALL changes done by ANY plugin in sequence! Error at plugin instance = "+last+" of class = "+last.getClass().getSimpleName()+" with an exception = "+e.getMessage(), e);
     }
   }
 }

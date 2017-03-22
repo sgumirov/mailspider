@@ -123,7 +123,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           String startEndpoint = "direct:start"+http.id;
           String producerId = http.id;
 
-          from("timer://http?fixedRate=true&period=60000").
+          from("timer://http?fixedRate=true&period="+http.delay).
                   setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
               to(startEndpoint).
               end();

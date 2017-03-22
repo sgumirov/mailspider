@@ -25,6 +25,15 @@ Config entry looks like:
 Header takes the following values: From, Body, Subject. Please note!! Yes, it's Starting From Big Letter header name!
 Contains MUST NOT contain a double-quote symbol.
 
+# Plugins config
+
+Array of fully qualified class names, executed in order specified in config:
+```json
+[
+  "com.gumirov.shamil.partsib.plugins.NoOpPlugin"
+]
+```
+
 # Configuration
 
 Consists of the following files: 
@@ -53,3 +62,46 @@ plugins.config.filename=target/classes/plugins.json
 idempotent.repo=tmp/idempotent_repo.dat
 email.idempotent.repo=tmp/email_idempotent_repo.dat
 ```
+
+# Endpoints config
+
+- 'id' is used everywhere in log to track source of message
+- url address of source, see examples. Please note of url format (no imap:// in email)
+- user and pwd self-explainory
+- delay period of pull
+- factory used only for http. MUST BE USED to login to web portals, see code for details. Actually this is needed 
+because there's no universal of logging in into different web sites, so we need to use the specific implementation 
+for every http endpoint. 
+
+```json
+{
+  "ftp":[
+    {
+      "id":"ftp_supplier_dir",
+      "url":"ftp://127.0.0.1/test/",
+      "user":"anonymous",
+      "pwd":"a@google.com",
+      "delay":"60000"
+    }
+  ],
+  "http":[
+    {
+      "id": "HTTP_Optima",
+      "factory": "com.gumirov.shamil.partsib.factories.OptimaRouteFactory",
+      "url": "https://optma.ru/index.php?r=site/products",
+      "user": "partsib",
+      "pwd": "partsib5405",
+      "delay": "60000"
+    }
+  ],
+  "email":[
+  ]
+}
+```
+
+# Unit tests
+
+Unit tests are OK to run any time.
+Please note that _integration_ tests require a real FTP/Email to be prepared. Refer to source code, they are not 
+documented anywhere: EmailRouteTest, FTPRouteTest.
+
