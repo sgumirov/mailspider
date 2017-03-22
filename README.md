@@ -18,6 +18,7 @@ The following file names are configured via config.properties:
 - email_reject_rules.json - email filtering rules, regexp-based.
 - plugins.json - plugins config
 - endpoints.json - endpoints config
+- supplier.tagging.config.filename - tagging with price hook ids
 
 Example of configuration file config.properties with comments is below:
 ```
@@ -33,6 +34,7 @@ output.url=http://im.mad.gd/2.php
 endpoints.config.filename=target/classes/test_local_endpoints.json
 email.rules.config.filename=target/classes/email_reject_rules.json
 plugins.config.filename=target/classes/plugins.json
+supplier.tagging.config.filename=target/classes/email_tagging_rules.json
 # locations for repeat-filters (lists of name-size pairs) for email and ftp.
 idempotent.repo=tmp/idempotent_repo.dat
 email.idempotent.repo=tmp/email_idempotent_repo.dat
@@ -105,6 +107,26 @@ logging in to different web sites, so we need to use the specific implementation
     }
   ]
 }
+```
+
+# Price hook ids tagging
+
+To send source supplier IDs to the output the config the set of rules is used with the syntax similar to email filtering config:
+```json
+[
+  {
+    "id":"rule_01",
+    "header":"From",
+    "contains":"rossko",
+    "supplierid":"10"
+  },
+  {
+    "id":"rule_01",
+    "header":"From",
+    "contains":"rossko1",
+    "supplierid":"11"
+  }
+]
 ```
 
 # Unit tests
