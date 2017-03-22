@@ -1,10 +1,5 @@
 [
   {
-    "id":"rule_01",
-    "header":"From",
-    "contains":"@gmail.com"
-  },
-  {
     "id":"rule_02",
     "header":"Subject",
     "contains":"price"

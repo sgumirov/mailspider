@@ -43,7 +43,7 @@ public class Un7zipSplitterTest extends CamelTestSupport {
       public void configure() throws Exception {
         from("direct:start").
             split(beanExpression(new UnpackerSplitter(), "unpack")).
-            log("Unpacked: ${in.header.CamelFileName}").
+            log("Unpacked: $simple{in.header.CamelFileName}").
             to("mock:result");
       }
     };

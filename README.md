@@ -9,35 +9,10 @@ HTTP POST with 'application/octet-stream' content type).
 For plugins developer notes please refer to com.gumirov.shamil.partsib.plugins.Plugin interface 
 for details (see javadoc or source).
 
-# Email filtering syntax
-
-The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS RECEIVED.
-
-Config entry looks like:
-```json
-{
-  "id":"rule_01",
-  "header":"From",
-  "contains":"@gmail.com"
-}
-```
-
-Header takes the following values: From, Body, Subject. Please note!! Yes, it's Starting From Big Letter header name!
-Contains MUST NOT contain a double-quote symbol.
-
-# Plugins config
-
-Array of fully qualified class names, executed in order specified in config:
-```json
-[
-  "com.gumirov.shamil.partsib.plugins.NoOpPlugin"
-]
-```
-
 # Configuration
 
 Consists of the following files: 
-- config.properties for general config, here some other config file names are specified.
+- config.properties - main config, here some other config file names are specified.
 - log4j2.properties - logging properties. Here one can enable DB logging.
 The following file names are configured via config.properties:
 - email_reject_rules.json - email filtering rules, regexp-based.
@@ -63,15 +38,41 @@ idempotent.repo=tmp/idempotent_repo.dat
 email.idempotent.repo=tmp/email_idempotent_repo.dat
 ```
 
+# Email filtering syntax
+
+The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS RECEIVED.
+
+Single rule looks like:
+```json
+{
+  "id":"rule_01",
+  "header":"From",
+  "contains":"@gmail.com"
+}
+```
+
+Header takes the following values: From, Body, Subject. Please note!! Yes, it's Starting From Big Letter header name!
+Contains MUST NOT contain a double-quote symbol.
+
+# Plugins config
+
+Array of fully qualified class names, executed in order specified in config:
+```json
+[
+  "com.gumirov.shamil.partsib.plugins.NoOpPlugin",
+  "com.gumirov.shamil.partsib.plugins.NoOpPlugin"
+]
+```
+
 # Endpoints config
 
-- 'id' is used everywhere in log to track source of message
-- url address of source, see examples. Please note of url format (no imap:// in email)
-- user and pwd self-explainory
-- delay period of pull
-- factory used only for http. MUST BE USED to login to web portals, see code for details. Actually this is needed 
-because there's no universal of logging in into different web sites, so we need to use the specific implementation 
-for every http endpoint. 
+- id - is used everywhere in log to track source of message
+- url - address of source, see examples. Please note of url format (no imap:// in email)
+- user and pwd - self-explainory
+- delay - period of pull
+- factory - fully qualified class name, used ONLY for http endpoint. MUST BE USED for http. Purpose is maintaining the 
+procedure of logging in to web portals, see code for details. Actually this is needed because there's no universal of 
+logging in to different web sites, so we need to use the specific implementation for every http endpoint.
 
 ```json
 {
@@ -95,6 +96,13 @@ for every http endpoint.
     }
   ],
   "email":[
+    {
+      "id":"email_inbox_mailru_01",
+      "url":"imap.mail.ru",
+      "user":"username",
+      "pwd":"password",
+      "delay":"60000"
+    }
   ]
 }
 ```

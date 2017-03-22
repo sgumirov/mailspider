@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
       kv.put("http.enabled",  "0");
       kv.put("output.url", url);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
+      kv.put("email.rules.config.filename=", "src/main/resources/email_reject_rules.json");
     }
   };
   Configurator config = cfactory.getConfigurator();
@@ -84,11 +85,11 @@ import java.util.concurrent.TimeUnit;
 
   @Test
   public void test() throws Exception{
-    mockEndpoint.expectedMessageCount(3);
+    mockEndpoint.expectedMessageCount(5);
     mockEndpoint.setResultWaitTime(60000);
-//    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt", "zip2.txt", "ziptxt.txt");
-//    context.setTracing(true);
-//    context.setMessageHistory(true);
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt", "zip2.txt", "ziptxt.txt", "rarfile2.txt", "rartxt.txt", "1.txt");
+    context.setTracing(true);
+    context.setMessageHistory(true);
     context.start();
     mockEndpoint.assertIsSatisfied();
   }
@@ -113,7 +114,7 @@ import java.util.concurrent.TimeUnit;
         email.url= EMAIL_URL;
         email.user="sh.roller@mail.ru";
         email.pwd="gfhjkm12";
-        email.delay="60000";
+        email.delay="5000";
         e.email.add(email);
         return e;
       }

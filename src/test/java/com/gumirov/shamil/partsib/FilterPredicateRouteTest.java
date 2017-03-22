@@ -73,7 +73,7 @@ public class FilterPredicateRouteTest extends CamelTestSupport {
       public void configure() throws Exception {
         from("direct:start").
             filter(anyTruePredicateSet).
-            log("Went on: ${in.header.From}").
+            log("Went on: $simple{in.header.From}").
             to("mock:result");
       }
     };

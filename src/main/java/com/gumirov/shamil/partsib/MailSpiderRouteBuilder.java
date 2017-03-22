@@ -208,11 +208,13 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
               email.delay)).
             choice().
               when(anyTruePredicateSet).
+                log("accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 split(splitEmailExpr).
                 process(emailAttachmentProcessor).
                 to("direct:packed").endChoice().
               otherwise().
+                log("rejected email from: $simple{in.header.From}").
                 to("direct:rejected");
           log.info("Email endpoint is added with id="+email.id);
         }
