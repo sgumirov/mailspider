@@ -35,7 +35,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String BASE_DIR = "base.dir";
-  private String workDir = "/tmp";
+//  private String workDir = "/tmp";
 
   public static enum CompressorType {
     GZIP, ZIP, RAR, _7Z
@@ -88,7 +88,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
 
       FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
           config.get("idempotent.repo", "tmp/idempotent_repo.dat"));
-      workDir = config.get("work.dir", workDir);
+//      workDir = config.get("work.dir", workDir);
       Endpoints endpoints = getEndpoints();
 
 //FTP <production>
