@@ -25,7 +25,7 @@ public class PluginsProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    log.info("PLUGINS: id="+exchange.getExchangeId()+" file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class));
+//    log.info("PLUGINS: id="+exchange.getExchangeId()+" file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class));
     Plugin last = null;
     try {
       FileMetaData mdata = new FileMetaData(
@@ -39,7 +39,7 @@ public class PluginsProcessor implements Processor {
       }
       exchange.getIn().setBody(mdata.is);
     } catch (Exception e) {
-      log.error("Error while plugins execution (FULL ROLLBACK: skipping execution of ALL plugins): plugin object = "+last+" exception = "+e.getMessage(), e);
+      log.error("Error while plugins execution at plugin instance = "+last+" of class = "+last.getClass().getSimpleName()+" with an exception = "+e.getMessage(), e);
     }
   }
 }

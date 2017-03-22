@@ -28,6 +28,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
+
 /**
  * A Camel Java DSL Router
  */
@@ -149,10 +151,11 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
           process(comprDetect).id("CompressorDetector").
           choice().
             when(header(COMPRESSED_TYPE_HEADER_NAME).isEqualTo(CompressorType.ZIP)).
-              split(zipSplitter).streaming().
+              split(zipSplitter).
+              //streaming(). //seems we don't need this
               to("direct:unpacked").endChoice().
             when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
-              process(unpack).id("UnpackProcessor").
+              split(beanExpression(new UnpackerSplitter(), "unpack")).
               to("direct:unpacked").endChoice().
             otherwise().
               to("direct:unpacked").endChoice().

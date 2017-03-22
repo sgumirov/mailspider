@@ -1,18 +1,15 @@
 package com.gumirov.shamil.partsib.processors;
 
-import net.sf.sevenzipjbinding.IInArchive;
-import net.sf.sevenzipjbinding.PropID;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
+import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
+import net.sf.sevenzipjbinding.util.ByteArrayStream;
+import org.apache.camel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,27 +22,56 @@ public class UnpackerSplitter {
 
   public List<Message> unpack(Exchange exchange) {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
-    InputStream fis = exchange.getIn().getBody(InputStream.class);
+    byte[] bytes = exchange.getIn().getBody(byte[].class);
+    List<Message> outMsgs = new ArrayList<>();
     try {
-      unpack(fis);
+      List<NamedByteArray> files = unpack(bytes);
+      for (NamedByteArray file : files) {
+        Message copy = exchange.getIn().copy();
+        copy.setBody(file.bytes, byte[].class);
+        copy.setHeader(Exchange.FILE_NAME, file.name);
+        outMsgs.add(copy);
+      }
     }catch (Exception e){
-      log.error("Cannot unpack archive: "+filename);
+      log.error("Error while unpacking archive: "+filename+String.format(", will return %d extracted files", outMsgs.size()));
     }
+    return outMsgs;
   }
   
-  private List<NamedByteArray> unpack(InputStream is) throws Exception {
-    RandomAccessFile randomAccessFile = null;
+  private List<NamedByteArray> unpack(byte[] b) throws Exception {
     IInArchive inArchive = null;
     List<NamedByteArray> list = new ArrayList<>();
     try {
       SevenZip.initSevenZipFromPlatformJAR();
-      randomAccessFile = new RandomAccessFile("src/data/test.full/rarfile.rar", "r");
       inArchive = SevenZip.openInArchive(null, // Choose format automatically
-          new RandomAccessFileInStream(randomAccessFile));
-      int l = inArchive.getNumberOfItems();
-      for (int i = 0; i < l; ++i) {
-        String name = inArchive.getStringProperty(i, PropID.getPropIDByIndex(3));
+          new ByteArrayStream(b, false, 1024000));
+      ISimpleInArchive simpleInArchive = inArchive.getSimpleInterface();
+      for (ISimpleInArchiveItem item : simpleInArchive.getArchiveItems()) {
+        if (!item.isFolder()) {
+          final String name = item.getPath();
+          final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+          ExtractOperationResult result;
+          result = item.extractSlow(new ISequentialOutStream() {
+            public int write(byte[] data) throws SevenZipException {
+              try {
+                bos.write(data);
+              } catch (IOException e) {
+                log.error("Cannot properly store extracted file, maybe too large: " + name, e);
+              }
+              return data.length; // Return amount of consumed data
+            }
+          });
+
+          if (result == ExtractOperationResult.OK) {
+            log.info(String.format("extracted file: %s", name));
+            list.add(new NamedByteArray(bos.toByteArray(), name));
+          } else {
+            System.err.println("Error extracting item: " + result);
+          }
+        }
       }
+    }catch(Exception e){
+      log.error("Cannot unpack archive, see trace", e);
     } finally {
       if (inArchive != null) {
         try {
@@ -54,25 +80,19 @@ public class UnpackerSplitter {
           System.err.println("Error closing archive: " + e);
         }
       }
-      if (randomAccessFile != null) {
-        try {
-          randomAccessFile.close();
-        } catch (IOException e) {
-          System.err.println("Error closing file: " + e);
-        }
-      }
     }
     return list;
   }
-}
 
+  class NamedByteArray{
+    byte[] bytes;
+    String name;
 
-class NamedByteArray{
-  byte[] bytes;
-  String name;
-
-  public NamedByteArray(byte[] bytes, String name) {
-    this.bytes = bytes;
-    this.name = name;
+    public NamedByteArray(byte[] bytes, String name) {
+      this.bytes = bytes;
+      this.name = name;
+    }
   }
 }
+
+
