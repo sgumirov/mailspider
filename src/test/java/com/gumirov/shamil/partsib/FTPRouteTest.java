@@ -1,6 +1,5 @@
 package com.gumirov.shamil.partsib;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
@@ -46,7 +45,7 @@ public class FTPRouteTest extends CamelTestSupport {
   };
   Configurator config = cfactory.getConfigurator();
 
-  MailSpiderRouteBuilder builder;
+  MainSpiderRouteBuilder builder;
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
@@ -93,7 +92,7 @@ public class FTPRouteTest extends CamelTestSupport {
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
-    builder = new MailSpiderRouteBuilder(config){
+    builder = new MainSpiderRouteBuilder(config){
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();

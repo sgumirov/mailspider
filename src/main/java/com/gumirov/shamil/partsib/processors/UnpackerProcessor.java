@@ -1,6 +1,6 @@
 package com.gumirov.shamil.partsib.processors;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
+import com.gumirov.shamil.partsib.MainSpiderRouteBuilder;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
@@ -15,8 +15,8 @@ public class UnpackerProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    String format = String.valueOf(exchange.getIn().getHeader(MailSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME));
-    String id = String.valueOf(exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER));
+    String format = String.valueOf(exchange.getIn().getHeader(MainSpiderRouteBuilder.COMPRESSED_TYPE_HEADER_NAME));
+    String id = String.valueOf(exchange.getIn().getHeader(MainSpiderRouteBuilder.ENDPOINT_ID_HEADER));
     
     logger.info("Unpack(). Format="+format+" id="+id);
   }

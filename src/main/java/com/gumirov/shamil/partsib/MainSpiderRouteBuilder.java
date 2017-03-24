@@ -35,7 +35,7 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 /**
  * A Camel Java DSL Router
  */
-public class MailSpiderRouteBuilder extends RouteBuilder {
+public class MainSpiderRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
@@ -51,17 +51,17 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public ConfiguratorFactory confFactory = new ConfiguratorFactory();
   public Configurator config = confFactory.getConfigurator();
 
-  public MailSpiderRouteBuilder() {}
+  public MainSpiderRouteBuilder() {}
 
-  public MailSpiderRouteBuilder(Configurator config) {
+  public MainSpiderRouteBuilder(Configurator config) {
     this.config = config;
   }
 
-  public MailSpiderRouteBuilder(CamelContext context) {
+  public MainSpiderRouteBuilder(CamelContext context) {
     super(context);
   }
 
-  public MailSpiderRouteBuilder(CamelContext context, Configurator config) {
+  public MainSpiderRouteBuilder(CamelContext context, Configurator config) {
     super(context);
     this.config = config;
   }

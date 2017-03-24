@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f2ea362f-1a64-40ee-b87a-040af409364e" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/target/messages/others/message2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/target/messages/uk/message1.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ReadMe.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dbnavigator.xml" afterPath="$PROJECT_DIR$/.idea/dbnavigator.xml" />
@@ -42,7 +41,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/run.sh" afterPath="$PROJECT_DIR$/docs/run.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/run_app.cmd" afterPath="$PROJECT_DIR$/run_app.cmd" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainApp.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainApp.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/ConfiguratorFactory.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/Endpoint.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/configuration/endpoints/Endpoint.java" />
@@ -50,8 +48,13 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/factories/OptimaRouteFactory.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/factories/OptimaRouteFactory.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/factories/RouteFactory.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/factories/RouteFactory.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/PluginsLoader.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/PluginsLoader.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/ArchiveTypeDetectorProcessor.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/ArchiveTypeDetectorProcessor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/OutputProcessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PluginsProcessor.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PluginsProcessor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PricehookTaggerProcessor.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PricehookTaggerProcessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/SourceIdSetterProcessor.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/SourceIdSetterProcessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerProcessor.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerProcessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/FileNameIdempotentRepoManager.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/FileNameIdempotentRepoManager.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/OutputSender.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/Util.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/util/Util.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/emai_pricehook_tagging_rules.json" afterPath="$PROJECT_DIR$/src/main/resources/emai_pricehook_tagging_rules.json" />
@@ -66,6 +69,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SevenZipBindUnitTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SevenZipBindUnitTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterUnitTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterUnitTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/UnzipSplitterUnitTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/UnzipSplitterUnitTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainSpiderRouteBuilder.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -88,11 +92,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Un7zipSplitterUnitTest.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Un7zipSplitterUnitTest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterUnitTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="20" column="31" lean-forward="false" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
+            <state relative-caret-position="430">
+              <caret line="45" column="37" lean-forward="true" selection-start-line="45" selection-start-column="37" selection-end-line="45" selection-end-column="37" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -112,16 +116,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="testsout.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/testsout.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="276">
-              <caret line="34" column="8" lean-forward="false" selection-start-line="34" selection-start-column="8" selection-end-line="34" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="test_local_endpoints.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/resources/test_local_endpoints.json">
           <provider selected="true" editor-type-id="text-editor">
@@ -132,41 +126,31 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="MainSpiderRouteBuilder.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainSpiderRouteBuilder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="319">
+              <caret line="105" column="17" lean-forward="false" selection-start-line="105" selection-start-column="6" selection-end-line="105" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="EmailRouteTest.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="29" column="13" lean-forward="false" selection-start-line="29" selection-start-column="13" selection-end-line="29" selection-end-column="13" />
+            <state relative-caret-position="289">
+              <caret line="38" column="2" lean-forward="false" selection-start-line="38" selection-start-column="2" selection-end-line="38" selection-end-column="2" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EndpointsParseUnitTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EndpointsParseUnitTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="14" column="13" lean-forward="false" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="IdempotentRepoUnitTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/IdempotentRepoUnitTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="20" column="31" lean-forward="false" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="379">
-              <caret line="214" column="21" lean-forward="false" selection-start-line="214" selection-start-column="21" selection-end-line="214" selection-end-column="21" />
+            <state relative-caret-position="549">
+              <caret line="234" column="0" lean-forward="false" selection-start-line="234" selection-start-column="0" selection-end-line="234" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -175,8 +159,18 @@
       <file leaf-file-name="UnzipSplitterUnitTest.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/UnzipSplitterUnitTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-289">
-              <caret line="19" column="30" lean-forward="false" selection-start-line="19" selection-start-column="30" selection-end-line="19" selection-end-column="30" />
+            <state relative-caret-position="433">
+              <caret line="80" column="39" lean-forward="false" selection-start-line="80" selection-start-column="39" selection-end-line="80" selection-end-column="39" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UnpackerSplitter.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerSplitter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="19" column="13" lean-forward="false" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -203,9 +197,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>sh-rikker</find>
-      <find>sh-roller</find>
-      <find>mail.ru</find>
       <find>plain</find>
       <find>CamelSplitAttachmentId=</find>
       <find>Rejected email</find>
@@ -233,6 +224,9 @@
       <find>test</find>
       <find>surefi</find>
       <find>suref</find>
+      <find>release</find>
+      <find>surefire</find>
+      <find>unzip</find>
     </findStrings>
     <replaceStrings>
       <replace>.addInterceptorFirst</replace>
@@ -251,7 +245,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/test/MainRouteTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/plugins/PluginsLoader.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/endpoints/Output.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/test/EmailRouteTest.java" />
@@ -290,9 +283,7 @@
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SevenZipBindTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/SevenZipBindUnitTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/UnzipSplitterTest.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/UnzipSplitterUnitTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterTest.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterUnitTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/IdempotentRepoTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/IdempotentRepoUnitTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FilterPredicateRouteTest.java" />
@@ -301,7 +292,10 @@
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EndpointsParseUnitTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FTPRouteTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainSpiderRouteBuilder.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/UnzipSplitterUnitTest.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterUnitTest.java" />
       </list>
     </option>
   </component>
@@ -881,7 +875,7 @@
       <recent name="com.gumirov.shamil.partsib" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.UnzipSplitterTest">
+  <component name="RunManager" selected="JUnit.7zipSpliltterTest">
     <configuration default="true" type="AndroidRunConfigurationType" factoryName="Android App">
       <module name="" />
       <option name="DEPLOY" value="true" />
@@ -1371,34 +1365,34 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="7ZBinding - 2017.03.25 at 01h 10m 09s.xml">
-      <configuration name="7ZBinding" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="7zipSpliltterTest - 2017.03.25 at 00h 53m 05s.xml">
+    <history-entry file="7zipSpliltterTest - 2017.03.25 at 03h 04m 39s.xml">
       <configuration name="7zipSpliltterTest" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="EndpointsParseUnitTest - 2017.03.25 at 00h 54m 30s.xml">
-      <configuration name="EndpointsParseUnitTest" configurationId="TestNG" />
-    </history-entry>
-    <history-entry file="EndpointsParseUnitTest - 2017.03.25 at 00h 54m 55s.xml">
-      <configuration name="EndpointsParseUnitTest" configurationId="TestNG" />
-    </history-entry>
-    <history-entry file="EndpointsParseUnitTest - 2017.03.25 at 00h 57m 27s.xml">
-      <configuration name="EndpointsParseUnitTest" configurationId="TestNG" />
-    </history-entry>
-    <history-entry file="EndpointsParseUnitTest - 2017.03.25 at 01h 10m 01s.xml">
-      <configuration name="EndpointsParseUnitTest" configurationId="TestNG" />
-    </history-entry>
-    <history-entry file="FilterPredicateTest - 2017.03.25 at 00h 54m 11s.xml">
-      <configuration name="FilterPredicateTest" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="IdempotentRepoTest - 2017.03.25 at 00h 53m 31s.xml">
-      <configuration name="IdempotentRepoTest" configurationId="JUnit" />
     </history-entry>
     <history-entry file="UnzipSplitterTest - 2017.03.25 at 01h 15m 15s.xml">
       <configuration name="UnzipSplitterTest" configurationId="JUnit" />
     </history-entry>
     <history-entry file="UnzipSplitterTest - 2017.03.25 at 01h 23m 45s.xml">
+      <configuration name="UnzipSplitterTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="UnzipSplitterTest - 2017.03.25 at 02h 47m 06s.xml">
+      <configuration name="UnzipSplitterTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="UnzipSplitterTest - 2017.03.25 at 02h 49m 54s.xml">
+      <configuration name="UnzipSplitterTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="UnzipSplitterTest - 2017.03.25 at 02h 50m 43s.xml">
+      <configuration name="UnzipSplitterTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="UnzipSplitterTest - 2017.03.25 at 02h 58m 47s.xml">
+      <configuration name="UnzipSplitterTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="UnzipSplitterTest - 2017.03.25 at 03h 01m 14s.xml">
+      <configuration name="UnzipSplitterTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="UnzipSplitterTest - 2017.03.25 at 03h 01m 44s.xml">
+      <configuration name="UnzipSplitterTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="UnzipSplitterTest - 2017.03.25 at 03h 04m 33s.xml">
       <configuration name="UnzipSplitterTest" configurationId="JUnit" />
     </history-entry>
   </component>
@@ -1433,7 +1427,7 @@
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30327058" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30327058" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23748669" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -1511,7 +1505,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainApp.java</url>
-          <line>44</line>
+          <line>39</line>
           <properties />
           <option name="timeStamp" value="14" />
         </line-breakpoint>
@@ -1540,13 +1534,13 @@
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java</url>
+          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainSpiderRouteBuilder.java</url>
           <line>225</line>
           <properties />
           <option name="timeStamp" value="35" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java</url>
+          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainSpiderRouteBuilder.java</url>
           <line>235</line>
           <properties />
           <option name="timeStamp" value="36" />
@@ -1557,8 +1551,14 @@
           <properties />
           <option name="timeStamp" value="37" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerSplitter.java</url>
+          <line>31</line>
+          <properties />
+          <option name="timeStamp" value="38" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="38" />
+      <option name="time" value="39" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -1616,16 +1616,6 @@
         <state relative-caret-position="180">
           <caret line="20" column="2" lean-forward="false" selection-start-line="20" selection-start-column="2" selection-end-line="20" selection-end-column="2" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerSplitter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="975">
-          <caret line="65" column="62" lean-forward="false" selection-start-line="65" selection-start-column="62" selection-end-line="65" selection-end-column="62" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1806,17 +1796,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MailSpiderRouteBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="227" column="63" lean-forward="false" selection-start-line="227" selection-start-column="63" selection-end-line="227" selection-end-column="63" />
-          <folding>
-            <element signature="e#3495#3496#0" expanded="true" />
-            <element signature="e#3541#3542#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/PricehookTaggerProcessor.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -1865,10 +1844,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java">
+    <entry file="file://$PROJECT_DIR$/testsout.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="29" column="13" lean-forward="false" selection-start-line="29" selection-start-column="13" selection-end-line="29" selection-end-column="13" />
+        <state relative-caret-position="276">
+          <caret line="34" column="8" lean-forward="false" selection-start-line="34" selection-start-column="8" selection-end-line="34" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/MainSpiderRouteBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="105" column="17" lean-forward="false" selection-start-line="105" selection-start-column="6" selection-end-line="105" selection-end-column="17" />
           <folding />
         </state>
       </provider>
@@ -1878,16 +1865,6 @@
         <state relative-caret-position="510">
           <caret line="30" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterUnitTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="31" lean-forward="false" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1901,14 +1878,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/testsout.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="276">
-          <caret line="34" column="8" lean-forward="false" selection-start-line="34" selection-start-column="8" selection-end-line="34" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/FilterPredicateRouteUnitTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="663">
@@ -1919,17 +1888,43 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/UnzipSplitterUnitTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-289">
-          <caret line="19" column="30" lean-forward="false" selection-start-line="19" selection-start-column="30" selection-end-line="19" selection-end-column="30" />
+        <state relative-caret-position="433">
+          <caret line="80" column="39" lean-forward="false" selection-start-line="80" selection-start-column="39" selection-end-line="80" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/EmailRouteTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="38" column="2" lean-forward="false" selection-start-line="38" selection-start-column="2" selection-end-line="38" selection-end-column="2" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="379">
-          <caret line="214" column="21" lean-forward="false" selection-start-line="214" selection-start-column="21" selection-end-line="214" selection-end-column="21" />
+        <state relative-caret-position="549">
+          <caret line="234" column="0" lean-forward="false" selection-start-line="234" selection-start-column="0" selection-end-line="234" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/gumirov/shamil/partsib/processors/UnpackerSplitter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="19" column="13" lean-forward="false" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/gumirov/shamil/partsib/Un7zipSplitterUnitTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="430">
+          <caret line="45" column="37" lean-forward="true" selection-start-line="45" selection-start-column="37" selection-end-line="45" selection-end-column="37" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

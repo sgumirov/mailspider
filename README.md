@@ -154,7 +154,7 @@ To send source pricehook id (one only) to the output the config the set of rules
 
 # Unit tests
 
-Unit tests are OK to run any time.
-Please note that _integration_ tests require a real FTP/Email to be prepared. Refer to source code, they are not 
-documented anywhere: EmailRouteTest, FTPRouteTest.
+Unit tests are OK to run any time with 'mvn tests' command.
+Please note that _integration_ (AT) tests require a real FTP/Email to be prepared. Refer to source code, they are not 
+documented anywhere: EmailRouteTest, FTPRouteTest. Integration tests are excluded from execution using @Ignore.
 

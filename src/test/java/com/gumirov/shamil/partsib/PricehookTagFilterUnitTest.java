@@ -35,7 +35,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   Configurator config = cfactory.getConfigurator();
 
 
-  MailSpiderRouteBuilder builder;
+  MainSpiderRouteBuilder builder;
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
@@ -58,7 +58,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
     };
     context.getRouteDefinition(ENDPID).adviceWith(context, mockemail);
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MailSpiderRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainSpiderRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
 
     context.start();
 
@@ -77,7 +77,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
-    builder = new MailSpiderRouteBuilder(config){
+    builder = new MainSpiderRouteBuilder(config){
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();

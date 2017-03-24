@@ -1,5 +1,6 @@
 package com.gumirov.shamil.partsib;
 
+import com.gumirov.shamil.partsib.processors.UnpackerSplitter;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -16,6 +17,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import static org.apache.camel.builder.ExpressionBuilder.append;
+import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 
 public class UnzipSplitterUnitTest extends CamelTestSupport {
 
@@ -33,7 +35,7 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
 
     resultEndpoint.expectedMessageCount(2);
     resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{body, body});
-    resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, new Object[]{"f1.txt", "dir/f2.txt"});
+    resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, new Object[]{"f1.txt", "dir"+File.separatorChar+"f2.txt"});
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ZipOutputStream zos = new ZipOutputStream(bos);
@@ -76,9 +78,9 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
       public void configure() throws Exception
       {
         from("direct:from").
-            split(new ZipSplitter()).streaming().
-            to("mock:result").
-            convertBodyTo(String.class).to("log:RESULT?showBody=true");
+//            split(new ZipSplitter()).
+            split(beanExpression(new UnpackerSplitter(), "unpack")).
+            to("mock:result");
       }
     };
   }

@@ -5,6 +5,7 @@ import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
@@ -43,6 +44,7 @@ public class Un7zipSplitterUnitTest extends CamelTestSupport {
       public void configure() throws Exception {
         from("direct:start").
             split(beanExpression(new UnpackerSplitter(), "unpack")).
+//            split(new ZipSplitter()).
             log("Unpacked: $simple{in.header.CamelFileName}").
             to("mock:result");
       }
