@@ -17,7 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.apache.camel.builder.ExpressionBuilder.append;
 
-public class UnzipSplitterTest  extends CamelTestSupport {
+public class UnzipSplitterUnitTest extends CamelTestSupport {
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint resultEndpoint;

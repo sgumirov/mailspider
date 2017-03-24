@@ -18,7 +18,7 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 /**
  *
  */
-public class FilterPredicateRouteTest extends CamelTestSupport {
+public class FilterPredicateRouteUnitTest extends CamelTestSupport {
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint resultEndpoint;
 

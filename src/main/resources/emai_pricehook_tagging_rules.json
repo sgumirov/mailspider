@@ -3,12 +3,12 @@
     "id":"rule_01",
     "header":"From",
     "contains":"rossko",
-    "supplierid":"10"
+    "pricehookid":"10"
   },
   {
-    "id":"rule_01",
+    "id":"rule_02",
     "header":"From",
-    "contains":"rossko1",
-    "supplierid":"11"
+    "contains":"test123",
+    "pricehookid":"11"
   }
 ]

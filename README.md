@@ -18,7 +18,7 @@ The following file names are configured via config.properties:
 - email_reject_rules.json - email filtering rules, regexp-based.
 - plugins.json - plugins config
 - endpoints.json - endpoints config
-- supplier.tagging.config.filename - tagging with price hook ids
+- pricehook.tagging.config.filename - tagging with price hook ids
 
 Example of configuration file config.properties with comments is below:
 ```
@@ -34,10 +34,33 @@ output.url=http://im.mad.gd/2.php
 endpoints.config.filename=target/classes/test_local_endpoints.json
 email.rules.config.filename=target/classes/email_reject_rules.json
 plugins.config.filename=target/classes/plugins.json
-supplier.tagging.config.filename=target/classes/email_tagging_rules.json
+pricehook.tagging.config.filename=target/classes/email_tagging_rules.json
 # locations for repeat-filters (lists of name-size pairs) for email and ftp.
 idempotent.repo=tmp/idempotent_repo.dat
 email.idempotent.repo=tmp/email_idempotent_repo.dat
+# http post max size in bytes
+max.upload.size=1024000
+```
+
+# Http post size split
+The following headers are used to notice upload part number:
+- X-Part - a zero-based index
+- X-Parts-Total - total number of parts
+
+```
+HTTP/1.1 200 OK
+POST
+Content-Type: application/octet-stream
+Content-Length: 1
+X-Filename: test.bin
+X-Pricehook: pricehookId
+X-Part: 2
+X-Parts-Total: 8
+Transfer-Encoding: chunked
+Host: im.mad.gd
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.3.4 (java 1.5)
+Accept-Encoding: gzip,deflate
 ```
 
 # Email filtering syntax
@@ -111,7 +134,7 @@ logging in to different web sites, so we need to use the specific implementation
 
 # Price hook ids tagging
 
-To send source supplier IDs to the output the config the set of rules is used with the syntax similar to email filtering config:
+To send source pricehook id (one only) to the output the config the set of rules is used with the syntax similar to email filtering config:
 ```json
 [
   {

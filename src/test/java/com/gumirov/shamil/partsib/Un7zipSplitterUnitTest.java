@@ -18,7 +18,7 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 /**
  *
  */
-public class Un7zipSplitterTest extends CamelTestSupport {
+public class Un7zipSplitterUnitTest extends CamelTestSupport {
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
 

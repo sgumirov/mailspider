@@ -1,12 +1,11 @@
 package com.gumirov.shamil.partsib;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import com.gumirov.shamil.partsib.configuration.endpoints.SupplierTaggingRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
@@ -14,6 +13,7 @@ import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Automation FTP endpoint test with local FTP daemon
  */
-  public class EmailRouteTest extends CamelTestSupport {
+@Ignore("not a UT")
+public class EmailRouteTest extends CamelTestSupport {
 
 //  static final String ftpDir = "/opt/ftp/files";
   static final String ftpDir = "/tmp/files";
@@ -88,6 +88,7 @@ import java.util.concurrent.TimeUnit;
   }
 
   @Test
+  @Ignore("not a UT")
   public void test() throws Exception{
     mockEndpoint.expectedMessageCount(1);
     mockEndpoint.setResultWaitTime(60000);
@@ -139,12 +140,12 @@ import java.util.concurrent.TimeUnit;
       }
 
       @Override
-      public List<SupplierTaggingRule> getSupplierConfig() throws IOException {
-        SupplierTaggingRule r1 = new SupplierTaggingRule();
-        SupplierTaggingRule r2 = new SupplierTaggingRule();
+      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
+        PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
+        PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
         r1.header = "Subject";
         r1.contains = "good";
-        r1.supplierid = "good-supplier";
+        r1.pricehookid = "good-supplier";
         return Arrays.asList(r1, r2);
       }
     };

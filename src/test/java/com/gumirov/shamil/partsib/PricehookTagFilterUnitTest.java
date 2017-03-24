@@ -5,23 +5,20 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import com.gumirov.shamil.partsib.configuration.endpoints.SupplierTaggingRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.component.direct.DirectEndpoint;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 /**
  *
  */
-public class SupplierTagFilterTest extends CamelTestSupport {
+public class PricehookTagFilterUnitTest extends CamelTestSupport {
   private static final String ENDPID = "Test-EMAIL-01";
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
     @Override
@@ -57,11 +54,11 @@ public class SupplierTagFilterTest extends CamelTestSupport {
       @Override
       public void configure() throws Exception {
         replaceFromWith(template.getDefaultEndpoint());
-        weaveById("supplierTagger").after().to(mockEndpoint);
+        weaveById("pricehookTagger").after().to(mockEndpoint);
       }
     };
     context.getRouteDefinition(ENDPID).adviceWith(context, mockemail);
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MailSpiderRouteBuilder.SUPPLIER_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MailSpiderRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
 
     context.start();
 
@@ -113,15 +110,15 @@ public class SupplierTagFilterTest extends CamelTestSupport {
       }
 
       @Override
-      public List<SupplierTaggingRule> getSupplierConfig() throws IOException {
-        SupplierTaggingRule r1 = new SupplierTaggingRule();
-        SupplierTaggingRule r2 = new SupplierTaggingRule();
+      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
+        PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
+        PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
         r1.header = "From";
         r1.contains = "bad";
-        r1.supplierid = "badSupplier";
+        r1.pricehookid = "badSupplier";
         r2.header = "From";
         r2.contains = "good";
-        r2.supplierid = "goodSupplier";
+        r2.pricehookid = "goodSupplier";
         return Arrays.asList(r1, r2); 
       }
     };

@@ -22,7 +22,8 @@ import java.util.HashMap;
 /**
  * Automation FTP endpoint test with local FTP daemon
  */
-  public class FTPRouteTest extends CamelTestSupport {
+@Ignore("not a UT")
+public class FTPRouteTest extends CamelTestSupport {
 
 //  static final String ftpDir = "/opt/ftp/files";
   static final String ftpDir = "/tmp/files";
@@ -79,6 +80,7 @@ import java.util.HashMap;
   }
 
   @Test
+  @Ignore("not a UT")
   public void test() throws Exception{
     mockEndpoint.expectedMessageCount(3);
     mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt",
