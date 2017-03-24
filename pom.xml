@@ -131,30 +131,39 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.5.3</version>
+      <version>RELEASE</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.3.4</version>
-    </dependency>
-
 
     <!-- TEST -->
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- camel general testing; todo remove? -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test</artifactId>
       <version>2.18.1</version>
+      <scope>test</scope>
     </dependency>
+    <!--dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-testng</artifactId>
+      <version>2.18.1</version>
+      <scope>test</scope>
+    </dependency-->
 
     <!-- TEST-NG -->
-    <dependency>
+    <!--dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>6.10</version>
-    </dependency>
+      <scope>test</scope>
+    </dependency-->
 
     <!-- OTHERS -->
     <dependency>
@@ -178,6 +187,7 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -204,7 +214,19 @@
         </configuration>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.12.4</version>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+        </configuration>
+      </plugin>
     </plugins>
+
+
   </build>
 
 </project>
