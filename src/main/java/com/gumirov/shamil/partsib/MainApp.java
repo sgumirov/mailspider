@@ -1,15 +1,10 @@
 package com.gumirov.shamil.partsib;
 
-import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.PropertiesConfigutatorFactory;
-import org.apache.camel.CamelContext;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.main.Main;
-import org.apache.camel.main.MainListener;
 import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
@@ -26,8 +21,8 @@ public class MainApp {
       Properties config = new Properties();
       FileInputStream is = new FileInputStream("config.properties");
       config.load(is);
-      main.addRouteBuilder(new MailSpiderRouteBuilder(new PropertiesConfigutatorFactory(config).getConfigurator()));
-//      main.addRouteBuilder(new MailSpiderRouteBuilder());
+      main.addRouteBuilder(new MainSpiderRouteBuilder(new PropertiesConfigutatorFactory(config).getConfigurator()));
+//      main.addRouteBuilder(new MainSpiderRouteBuilder());
       // add event listener
       main.addMainListener(new EventsListener());
 //      main.enableTrace();
@@ -35,7 +30,7 @@ public class MainApp {
 
 /*
     CamelContext context = new DefaultCamelContext();
-    context.addRoutes(new MailSpiderRouteBuilder());
+    context.addRoutes(new MainSpiderRouteBuilder());
     context.start();
 
     Thread.sleep(10000);

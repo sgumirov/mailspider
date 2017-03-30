@@ -18,7 +18,7 @@ import java.io.File;
 import java.util.Arrays;
 import static org.apache.camel.builder.ExpressionBuilder.append;
 
-public class IdempotentRepoTest extends CamelTestSupport {
+public class IdempotentRepoUnitTest extends CamelTestSupport {
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint resultEndpoint;

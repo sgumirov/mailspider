@@ -1,18 +1,16 @@
 package com.gumirov.shamil.partsib.processors;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import com.gumirov.shamil.partsib.plugins.FileMetaData;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.file.GenericFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
 
-import static com.gumirov.shamil.partsib.MailSpiderRouteBuilder.ENDPOINT_ID_HEADER;
+import static com.gumirov.shamil.partsib.MainSpiderRouteBuilder.ENDPOINT_ID_HEADER;
 /**
  * NOTE: We abort any changes ("rollback") in case of any error (exception) happened and rolling back to original 
  * content. 

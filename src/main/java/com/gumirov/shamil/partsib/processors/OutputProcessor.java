@@ -1,13 +1,11 @@
 package com.gumirov.shamil.partsib.processors;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
+import com.gumirov.shamil.partsib.MainSpiderRouteBuilder;
 import com.gumirov.shamil.partsib.util.OutputSender;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -24,14 +22,15 @@ public class OutputProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME).toString();
-    String endpointId = exchange.getIn().getHeader(MailSpiderRouteBuilder.ENDPOINT_ID_HEADER).toString();
-    String supplierId = exchange.getIn().getHeader(MailSpiderRouteBuilder.SUPPLIER_ID_HEADER).toString(); 
-    if (supplierId == null) {
-      supplierId = endpointId;
+    String endpointId = exchange.getIn().getHeader(MainSpiderRouteBuilder.ENDPOINT_ID_HEADER).toString();
+    String pricehookId = exchange.getIn().getHeader(MainSpiderRouteBuilder.PRICEHOOK_ID_HEADER).toString();
+    if (pricehookId == null) {
+      pricehookId = endpointId;
     }
-    log.info(String.format("Output(): file %s from route id=%s with supplierID=%s", 
-        filename, endpointId, supplierId));
-    InputStream is = exchange.getIn().getBody(InputStream.class);
-    new OutputSender(url).onOutput(filename, supplierId, is);
+    log.info(String.format("Output(): file %s from route id=%s with pricehook_id=%s",
+        filename, endpointId, pricehookId));
+    byte[] b = exchange.getIn().getBody(byte[].class);
+    if (!new OutputSender(url).onOutput(filename, pricehookId, b, b.length, MainSpiderRouteBuilder.MAX_UPLOAD_SIZE))
+      throw new RuntimeException("File was not sent properly, this is please refer to HttpClient logs above");
   }
 }

@@ -1,6 +1,6 @@
 package com.gumirov.shamil.partsib.util;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
+import com.gumirov.shamil.partsib.MainSpiderRouteBuilder;
 import org.apache.camel.Expression;
 import org.apache.camel.builder.SimpleBuilder;
 
@@ -31,7 +31,7 @@ public class FileNameIdempotentRepoManager {
     if (expression == null) {
       expression = append(
           append(
-              SimpleBuilder.simple("header."+ MailSpiderRouteBuilder.ENDPOINT_ID_HEADER),
+              SimpleBuilder.simple("header."+ MainSpiderRouteBuilder.ENDPOINT_ID_HEADER),
               SimpleBuilder.simple("-")),
           append(
               append(

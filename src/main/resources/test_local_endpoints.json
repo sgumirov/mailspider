@@ -1,6 +1,13 @@
 {
   "ftp":[
     {
+      "id":"ftp_supplier_01",
+      "url":"ftp://192.168.0.1/files/1.zip",
+      "user":"username",
+      "pwd":"password",
+      "delay":"60000"
+    },
+    {
       "id":"ftp_supplier_dir",
       "url":"ftp://127.0.0.1/test/",
       "user":"anonymous",

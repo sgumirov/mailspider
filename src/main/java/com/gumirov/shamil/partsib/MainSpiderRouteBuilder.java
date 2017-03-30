@@ -7,7 +7,7 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import com.gumirov.shamil.partsib.configuration.endpoints.SupplierTaggingRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.factories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
@@ -16,8 +16,6 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Predicate;
-import org.apache.camel.builder.ExpressionBuilder;
-import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
@@ -26,7 +24,6 @@ import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -38,11 +35,12 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 /**
  * A Camel Java DSL Router
  */
-public class MailSpiderRouteBuilder extends RouteBuilder {
+public class MainSpiderRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
-  public static final String SUPPLIER_ID_HEADER = "supplier.id";
+  public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
   public static final String BASE_DIR = "base.dir";
+  public static int MAX_UPLOAD_SIZE;
 //  private String workDir = "/tmp";
 
   public static enum CompressorType {
@@ -53,17 +51,17 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
   public ConfiguratorFactory confFactory = new ConfiguratorFactory();
   public Configurator config = confFactory.getConfigurator();
 
-  public MailSpiderRouteBuilder() {}
+  public MainSpiderRouteBuilder() {}
 
-  public MailSpiderRouteBuilder(Configurator config) {
+  public MainSpiderRouteBuilder(Configurator config) {
     this.config = config;
   }
 
-  public MailSpiderRouteBuilder(CamelContext context) {
+  public MainSpiderRouteBuilder(CamelContext context) {
     super(context);
   }
 
-  public MailSpiderRouteBuilder(CamelContext context, Configurator config) {
+  public MainSpiderRouteBuilder(CamelContext context, Configurator config) {
     super(context);
     this.config = config;
   }
@@ -80,10 +78,14 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
   }
 
-  public List<SupplierTaggingRule> getSupplierConfig() throws IOException {
-    String json = IOUtils.toString(new FileInputStream(config.get("supplier.tagging.config.filename")), Charset.defaultCharset());
+  public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
+    String json = IOUtils.toString(new FileInputStream(config.get("pricehook.tagging.config.filename")), Charset.defaultCharset());
     ObjectMapper mapper = new ObjectMapper();
-    return mapper.readValue(json, new TypeReference<List<SupplierTaggingRule>>(){});
+    return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
+  }
+
+  public int getMaxUploadSize(String maxSizeText) {
+    return Integer.parseInt(maxSizeText);
   }
 
   public void configure() {
@@ -96,8 +98,9 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
-      List<SupplierTaggingRule> supplierIdConfig = getSupplierConfig();
-      SupplierTaggerProcessor supplierTaggerProcessor = new SupplierTaggerProcessor(supplierIdConfig);
+      List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
+      PricehookTaggerProcessor pricehookTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
+      MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));
 
       SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
       ZipSplitter zipSplitter = new ZipSplitter();
@@ -222,7 +225,7 @@ public class MailSpiderRouteBuilder extends RouteBuilder {
               when(anyTruePredicateSet).
                 log("accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
-                process(supplierTaggerProcessor).id("supplierTagger"). /**/
+                process(pricehookTaggerProcessor).id("pricehookTagger"). /**/
                 split(splitEmailExpr).
                 process(emailAttachmentProcessor).
                 to("direct:packed").endChoice().

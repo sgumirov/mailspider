@@ -15,7 +15,7 @@ import java.util.List;
 /**
  *
  */
-public class SevenZipBindTest extends TestCase {
+public class SevenZipBindUnitTest extends TestCase {
   public void test7Zip() throws Exception {
     SevenZip.initSevenZipFromPlatformJAR();
     RandomAccessFile randomAccessFile = null;

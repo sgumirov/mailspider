@@ -1,5 +1,7 @@
 package com.gumirov.shamil.partsib.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,5 +17,15 @@ public class Util {
       r = is.read(arr, i, arrl-i);
     }
     return i;
+  }
+
+  public static byte[] readFully(InputStream is) throws IOException {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    byte[] b = new byte[10240];
+    int i;
+    while ((i=is.read(b))!=-1){
+      bos.write(b, 0, i);
+    }
+    return bos.toByteArray();
   }
 }

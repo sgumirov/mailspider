@@ -1,6 +1,5 @@
 package com.gumirov.shamil.partsib;
 
-import com.gumirov.shamil.partsib.MailSpiderRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
@@ -22,7 +21,8 @@ import java.util.HashMap;
 /**
  * Automation FTP endpoint test with local FTP daemon
  */
-  public class FTPRouteTest extends CamelTestSupport {
+@Ignore("not a UT")
+public class FTPRouteTest extends CamelTestSupport {
 
 //  static final String ftpDir = "/opt/ftp/files";
   static final String ftpDir = "/tmp/files";
@@ -45,7 +45,7 @@ import java.util.HashMap;
   };
   Configurator config = cfactory.getConfigurator();
 
-  MailSpiderRouteBuilder builder;
+  MainSpiderRouteBuilder builder;
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
@@ -79,6 +79,7 @@ import java.util.HashMap;
   }
 
   @Test
+  @Ignore("not a UT")
   public void test() throws Exception{
     mockEndpoint.expectedMessageCount(3);
     mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "plaintext.txt",
@@ -91,7 +92,7 @@ import java.util.HashMap;
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
-    builder = new MailSpiderRouteBuilder(config){
+    builder = new MainSpiderRouteBuilder(config){
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();
