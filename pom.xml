@@ -182,18 +182,6 @@
 
   <build>
     <defaultGoal>install</defaultGoal>
-    <resources>
-      <resource>
-        <includes>
-          <include>**/*.txt</include>
-        </includes>
-        <excludes>
-          <exclude>**/*test*.*</exclude>
-          <exclude>**/*Test*.*</exclude>
-          <exclude>**/*.json</exclude>
-        </excludes>
-      </resource>
-    </resources>
 
     <plugins>
       <plugin>
@@ -203,6 +191,20 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.gumirov.shamil.partsib.MainApp</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
         </configuration>
       </plugin>
 
@@ -232,7 +234,7 @@
       </plugin>
       
       <!-- systemd scripts generation -->
-      <plugin>
+      <!--plugin>
         <groupId>de.douglas.maven.plugin</groupId>
         <artifactId>rpm-systemd-maven-plugin</artifactId>
         <version>1.0</version>
@@ -244,7 +246,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

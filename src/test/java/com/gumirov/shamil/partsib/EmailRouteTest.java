@@ -52,7 +52,7 @@ public class EmailRouteTest extends CamelTestSupport {
   Configurator config = cfactory.getConfigurator();
 
 
-  MainSpiderRouteBuilder builder;
+  MainRouteBuilder builder;
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
@@ -107,7 +107,7 @@ public class EmailRouteTest extends CamelTestSupport {
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
-    builder = new MainSpiderRouteBuilder(config){
+    builder = new MainRouteBuilder(config){
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();

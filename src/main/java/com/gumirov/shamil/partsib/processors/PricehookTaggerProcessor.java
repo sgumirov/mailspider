@@ -1,6 +1,6 @@
 package com.gumirov.shamil.partsib.processors;
 
-import com.gumirov.shamil.partsib.MainSpiderRouteBuilder;
+import com.gumirov.shamil.partsib.MainRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -27,7 +27,7 @@ public class PricehookTaggerProcessor implements Processor {
   public void process(Exchange exchange) throws Exception {
     for (PricehookIdTaggingRule rule : rules){
       if (rule.predicate.matches(exchange)) {
-        exchange.getIn().setHeader(MainSpiderRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);
+        exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);
       }
     }
   }

@@ -23,7 +23,7 @@ public class PluginsLoader {
   public PluginsLoader(String pluginsConfigFile) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      String json = IOUtils.toString(new FileInputStream(pluginsConfigFile), Charset.defaultCharset());
+      String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(pluginsConfigFile), Charset.defaultCharset());
       List<String> classes = mapper.readValue(json, new TypeReference<List<String>>(){});
       for (String c : classes){
         Plugin p = (Plugin) Class.forName(c).newInstance();
