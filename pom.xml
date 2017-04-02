@@ -9,8 +9,9 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
 
-  <name>A Camel Route</name>
+  <name>MailSpider</name>
   <url>https://github.com/sgumirov/mailspider</url>
+  <description>"MailSpider" is a files fetcher and processor from Email, FTP, HTTP(S) sources.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -169,11 +170,30 @@
       <artifactId>commons-io</artifactId>
       <version>2.4</version>
     </dependency>
+    <!-- systemd scripts generation plugin -->
+    <dependency>
+      <groupId>de.douglas.maven.plugin</groupId>
+      <artifactId>rpm-systemd-maven-plugin</artifactId>
+      <version>1.0</version>
+    </dependency>
+
 
   </dependencies>
 
   <build>
     <defaultGoal>install</defaultGoal>
+    <resources>
+      <resource>
+        <includes>
+          <include>**/*.txt</include>
+        </includes>
+        <excludes>
+          <exclude>**/*test*.*</exclude>
+          <exclude>**/*Test*.*</exclude>
+          <exclude>**/*.json</exclude>
+        </excludes>
+      </resource>
+    </resources>
 
     <plugins>
       <plugin>
@@ -195,7 +215,6 @@
         </configuration>
       </plugin>
 
-      <!-- Allows the example to be run via 'mvn compile exec:java' -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -210,6 +229,21 @@
         <configuration>
           <mainClass>com.gumirov.shamil.partsib.MainApp</mainClass>
         </configuration>
+      </plugin>
+      
+      <!-- systemd scripts generation -->
+      <plugin>
+        <groupId>de.douglas.maven.plugin</groupId>
+        <artifactId>rpm-systemd-maven-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>generate-systemd-file</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
