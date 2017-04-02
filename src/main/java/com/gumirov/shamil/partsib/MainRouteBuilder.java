@@ -23,6 +23,7 @@ import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -106,7 +107,7 @@ public class MainRouteBuilder extends RouteBuilder {
       ZipSplitter zipSplitter = new ZipSplitter();
 
       FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
-          config.get("idempotent.repo", "tmp/idempotent_repo.dat"));
+          config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
 
 //FTP <production>

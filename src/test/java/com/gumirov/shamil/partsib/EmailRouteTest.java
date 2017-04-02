@@ -58,7 +58,7 @@ public class EmailRouteTest extends CamelTestSupport {
   protected MockEndpoint mockEndpoint;
 
   @Before
-  public void setupFTP() throws IOException {
+  public void setup() throws IOException {
 /*
     FileUtils.deleteDirectory(new File(ftpDir));
     FileUtils.copyDirectory(new File(resDir), new File(ftpDir));

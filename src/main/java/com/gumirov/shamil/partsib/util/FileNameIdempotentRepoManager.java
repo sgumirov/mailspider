@@ -16,7 +16,7 @@ import static org.apache.camel.builder.ExpressionBuilder.append;
 public class FileNameIdempotentRepoManager {
   private Expression expression;
 
-  private String filename = "tmp/idempotent_repo.dat";
+  private String filename = "idempotent_repo.dat";
 
   public FileNameIdempotentRepoManager() throws IOException {
     startup();
