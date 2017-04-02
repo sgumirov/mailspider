@@ -107,7 +107,6 @@ public class MainRouteBuilder extends RouteBuilder {
 
       FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
           config.get("idempotent.repo", "tmp/idempotent_repo.dat"));
-//      workDir = config.get("work.dir", workDir);
       Endpoints endpoints = getEndpoints();
 
 //FTP <production>
@@ -129,7 +128,7 @@ public class MainRouteBuilder extends RouteBuilder {
         }
       }
 
-      //HTTP <production>
+//HTTP <production>
       if (config.is("http.enabled")) {
         log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
         for (Endpoint http : endpoints.http) {
@@ -194,7 +193,7 @@ public class MainRouteBuilder extends RouteBuilder {
           process(outputProcessorEndpoint).id("outputprocessor").
           end();
 
-      //email <production>
+//email protocol
       if (config.is("email.enabled")) {
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
         ArrayList<EmailRule> rules = getEmailRules();
@@ -223,7 +222,7 @@ public class MainRouteBuilder extends RouteBuilder {
             routeId(email.id).
             choice().
               when(anyTruePredicateSet).
-                log("accepted email from: $simple{in.header.From}").
+                log("Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 process(pricehookTaggerProcessor).id("pricehookTagger"). /**/
                 split(splitEmailExpr).

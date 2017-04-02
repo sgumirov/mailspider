@@ -46,7 +46,7 @@ public class EmailRouteTest extends CamelTestSupport {
       kv.put("http.enabled",  "0");
       kv.put("output.url", url);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
-      kv.put("email.rules.config.filename=", "src/main/resources/email_reject_rules.json");
+      kv.put("email.rules.config.filename=", "src/main/resources/email_accept_rules.json");
     }
   };
   Configurator config = cfactory.getConfigurator();

@@ -2,3 +2,4 @@
 target/classes/*
 target/maven-status/*
 target/test-classes/*
+.idea/workspace.xml

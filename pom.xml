@@ -11,7 +11,7 @@
 
   <name>MailSpider</name>
   <url>https://github.com/sgumirov/mailspider</url>
-  <description>"MailSpider" is a files fetcher and processor from Email, FTP, HTTP(S) sources.</description>
+  <description>MailSpider is a files fetcher and processor from Email, FTP, HTTP(S) sources.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -234,7 +234,7 @@
       </plugin>
       
       <!-- systemd scripts generation -->
-      <!--plugin>
+      <plugin>
         <groupId>de.douglas.maven.plugin</groupId>
         <artifactId>rpm-systemd-maven-plugin</artifactId>
         <version>1.0</version>
@@ -246,7 +246,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin-->
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
