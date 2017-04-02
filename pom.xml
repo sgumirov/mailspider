@@ -182,6 +182,18 @@
 
   <build>
     <defaultGoal>install</defaultGoal>
+    <resources>
+      <resource>
+        <includes>
+          <include>**/*.txt</include>
+        </includes>
+        <excludes>
+          <exclude>**/*test*.*</exclude>
+          <exclude>**/*Test*.*</exclude>
+          <exclude>**/*.json</exclude>
+        </excludes>
+      </resource>
+    </resources>
 
     <plugins>
       <plugin>
