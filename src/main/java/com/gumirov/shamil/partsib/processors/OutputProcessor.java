@@ -23,8 +23,11 @@ public class OutputProcessor implements Processor {
   public void process(Exchange exchange) throws Exception {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME).toString();
     String endpointId = exchange.getIn().getHeader(MainRouteBuilder.ENDPOINT_ID_HEADER).toString();
-    String pricehookId = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER).toString();
-    if (pricehookId == null) {
+    String pricehookId = null;
+    if (exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER) != null) {
+      pricehookId = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER).toString();
+    }
+    else {
       pricehookId = endpointId;
     }
     log.info(String.format("Output(): file %s from route id=%s with pricehook_id=%s",
