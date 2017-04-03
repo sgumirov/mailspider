@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -49,7 +50,7 @@ public class OutputSender {
         HttpPost httppost = new HttpPost(url);
         ByteArrayEntity reqEntity = new ByteArrayEntity(b, 0, len, ContentType.APPLICATION_OCTET_STREAM);
 
-        if (filename != null) httppost.setHeader("X-Filename", filename);
+        if (filename != null) httppost.setHeader("X-Filename", Base64.getEncoder().encodeToString(filename.getBytes("UTF8")));
         if (priceHookId != null) httppost.setHeader("X-Pricehook", priceHookId);
         if (totalParts > 1) httppost.setHeader("X-Part", ""+part);
         if (totalParts > 1) httppost.setHeader("X-Parts-Total", ""+totalParts);
