@@ -46,19 +46,19 @@ public class EmailRouteTest extends CamelTestSupport {
       kv.put("http.enabled",  "0");
       kv.put("output.url", url);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
-      kv.put("email.rules.config.filename=", "src/main/resources/email_reject_rules.json");
+      kv.put("email.rules.config.filename=", "src/main/resources/email_accept_rules.json");
     }
   };
   Configurator config = cfactory.getConfigurator();
 
 
-  MainSpiderRouteBuilder builder;
+  MainRouteBuilder builder;
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
 
   @Before
-  public void setupFTP() throws IOException {
+  public void setup() throws IOException {
 /*
     FileUtils.deleteDirectory(new File(ftpDir));
     FileUtils.copyDirectory(new File(resDir), new File(ftpDir));
@@ -107,7 +107,7 @@ public class EmailRouteTest extends CamelTestSupport {
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
-    builder = new MainSpiderRouteBuilder(config){
+    builder = new MainRouteBuilder(config){
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();

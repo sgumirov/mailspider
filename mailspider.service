@@ -1,0 +1,15 @@
+
+[Unit]
+Description=MailSpider is a files fetcher and processor from Email, FTP, HTTP(S) sources.
+After=network.target
+
+[Service]
+#EnvironmentFile=/etc/sysconfig/MailSpider
+User=mailspider
+Group=mailspider
+#PermissionsStartOnly=true
+WorkingDirectory=/tmp
+ExecStart=/usr/bin/java $JAVA_OPTS -classpath /usr/share/MailSpider/MailSpider-1.0-SNAPSHOT-jar-with-dependencies.jar:/usr/share/MailSpider/MailSpider-1.0-SNAPSHOT-configs.jar com.gumirov.shamil.partsib.MainApp
+
+[Install]
+WantedBy=multi-user.target

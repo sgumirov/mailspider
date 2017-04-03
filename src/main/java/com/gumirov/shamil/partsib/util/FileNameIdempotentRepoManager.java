@@ -1,6 +1,6 @@
 package com.gumirov.shamil.partsib.util;
 
-import com.gumirov.shamil.partsib.MainSpiderRouteBuilder;
+import com.gumirov.shamil.partsib.MainRouteBuilder;
 import org.apache.camel.Expression;
 import org.apache.camel.builder.SimpleBuilder;
 
@@ -16,7 +16,7 @@ import static org.apache.camel.builder.ExpressionBuilder.append;
 public class FileNameIdempotentRepoManager {
   private Expression expression;
 
-  private String filename = "tmp/idempotent_repo.dat";
+  private String filename = "idempotent_repo.dat";
 
   public FileNameIdempotentRepoManager() throws IOException {
     startup();
@@ -31,7 +31,7 @@ public class FileNameIdempotentRepoManager {
     if (expression == null) {
       expression = append(
           append(
-              SimpleBuilder.simple("header."+ MainSpiderRouteBuilder.ENDPOINT_ID_HEADER),
+              SimpleBuilder.simple("header."+ MainRouteBuilder.ENDPOINT_ID_HEADER),
               SimpleBuilder.simple("-")),
           append(
               append(

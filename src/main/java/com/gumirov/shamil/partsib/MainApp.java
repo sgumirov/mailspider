@@ -5,7 +5,7 @@ import org.apache.camel.main.Main;
 import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -19,10 +19,10 @@ public class MainApp {
   public static void main(String... args) throws Exception {
       Main main = new Main();
       Properties config = new Properties();
-      FileInputStream is = new FileInputStream("config.properties");
+      InputStream is = MainApp.class.getClassLoader().getResourceAsStream("config.properties");
       config.load(is);
-      main.addRouteBuilder(new MainSpiderRouteBuilder(new PropertiesConfigutatorFactory(config).getConfigurator()));
-//      main.addRouteBuilder(new MainSpiderRouteBuilder());
+      main.addRouteBuilder(new MainRouteBuilder(new PropertiesConfigutatorFactory(config).getConfigurator()));
+//      main.addRouteBuilder(new MainRouteBuilder());
       // add event listener
       main.addMainListener(new EventsListener());
 //      main.enableTrace();
@@ -30,7 +30,7 @@ public class MainApp {
 
 /*
     CamelContext context = new DefaultCamelContext();
-    context.addRoutes(new MainSpiderRouteBuilder());
+    context.addRoutes(new MainRouteBuilder());
     context.start();
 
     Thread.sleep(10000);

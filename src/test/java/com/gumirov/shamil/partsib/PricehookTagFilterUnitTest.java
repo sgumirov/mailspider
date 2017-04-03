@@ -29,13 +29,13 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
-      kv.put("email.rules.config.filename=", "src/main/resources/email_reject_rules.json");
+      kv.put("email.rules.config.filename=", "src/main/resources/email_accept_rules.json");
     }
   };
   Configurator config = cfactory.getConfigurator();
 
 
-  MainSpiderRouteBuilder builder;
+  MainRouteBuilder builder;
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
@@ -58,7 +58,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
     };
     context.getRouteDefinition(ENDPID).adviceWith(context, mockemail);
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainSpiderRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
 
     context.start();
 
@@ -77,7 +77,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
-    builder = new MainSpiderRouteBuilder(config){
+    builder = new MainRouteBuilder(config){
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();

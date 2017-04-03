@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.gumirov.shamil.partsib.MainSpiderRouteBuilder.ENDPOINT_ID_HEADER;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.ENDPOINT_ID_HEADER;
 /**
  * NOTE: We abort any changes ("rollback") in case of any error (exception) happened and rolling back to original 
  * content. 

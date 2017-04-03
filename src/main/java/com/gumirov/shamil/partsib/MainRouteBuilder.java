@@ -23,6 +23,7 @@ import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -35,7 +36,7 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 /**
  * A Camel Java DSL Router
  */
-public class MainSpiderRouteBuilder extends RouteBuilder {
+public class MainRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
@@ -51,35 +52,35 @@ public class MainSpiderRouteBuilder extends RouteBuilder {
   public ConfiguratorFactory confFactory = new ConfiguratorFactory();
   public Configurator config = confFactory.getConfigurator();
 
-  public MainSpiderRouteBuilder() {}
+  public MainRouteBuilder() {}
 
-  public MainSpiderRouteBuilder(Configurator config) {
+  public MainRouteBuilder(Configurator config) {
     this.config = config;
   }
 
-  public MainSpiderRouteBuilder(CamelContext context) {
+  public MainRouteBuilder(CamelContext context) {
     super(context);
   }
 
-  public MainSpiderRouteBuilder(CamelContext context, Configurator config) {
+  public MainRouteBuilder(CamelContext context, Configurator config) {
     super(context);
     this.config = config;
   }
   
   public Endpoints getEndpoints() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(new FileInputStream(config.get("endpoints.config.filename") ), Charset.defaultCharset());
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("endpoints.config.filename") ), Charset.defaultCharset());
     return mapper.readValue(json, Endpoints.class);
   }
 
   public ArrayList<EmailRule> getEmailRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(new FileInputStream(config.get("email.rules.config.filename") ), Charset.defaultCharset());
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.rules.config.filename") ), Charset.defaultCharset());
     return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
   }
 
   public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
-    String json = IOUtils.toString(new FileInputStream(config.get("pricehook.tagging.config.filename")), Charset.defaultCharset());
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("pricehook.tagging.config.filename")), Charset.defaultCharset());
     ObjectMapper mapper = new ObjectMapper();
     return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
   }
@@ -106,8 +107,7 @@ public class MainSpiderRouteBuilder extends RouteBuilder {
       ZipSplitter zipSplitter = new ZipSplitter();
 
       FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
-          config.get("idempotent.repo", "tmp/idempotent_repo.dat"));
-//      workDir = config.get("work.dir", workDir);
+          config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
 
 //FTP <production>
@@ -129,7 +129,7 @@ public class MainSpiderRouteBuilder extends RouteBuilder {
         }
       }
 
-      //HTTP <production>
+//HTTP <production>
       if (config.is("http.enabled")) {
         log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
         for (Endpoint http : endpoints.http) {
@@ -194,7 +194,7 @@ public class MainSpiderRouteBuilder extends RouteBuilder {
           process(outputProcessorEndpoint).id("outputprocessor").
           end();
 
-      //email <production>
+//email protocol
       if (config.is("email.enabled")) {
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
         ArrayList<EmailRule> rules = getEmailRules();
@@ -223,7 +223,7 @@ public class MainSpiderRouteBuilder extends RouteBuilder {
             routeId(email.id).
             choice().
               when(anyTruePredicateSet).
-                log("accepted email from: $simple{in.header.From}").
+                log("Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 process(pricehookTaggerProcessor).id("pricehookTagger"). /**/
                 split(splitEmailExpr).
