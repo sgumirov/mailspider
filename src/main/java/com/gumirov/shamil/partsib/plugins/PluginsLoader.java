@@ -2,6 +2,7 @@ package com.gumirov.shamil.partsib.plugins;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gumirov.shamil.partsib.MainRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ public class PluginsLoader {
   public PluginsLoader(String pluginsConfigFile) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(pluginsConfigFile), Charset.defaultCharset());
+      String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(pluginsConfigFile), MainRouteBuilder.CHARSET);
       List<String> classes = mapper.readValue(json, new TypeReference<List<String>>(){});
       for (String c : classes){
         Plugin p = (Plugin) Class.forName(c).newInstance();

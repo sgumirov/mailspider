@@ -42,6 +42,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
   public static final String BASE_DIR = "base.dir";
+  public static final String CHARSET = "UTF-8";
   public static int MAX_UPLOAD_SIZE;
 
   public static enum CompressorType {
@@ -69,18 +70,18 @@ public class MainRouteBuilder extends RouteBuilder {
   
   public Endpoints getEndpoints() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("endpoints.config.filename") ), Charset.defaultCharset());
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("endpoints.config.filename") ), CHARSET);
     return mapper.readValue(json, Endpoints.class);
   }
 
   public ArrayList<EmailRule> getEmailRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.rules.config.filename") ), Charset.defaultCharset());
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.rules.config.filename") ), CHARSET);
     return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
   }
 
   public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("pricehook.tagging.config.filename")), Charset.defaultCharset());
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("pricehook.tagging.config.filename")), CHARSET);
     ObjectMapper mapper = new ObjectMapper();
     return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
   }
