@@ -65,7 +65,7 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
   }
 
   private byte[] prepareContents() {
-    byte[] b = new byte[1024000];
+    byte[] b = new byte[10240000];
     for (int i = 0; i < b.length; i+=1024){
       b[i] = 1;
     }
