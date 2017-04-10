@@ -219,7 +219,7 @@ public class MainRouteBuilder extends RouteBuilder {
           //fetchSize=1 1 at a time
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
                   "delete=false&" +
-                  "sortTerm=reverse,date&" +
+//                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
                   "unseen=true&" +
                   "peek=true&" +
                   "fetchSize=10&" +

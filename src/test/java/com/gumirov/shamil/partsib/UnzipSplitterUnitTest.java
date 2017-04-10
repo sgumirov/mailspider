@@ -36,7 +36,7 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
     contents = prepareContents();
 
     resultEndpoint.expectedMessageCount(2);
-    resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{ contents, contents });
+    resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{ new String(contents), new String(contents) });
     resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, new Object[]{"f1.txt", "dir"+File.separatorChar+"f2.txt"});
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
