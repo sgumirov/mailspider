@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib.processors;
 
 import com.gumirov.shamil.partsib.MainRouteBuilder;
+import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -15,10 +16,23 @@ import java.io.InputStream;
  */
 public class ArchiveTypeDetectorProcessor implements Processor {
   static Logger logger = LoggerFactory.getLogger(ArchiveTypeDetectorProcessor.class);
+  
+  FileNameExcluder excluder = null;
+
+  public ArchiveTypeDetectorProcessor(FileNameExcluder excluder) {
+    this.excluder = excluder;
+  }
 
   @Override
   public void process(Exchange exchange) throws Exception {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
+    
+    boolean b;
+    if (filename != null && excluder != null && (b=excluder.excludeName(filename))) {
+      logger.error("Archive Detection disabled for this file ("+filename+")"+(b?". FileNameExcluder was used":""));
+      return;
+    } 
+    
     InputStream fis = exchange.getIn().getBody(InputStream.class);
 
     byte [] signature = new byte[8];

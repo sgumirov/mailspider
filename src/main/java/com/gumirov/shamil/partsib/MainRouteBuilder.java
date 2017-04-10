@@ -11,6 +11,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule
 import com.gumirov.shamil.partsib.factories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
+import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -42,7 +43,6 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
   public static final String BASE_DIR = "base.dir";
   public static int MAX_UPLOAD_SIZE;
-//  private String workDir = "/tmp";
 
   public static enum CompressorType {
     GZIP, ZIP, RAR, _7Z
@@ -93,8 +93,11 @@ public class MainRouteBuilder extends RouteBuilder {
     try {
       //debug
       getContext().setTracing(Boolean.TRUE);
-
-      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor();
+      // lambda-a-a-a
+      FileNameExcluder excelExcluder = filename -> filename != null && (
+          filename.endsWith("xslx") || filename.endsWith("xsl") || filename.endsWith("xslm") || filename.endsWith("xslb") 
+      );
+      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
       UnpackerProcessor unpack = new UnpackerProcessor(); //todo add support RAR, 7z
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
