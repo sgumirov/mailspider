@@ -215,12 +215,6 @@ public class MainRouteBuilder extends RouteBuilder {
         };
 
         log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
-        Predicate hasPricehookIdSet = new Predicate() {
-          @Override
-          public boolean matches(Exchange exchange) {
-            return null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER);
-          }
-        };
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
@@ -238,17 +232,22 @@ public class MainRouteBuilder extends RouteBuilder {
               when(anyTruePredicateSet).
                 log("Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
-                process(pricehookTaggerProcessor).id("pricehookTagger"). /**/
-                filter(hasPricehookIdSet).
-                split(splitEmailExpr).
-                process(emailAttachmentProcessor).
-                to("direct:packed").endChoice().
+                to("direct:acceptedmail").
+                endChoice().
               otherwise().
                 log("rejected email from: $simple{in.header.From}").
                 to("direct:rejected");
           log.info("Email endpoint is added with id="+email.id);
         }
       }
+
+      from("direct:acceptedmail").
+          process(pricehookTaggerProcessor).id("pricehookTagger").
+          filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
+          split(splitEmailExpr).
+          process(emailAttachmentProcessor).
+          to("direct:packed");
+
       from("direct:rejected").
           routeId("REJECTED_EMAILS").
           log(LoggingLevel.INFO, "Rejected email from: ${in.header.From} with subject: ${in.header.Subject}").
