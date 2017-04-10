@@ -4,6 +4,10 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
+# Scripts
+
+Added 
+
 # Plugins
 
 For plugins developer notes please refer to com.gumirov.shamil.partsib.plugins.Plugin interface 

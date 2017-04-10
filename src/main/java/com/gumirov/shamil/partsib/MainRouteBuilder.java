@@ -221,7 +221,7 @@ public class MainRouteBuilder extends RouteBuilder {
         log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
-          from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=false&fetchSize=1",
+          from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=true&fetchSize=100",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).id(email.id).
             routeId(email.id).
