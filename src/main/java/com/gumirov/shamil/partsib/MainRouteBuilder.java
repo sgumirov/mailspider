@@ -96,7 +96,7 @@ public class MainRouteBuilder extends RouteBuilder {
       getContext().setTracing(Boolean.TRUE);
       // lambda-a-a-a
       FileNameExcluder excelExcluder = filename -> filename != null && (
-          filename.endsWith("xslx") || filename.endsWith("xsl") || filename.endsWith("xslm") || filename.endsWith("xslb") 
+          filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
       );
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
       UnpackerProcessor unpack = new UnpackerProcessor(); //todo add support RAR, 7z
@@ -171,10 +171,6 @@ public class MainRouteBuilder extends RouteBuilder {
       from("direct:packed").
           process(comprDetect).id("CompressorDetector").
           choice().
-            when(header(COMPRESSED_TYPE_HEADER_NAME).isEqualTo(CompressorType.ZIP)).
-              split(zipSplitter).
-              //streaming(). //seems we don't need this
-              to("direct:unpacked").endChoice().
             when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
               split(beanExpression(new UnpackerSplitter(), "unpack")).
               to("direct:unpacked").endChoice().
@@ -221,7 +217,14 @@ public class MainRouteBuilder extends RouteBuilder {
         log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
-          from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&delete=true&fetchSize=100",
+          from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+                  "delete=false&" +
+                  "sortTerm=reverse,date&" +
+                  "unseen=true&" +
+                  "peek=true&" +
+                  "fetchSize=10&" +
+                  "skipFailedMessage=true&" +
+                  "maxMessagesPerPoll=10",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).id(email.id).
             routeId(email.id).

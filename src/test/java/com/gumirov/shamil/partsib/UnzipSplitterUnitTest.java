@@ -10,6 +10,7 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.zip.ZipEntry;
@@ -27,14 +28,15 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
   @Produce(uri = "direct:from")
   protected FluentProducerTemplate template;
   
-  private final String body = "file text contents";
-  private final byte[] contents = body.getBytes();
+  private String body = "file text contents";
+  private byte[] contents = body.getBytes();
 
   @Test
   public void testSendMatchingMessage() throws Exception {
+    contents = prepareContents();
 
     resultEndpoint.expectedMessageCount(2);
-    resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{body, body});
+    resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{ contents, contents });
     resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, new Object[]{"f1.txt", "dir"+File.separatorChar+"f2.txt"});
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -51,13 +53,23 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
     bos.close();
     byte[] zip = bos.toByteArray();
     System.out.println("zip.length="+zip.length);
+
+    ByteArrayInputStream bis = new ByteArrayInputStream(zip);
     
-    template.to("direct:from").withBody(zip).
+    template.to("direct:from").withBody(bis).
         withHeader("CamelFileName", "archive.zip").
         withHeader("CamelFileLength", zip.length).
         send();
 
     resultEndpoint.assertIsSatisfied();
+  }
+
+  private byte[] prepareContents() {
+    byte[] b = new byte[1024000];
+    for (int i = 0; i < b.length; i+=1024){
+      b[i] = 1;
+    }
+    return b;
   }
 
   @Before
