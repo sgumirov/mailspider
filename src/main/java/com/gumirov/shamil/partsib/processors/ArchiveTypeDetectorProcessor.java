@@ -28,8 +28,8 @@ public class ArchiveTypeDetectorProcessor implements Processor {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
     
     boolean b;
-    if (filename != null && excluder != null && (b=excluder.excludeName(filename))) {
-      logger.error("Archive Detection disabled for this file ("+filename+")"+(b?". FileNameExcluder was used":""));
+    if (filename != null && excluder != null && (b=excluder.excludeName(filename.toLowerCase()))) {
+      logger.info("Archive Detection disabled for this file ("+filename+")"+(b?". FileNameExcluder was used":""));
       return;
     } 
     
