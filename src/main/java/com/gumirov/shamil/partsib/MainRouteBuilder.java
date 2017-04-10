@@ -215,6 +215,12 @@ public class MainRouteBuilder extends RouteBuilder {
         };
 
         log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
+        Predicate hasPricehookIdSet = new Predicate() {
+          @Override
+          public boolean matches(Exchange exchange) {
+            return null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER);
+          }
+        };
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
@@ -222,9 +228,9 @@ public class MainRouteBuilder extends RouteBuilder {
 //                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
                   "unseen=true&" +
                   "peek=true&" +
-                  "fetchSize=10&" +
+                  "fetchSize=25&" +
                   "skipFailedMessage=true&" +
-                  "maxMessagesPerPoll=10",
+                  "maxMessagesPerPoll=25",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).id(email.id).
             routeId(email.id).
@@ -233,6 +239,7 @@ public class MainRouteBuilder extends RouteBuilder {
                 log("Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 process(pricehookTaggerProcessor).id("pricehookTagger"). /**/
+                filter(hasPricehookIdSet).
                 split(splitEmailExpr).
                 process(emailAttachmentProcessor).
                 to("direct:packed").endChoice().
