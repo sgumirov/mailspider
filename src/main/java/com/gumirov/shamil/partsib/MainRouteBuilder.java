@@ -13,10 +13,7 @@ import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
-import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.Predicate;
+import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
@@ -24,6 +21,7 @@ import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 
+import javax.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -200,6 +198,7 @@ public class MainRouteBuilder extends RouteBuilder {
         ArrayList<EmailRule> rules = getEmailRules();
         for (EmailRule rule : rules){
           predicatesAnyTrue.add(SimpleBuilder.simple("${in.header."+rule.header+"} contains \""+rule.contains+"\""));
+          log.info("Email Accept Rule["+rule.id+"]: header="+rule.header+" contains='"+rule.contains+"'");
         }
 
         final Predicate anyTruePredicateSet = new Predicate() {
@@ -228,6 +227,7 @@ public class MainRouteBuilder extends RouteBuilder {
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).id(email.id).
             routeId(email.id).
+            process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             choice().
               when(anyTruePredicateSet).
                 log("Accepted email from: $simple{in.header.From}").
