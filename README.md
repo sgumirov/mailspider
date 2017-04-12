@@ -4,9 +4,30 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
+# Version status
+
+Version 1.1. An officially deployed at the customer installation.
+
 # Scripts
 
-Added 
+Added systemd script called mailspider.service (see systemd docs on how to add service).
+
+Added upgrade.sh which does the following (and if ANY step fails script stops!):
+- git pull, compiles sources and builds single jar (without configs!)
+- jars configs
+- copies service and config jars into /usr/share/mailspider/
+- restarts service (systemd) and prints status
+
+```
+set -e
+git pull
+mvn clean compile assembly:single
+cp target/MailSpider-1.0-SNAPSHOT-jar-with-dependencies.jar /usr/share/MailSpider/
+./jarconfig.sh
+cp MailSpider-1.0-SNAPSHOT-configs.jar /usr/share/MailSpider/
+systemctl restart mailspider
+systemctl status mailspider
+```
 
 # Plugins
 
