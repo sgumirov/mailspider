@@ -29,6 +29,11 @@ systemctl restart mailspider
 systemctl status mailspider
 ```
 
+# Logging
+
+Currently logging is done via Log4j2 and logs are set to output to both console and file. See 
+configuration/log4j2.properties.
+
 # Plugins
 
 For plugins developer notes please refer to com.gumirov.shamil.partsib.plugins.Plugin interface 
