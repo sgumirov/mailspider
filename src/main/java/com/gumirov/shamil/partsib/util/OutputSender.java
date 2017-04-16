@@ -30,6 +30,21 @@ public class OutputSender {
   
   private String url;
 
+  private SessionIdGenerator sessionIdGenerator = new SessionIdGenerator() {
+    @Override
+    public String nextSessionId() {
+      return UUID.randomUUID().toString();
+    }
+  };
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+    this.sessionIdGenerator = sessionIdGenerator;
+  }
+
   public OutputSender(String url){
     this.url = url;
   }
@@ -41,7 +56,7 @@ public class OutputSender {
     int part = 0;
     int totalParts = length / maxLength;
     if (length % maxLength != 0) ++totalParts;
-    UUID uuid = UUID.randomUUID();
+    String uuid = sessionIdGenerator.nextSessionId();
     try {
       byte[] b;
       if (totalParts == 1) b = file;

@@ -154,6 +154,12 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    <!-- Mocks for testing -->
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>2.6.0</version>
+    </dependency>
 
 
     <!-- TEST-NG -->
