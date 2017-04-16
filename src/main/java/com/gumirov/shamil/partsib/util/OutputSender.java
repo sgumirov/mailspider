@@ -18,6 +18,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -40,6 +41,7 @@ public class OutputSender {
     int part = 0;
     int totalParts = length / maxLength;
     if (length % maxLength != 0) ++totalParts;
+    UUID uuid = UUID.randomUUID();
     try {
       byte[] b;
       if (totalParts == 1) b = file;
@@ -54,6 +56,7 @@ public class OutputSender {
         if (priceHookId != null) httppost.setHeader("X-Pricehook", priceHookId);
         if (totalParts > 1) httppost.setHeader("X-Part", ""+part);
         if (totalParts > 1) httppost.setHeader("X-Parts-Total", ""+totalParts);
+        httppost.setHeader("X-Session", uuid.toString());
         reqEntity.setChunked(true);
         httppost.setEntity(reqEntity);
 
