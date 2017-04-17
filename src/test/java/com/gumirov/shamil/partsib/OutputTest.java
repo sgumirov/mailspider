@@ -17,6 +17,11 @@ import java.io.UnsupportedEncodingException;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static junit.framework.TestCase.assertTrue;
 
+
+/**
+ * This is AT for OutputSender with mock HTTPD. This is a real simulation of HTTP req/res.
+ * TODO Add error response codes and see Camel session retries.
+ */
 public class OutputTest {
   final int port = 8888;
   
