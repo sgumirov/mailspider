@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.gumirov.shamil.partsib.util.OutputSender;
 import com.gumirov.shamil.partsib.util.SessionIdGenerator;
 import junit.framework.TestCase;
@@ -12,7 +13,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import sun.misc.BASE64Encoder;
 
+import java.beans.ExceptionListener;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static junit.framework.TestCase.assertTrue;
@@ -58,14 +61,19 @@ public class OutputTest {
   
   @Test
   public void testOutputSender() throws Exception {
-    OutputSender sender = new OutputSender("http://127.0.0.1:"+port+"/endpoint");
-    sender.setSessionIdGenerator(new SessionIdGenerator() {
-      @Override
-      public String nextSessionId() {
-        return SESSION_ID;
-      }
-    });
     byte[] b = new byte[]{'0','0','0','0','1','1','1','1'};
+    OutputSender sender = new OutputSender("http://127.0.0.1:"+port+"/endpoint");
+
+    assertTrue(sender.onOutput("0.bin", "pricehookId", b, b.length, 10)); //8
+    List<LoggedRequest> list = findAll(postRequestedFor(urlEqualTo("/endpoint")));
+    try{
+      int i = Integer.parseInt(list.get(0).getHeader("X-Session"));
+      assertTrue("X-Session must be positive or zero number", i >=0);
+    }catch(Exception e){
+      assertTrue("Cannot parse X-Session as int", false);
+    }
+
+    sender.setSessionIdGenerator(() -> SESSION_ID);
 
     assertTrue(sender.onOutput("1.bin", "pricehookId", b, b.length, 1)); //8
     assertTrue(sender.onOutput("2.bin", "pricehookId", b, b.length, 2)); //4
