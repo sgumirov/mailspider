@@ -18,6 +18,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -40,6 +41,7 @@ public class OutputSender {
     int part = 0;
     int totalParts = length / maxLength;
     if (length % maxLength != 0) ++totalParts;
+    String uuid = sessionIdGenerator.nextSessionId();
     try {
       byte[] b;
       if (totalParts == 1) b = file;
@@ -52,8 +54,9 @@ public class OutputSender {
 
         if (filename != null) httppost.setHeader("X-Filename", Base64.getEncoder().encodeToString(filename.getBytes("UTF8")));
         if (priceHookId != null) httppost.setHeader("X-Pricehook", priceHookId);
-        if (totalParts > 1) httppost.setHeader("X-Part", ""+part);
-        if (totalParts > 1) httppost.setHeader("X-Parts-Total", ""+totalParts);
+        httppost.setHeader("X-Part", ""+part);
+        httppost.setHeader("X-Parts-Total", ""+totalParts);
+        httppost.setHeader("X-Session", uuid.toString());
         reqEntity.setChunked(true);
         httppost.setEntity(reqEntity);
 
@@ -78,5 +81,23 @@ public class OutputSender {
       httpclient.close();
     }
     return true;
+  }
+
+  /**
+   * default implementation
+   */
+  private SessionIdGenerator sessionIdGenerator = new SessionIdGenerator() {
+    @Override
+    public String nextSessionId() {
+      return UUID.randomUUID().toString();
+    }
+  };
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+    this.sessionIdGenerator = sessionIdGenerator;
   }
 }
