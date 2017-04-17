@@ -15,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.security.SecureRandom;
+import java.util.*;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -33,7 +31,9 @@ public class OutputSender {
   public OutputSender(String url){
     this.url = url;
   }
-  
+
+  private Random r = new Random(System.currentTimeMillis());
+
   public boolean onOutput(String filename, String priceHookId, byte[] file, int length, int maxLength) throws IOException {
     CloseableHttpClient httpclient = HttpClients.createDefault();
 
@@ -82,16 +82,11 @@ public class OutputSender {
     }
     return true;
   }
-
+  
   /**
-   * default implementation
+   * Default implementation:
    */
-  private SessionIdGenerator sessionIdGenerator = new SessionIdGenerator() {
-    @Override
-    public String nextSessionId() {
-      return UUID.randomUUID().toString();
-    }
-  };
+  private SessionIdGenerator sessionIdGenerator = () -> String.format("%09d", r.nextInt(Integer.MAX_VALUE));
 
   public void setUrl(String url) {
     this.url = url;
