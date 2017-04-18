@@ -194,6 +194,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //email protocol
       if (config.is("email.enabled")) {
+        //prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
         ArrayList<EmailRule> rules = getEmailRules();
         for (EmailRule rule : rules){
@@ -201,7 +202,7 @@ public class MainRouteBuilder extends RouteBuilder {
           log.info("Email Accept Rule["+rule.id+"]: header="+rule.header+" contains='"+rule.contains+"'");
         }
 
-        final Predicate anyTruePredicateSet = new Predicate() {
+        final Predicate emailAcceptPredicate = new Predicate() {
           @Override
           public boolean matches(Exchange exchange) {
             for (Predicate p : predicatesAnyTrue){
@@ -229,7 +230,7 @@ public class MainRouteBuilder extends RouteBuilder {
             routeId(email.id).
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             choice().
-              when(anyTruePredicateSet).
+              when(emailAcceptPredicate).
                 log("Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
