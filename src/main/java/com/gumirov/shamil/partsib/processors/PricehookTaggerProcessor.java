@@ -22,9 +22,11 @@ public class PricehookTaggerProcessor implements Processor {
     }
   }
 
-
   @Override
   public void process(Exchange exchange) throws Exception {
+    List<PricehookIdTaggingRule> rulesDynamic = (List<PricehookIdTaggingRule>) exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER);
+    if (rulesDynamic != null) rules  = rulesDynamic;
+    if (rules == null) throw new Exception("FATAL: No pricehook id tagging rules");
     for (PricehookIdTaggingRule rule : rules){
       if (rule.predicate.matches(exchange)) {
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);

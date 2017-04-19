@@ -70,6 +70,8 @@ idempotent.repo=tmp/idempotent_repo.dat
 email.idempotent.repo=tmp/email_idempotent_repo.dat
 # http post max size in bytes
 max.upload.size=1024000
+# pricehook id tagging rules url
+pricehook.config.url=http://localhost/email_tagging_rules.json
 ```
 
 # Http post size split
@@ -181,6 +183,9 @@ To send source pricehook id (one only) to the output the config the set of rules
   }
 ]
 ```
+
+The network loading of this config is done via http every time the email is processed. Network url is specified in main 
+config under parameter named 'pricehook.config.url'.
 
 # Unit tests
 

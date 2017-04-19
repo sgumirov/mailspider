@@ -1,19 +1,14 @@
 package com.gumirov.shamil.partsib;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.gumirov.shamil.partsib.util.OutputSender;
-import com.gumirov.shamil.partsib.util.SessionIdGenerator;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import sun.misc.BASE64Encoder;
 
-import java.beans.ExceptionListener;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -29,10 +24,8 @@ public class OutputTest {
   private static final String SESSION_ID = "00001";
   final int port = 8888;
   
-  
   @Rule
-  public WireMockRule wireMockRule =
-      new WireMockRule(WireMockConfiguration.wireMockConfig().port(port));
+  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(port));
   
   @Before
   public void before(){
