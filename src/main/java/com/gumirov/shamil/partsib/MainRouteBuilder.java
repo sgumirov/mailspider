@@ -9,16 +9,15 @@ import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.factories.RouteFactory;
+import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
-import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigProvider;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
-import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -78,9 +77,9 @@ public class MainRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, Endpoints.class);
   }
 
-  public ArrayList<EmailRule> getEmailRules() throws IOException {
+  public ArrayList<EmailRule> getEmailAcceptRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.rules.config.filename") ), CHARSET);
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.accept.rules.config.filename") ), CHARSET);
     return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
   }
 
@@ -119,7 +118,7 @@ public class MainRouteBuilder extends RouteBuilder {
       );
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
-      PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
+      PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
@@ -218,7 +217,7 @@ public class MainRouteBuilder extends RouteBuilder {
       if (config.is("email.enabled")) {
         //prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
-        ArrayList<EmailRule> rules = getEmailRules();
+        ArrayList<EmailRule> rules = getEmailAcceptRules();
         for (EmailRule rule : rules){
           predicatesAnyTrue.add(SimpleBuilder.simple("${in.header."+rule.header+"} contains \""+rule.contains+"\""));
           log.info("Email Accept Rule["+rule.id+"]: header="+rule.header+" contains='"+rule.contains+"'");
@@ -278,6 +277,10 @@ public class MainRouteBuilder extends RouteBuilder {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  public List<Plugin> getPlugins() {
+    return new PluginsLoader(config.get("plugins.config.filename")).getPlugins();
   }
 }
 

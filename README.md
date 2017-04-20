@@ -4,8 +4,10 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
-# Version status
+# Version status and important changes
 
+Version 1.3. [IMPORTANT] Changed name of email accept rules (".accept" added): email.accept.rules.config.filename
+Version 1.2. Deployed with pricehook tagging.
 Version 1.1. An officially deployed at the customer installation.
 
 # Scripts
@@ -62,7 +64,7 @@ local.enabled=0
 output.url=http://im.mad.gd/2.php
 # references to other configs
 endpoints.config.filename=target/classes/test_local_endpoints.json
-email.rules.config.filename=target/classes/email_reject_rules.json
+email.accept.rules.config.filename=target/classes/email_reject_rules.json
 plugins.config.filename=target/classes/plugins.json
 pricehook.tagging.config.filename=target/classes/email_tagging_rules.json
 # locations for repeat-filters (lists of name-size pairs) for email and ftp.

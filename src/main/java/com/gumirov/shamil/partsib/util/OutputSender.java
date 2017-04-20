@@ -71,16 +71,15 @@ public class OutputSender {
         }
         ++part;
       }
+      return true;
     } catch (FileNotFoundException e) {
-      log.info("[OutputSenderEndpoint] Error: cannot find file to send: "+filename, e);
-      return false;
+      log.error("[OutputSenderEndpoint] Error: cannot find file to send: "+filename, e);
     } catch (IOException e) {
-      log.info("[OutputSenderEndpoint] IOError: cannot send file: "+filename, e);
-      return false;
+      log.error("[OutputSenderEndpoint] IOError: cannot send file: "+filename, e);
     } finally {
       httpclient.close();
     }
-    return true;
+    return false;
   }
   
   /**

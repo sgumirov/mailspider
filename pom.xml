@@ -11,7 +11,7 @@
 
   <name>MailSpider</name>
   <url>https://github.com/sgumirov/mailspider</url>
-  <description>MailSpider is a files fetcher and processor from Email, FTP, HTTP(S) sources.</description>
+  <description>MailSpider is an extensible file fetcher and processor from Email, FTP, HTTP(S) endpoints which outputs to HTTP(S).</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -134,6 +134,11 @@
       <artifactId>httpclient</artifactId>
       <version>4.5.3</version>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+    </dependency>
 
     <!-- TEST -->
     <dependency>
@@ -171,8 +176,6 @@
       <scope>test</scope>
     </dependency>
 
-
-
     <!-- TEST-NG -->
     <!--dependency>
       <groupId>org.testng</groupId>
@@ -181,12 +184,6 @@
       <scope>test</scope>
     </dependency-->
 
-    <!-- OTHERS -->
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-    </dependency>
     <!-- systemd scripts generation plugin -->
     <dependency>
       <groupId>de.douglas.maven.plugin</groupId>
@@ -198,6 +195,7 @@
   </dependencies>
 
   <build>
+
     <defaultGoal>install</defaultGoal>
 
     <plugins>
@@ -273,7 +271,6 @@
         </configuration>
       </plugin>
     </plugins>
-
 
   </build>
 
