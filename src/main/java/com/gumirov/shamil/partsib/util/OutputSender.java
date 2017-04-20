@@ -56,18 +56,14 @@ public class OutputSender {
         if (priceHookId != null) httppost.setHeader("X-Pricehook", priceHookId);
         httppost.setHeader("X-Part", ""+part);
         httppost.setHeader("X-Parts-Total", ""+totalParts);
-        httppost.setHeader("X-Session", uuid.toString());
+        httppost.setHeader("X-Session", uuid);
         reqEntity.setChunked(true);
         httppost.setEntity(reqEntity);
 
         System.out.println("Executing request: " + httppost.getRequestLine());
-        CloseableHttpResponse response = httpclient.execute(httppost);
-        try {
-          System.out.println("----------------------------------------");
-          System.out.println(response.getStatusLine());
-          System.out.println(EntityUtils.toString(response.getEntity()));
-        } finally {
-          response.close();
+        try (CloseableHttpResponse response = httpclient.execute(httppost)) {
+          log.debug(response.getStatusLine().toString());
+          log.debug(EntityUtils.toString(response.getEntity()));
         }
         ++part;
       }
