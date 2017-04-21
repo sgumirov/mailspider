@@ -45,7 +45,7 @@ public class EmailRouteAT extends CamelTestSupport {
   final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   private int imapport = 3993;
   final String imapHost = "127.0.0.1"+":"+imapport;
-  private List<String> filenames = Arrays.asList("sample.csv", "a.csv");
+  private List<String> filenames = Arrays.asList("sample1.csv", "Прайс лист1.csv");
   private byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
 
   {
@@ -85,7 +85,7 @@ public class EmailRouteAT extends CamelTestSupport {
     stubFor(post(urlEqualTo(httpendpoint))
         .willReturn(aResponse()
             .withStatus(200)));
-    //
+    //disable ssl cert checking for imaps connections
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
 
     context.setTracing(false);
@@ -187,7 +187,11 @@ public class EmailRouteAT extends CamelTestSupport {
         r1.header = "Subject";
         r1.contains = "ASVA";
         r1.pricehookid = pricehookId;
-        return Arrays.asList(r1);
+        PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
+        r2.header = "Subject";
+        r2.contains = "АСВА";
+        r2.pricehookid = pricehookId;
+        return Arrays.asList(r1, r2);
       }
     };
   }
