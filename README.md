@@ -76,7 +76,8 @@ max.upload.size=1024000
 pricehook.config.url=http://localhost/email_tagging_rules.json
 ```
 
-# Http post size split
+# Http post size partitioning
+
 The following headers are used to notice upload part number:
 - X-Part - a zero-based index
 - X-Parts-Total - total number of parts
@@ -166,9 +167,17 @@ logging in to different web sites, so we need to use the specific implementation
 }
 ```
 
-# Price hook ids tagging
+# Pricehook IDs tagging
 
-To send source pricehook id (one only) to the output the config the set of rules is used with the syntax similar to email filtering config:
+The network loading of this config is done via http every time the email message is processed and the same set of
+rules are applied to all the files attached to this email.
+
+Network url is specified in main config under parameter named 'pricehook.config.url'. Note that network rules
+replaces local config in sense of 'if at least one tagging rule is load from network, local tagging rules are
+dismissed for exchange'.
+
+To send source pricehook id (one per file) to the output the set of rules is used with the syntax similar to
+email filtering config. See example below.
 ```json
 [
   {
@@ -186,8 +195,6 @@ To send source pricehook id (one only) to the output the config the set of rules
 ]
 ```
 
-The network loading of this config is done via http every time the email is processed. Network url is specified in main 
-config under parameter named 'pricehook.config.url'.
 
 # Unit tests
 
