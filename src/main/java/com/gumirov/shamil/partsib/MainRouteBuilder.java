@@ -8,7 +8,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import com.gumirov.shamil.partsib.factories.RouteFactory;
+import com.gumirov.shamil.partsib.routefactories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
@@ -23,10 +23,8 @@ import org.apache.commons.io.IOUtils;
 
 import javax.mail.internet.MimeUtility;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,14 +88,12 @@ public class MainRouteBuilder extends RouteBuilder {
 
   public void configure() {
     try {
-      //debug
-      getContext().setTracing(Boolean.TRUE);
-      // lambda-a-a-a
+      //debug, will be overriden by config's 'tracing' boolean value
+      getContext().setTracing(config.is("tracing", true));
       FileNameExcluder excelExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
       );
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
-      UnpackerProcessor unpack = new UnpackerProcessor(); //todo add support RAR, 7z
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
@@ -106,7 +102,6 @@ public class MainRouteBuilder extends RouteBuilder {
       MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));
 
       SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
-      ZipSplitter zipSplitter = new ZipSplitter();
 
       FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
@@ -242,6 +237,7 @@ public class MainRouteBuilder extends RouteBuilder {
         }
       }
 
+      //pricehook tagging and attachment extraction
       from("direct:acceptedmail").
           process(pricehookTaggerProcessor).id("pricehookTagger").
           filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
