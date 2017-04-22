@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
-import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
@@ -13,12 +13,10 @@ import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
-import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigProvider;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
-import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -78,10 +76,10 @@ public class MainRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, Endpoints.class);
   }
 
-  public ArrayList<EmailRule> getEmailRules() throws IOException {
+  public ArrayList<EmailAcceptRule> getEmailRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.rules.config.filename") ), CHARSET);
-    return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
+    return mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>(){});
   }
 
   public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
@@ -218,9 +216,14 @@ public class MainRouteBuilder extends RouteBuilder {
       if (config.is("email.enabled")) {
         //prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
-        ArrayList<EmailRule> rules = getEmailRules();
-        for (EmailRule rule : rules){
-          predicatesAnyTrue.add(SimpleBuilder.simple("${in.header."+rule.header+"} contains \""+rule.contains+"\""));
+        ArrayList<EmailAcceptRule> rules = getEmailRules();
+        for (EmailAcceptRule rule : rules){
+          if (Configurator.isTrue(rule.ignorecase)) {
+            predicatesAnyTrue.add(exchange -> exchange.getIn().getHeader(rule.header, String.class) != null &&
+                exchange.getIn().getHeader(rule.header, String.class).toUpperCase().contains(rule.contains.toUpperCase()));
+          } else {
+            predicatesAnyTrue.add(SimpleBuilder.simple("${in.header." + rule.header + "} contains \"" + rule.contains + "\""));
+          }
           log.info("Email Accept Rule["+rule.id+"]: header="+rule.header+" contains='"+rule.contains+"'");
         }
 

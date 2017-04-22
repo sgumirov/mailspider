@@ -2,7 +2,7 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
-import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
@@ -96,12 +96,12 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailRule> getEmailRules() throws IOException {
-        ArrayList<EmailRule> rules = new ArrayList<>();
-        EmailRule r1 = new EmailRule();
+      public ArrayList<EmailAcceptRule> getEmailRules() throws IOException {
+        ArrayList<EmailAcceptRule> rules = new ArrayList<>();
+        EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="From";
         r1.contains="bad";
-        EmailRule r2 = new EmailRule();
+        EmailAcceptRule r2 = new EmailAcceptRule();
         r2.header="From";
         r2.contains="good";
         rules.add(r1);

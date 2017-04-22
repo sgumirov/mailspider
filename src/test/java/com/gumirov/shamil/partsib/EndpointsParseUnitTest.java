@@ -2,14 +2,12 @@ package com.gumirov.shamil.partsib;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import org.junit.Assert;
 import org.testng.annotations.Test;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 public class EndpointsParseUnitTest {
@@ -25,7 +23,7 @@ public class EndpointsParseUnitTest {
   @Test
   public void testEmailRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    List<EmailRule> rules = mapper.readValue(json, new TypeReference<List<EmailRule>>() {});
+    List<EmailAcceptRule> rules = mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>() {});
     Assert.assertTrue(rules.size() == 1);
     Assert.assertTrue("From".equals(rules.get(0).header));
     Assert.assertTrue("rule_01".equals(rules.get(0).id));
