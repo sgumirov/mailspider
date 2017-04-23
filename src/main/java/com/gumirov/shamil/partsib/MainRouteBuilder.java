@@ -9,6 +9,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.routefactories.RouteFactory;
+import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
@@ -17,9 +18,14 @@ import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
-import org.apache.camel.dataformat.zipfile.ZipSplitter;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import javax.mail.internet.MimeUtility;
 import java.io.File;
@@ -37,11 +43,11 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
-  public static final String BASE_DIR = "base.dir";
   public static final String CHARSET = "UTF-8";
+  public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static int MAX_UPLOAD_SIZE;
 
-  public static enum CompressorType {
+  public enum CompressorType {
     GZIP, ZIP, RAR, _7Z
   }
 
@@ -70,9 +76,9 @@ public class MainRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, Endpoints.class);
   }
 
-  public ArrayList<EmailRule> getEmailRules() throws IOException {
+  public ArrayList<EmailRule> getEmailAcceptRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.rules.config.filename") ), CHARSET);
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.accept.rules.config.filename") ), CHARSET);
     return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
   }
 
@@ -80,6 +86,21 @@ public class MainRouteBuilder extends RouteBuilder {
     String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("pricehook.tagging.config.filename")), CHARSET);
     ObjectMapper mapper = new ObjectMapper();
     return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
+  }
+
+  public List<PricehookIdTaggingRule> loadPricehookConfig(String url) throws IOException {
+    CloseableHttpClient httpclient = HttpClients.createDefault();
+    HttpGet req = new HttpGet(url);
+    CloseableHttpResponse res = httpclient.execute(req);
+    try {
+      HttpEntity entity = res.getEntity();
+      String json = IOUtils.toString(entity.getContent());
+      EntityUtils.consume(entity);
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
+    } finally {
+      res.close();
+    }
   }
 
   public int getMaxUploadSize(String maxSizeText) {
@@ -95,10 +116,13 @@ public class MainRouteBuilder extends RouteBuilder {
       );
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
-      PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
+      PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
-      PricehookTaggerProcessor pricehookTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
+      PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
+      PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
+          new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), url -> MainRouteBuilder.this.loadPricehookConfig(url));
+      
       MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));
 
       SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
@@ -191,22 +215,19 @@ public class MainRouteBuilder extends RouteBuilder {
       if (config.is("email.enabled")) {
         //prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
-        ArrayList<EmailRule> rules = getEmailRules();
+        ArrayList<EmailRule> rules = getEmailAcceptRules();
         for (EmailRule rule : rules){
           predicatesAnyTrue.add(SimpleBuilder.simple("${in.header."+rule.header+"} contains \""+rule.contains+"\""));
           log.info("Email Accept Rule["+rule.id+"]: header="+rule.header+" contains='"+rule.contains+"'");
         }
 
-        final Predicate emailAcceptPredicate = new Predicate() {
-          @Override
-          public boolean matches(Exchange exchange) {
-            for (Predicate p : predicatesAnyTrue){
-              if (p.matches(exchange)) {
-                return true;
-              }
+        final Predicate emailAcceptPredicate = exchange -> {
+          for (Predicate p : predicatesAnyTrue){
+            if (p.matches(exchange)) {
+              return true;
             }
-            return false;
           }
+          return false;
         };
 
         log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
@@ -226,7 +247,7 @@ public class MainRouteBuilder extends RouteBuilder {
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             choice().
               when(emailAcceptPredicate).
-                log("Accepted email from: $simple{in.header.From}").
+                log(LoggingLevel.INFO, "Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
@@ -238,8 +259,9 @@ public class MainRouteBuilder extends RouteBuilder {
       }
 
       //pricehook tagging and attachment extraction
-      from("direct:acceptedmail").
-          process(pricehookTaggerProcessor).id("pricehookTagger").
+      from("direct:acceptedmail").routeId("acceptedmail").
+          process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
+          process(pricehookIdTaggerProcessor).id("pricehookTagger").
           filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
           split(splitEmailExpr).
           process(emailAttachmentProcessor).
@@ -254,6 +276,10 @@ public class MainRouteBuilder extends RouteBuilder {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  public List<Plugin> getPlugins() {
+    return new PluginsLoader(config.get("plugins.config.filename")).getPlugins();
   }
 }
 

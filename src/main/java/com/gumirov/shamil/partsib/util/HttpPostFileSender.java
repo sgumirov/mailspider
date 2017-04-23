@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib.util;
 import org.apache.camel.Consume;
 import org.apache.camel.Header;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
@@ -18,17 +19,19 @@ import java.io.*;
 import java.security.SecureRandom;
 import java.util.*;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
  * Date: 4/1/2017 Time: 23:20<br/>
  */
-public class OutputSender {
+public class HttpPostFileSender {
 
   protected Logger log = LoggerFactory.getLogger(getClass());
   
   private String url;
 
-  public OutputSender(String url){
+  public HttpPostFileSender(String url){
     this.url = url;
   }
 
@@ -56,31 +59,29 @@ public class OutputSender {
         if (priceHookId != null) httppost.setHeader("X-Pricehook", priceHookId);
         httppost.setHeader("X-Part", ""+part);
         httppost.setHeader("X-Parts-Total", ""+totalParts);
-        httppost.setHeader("X-Session", uuid.toString());
+        httppost.setHeader("X-Session", uuid);
         reqEntity.setChunked(true);
         httppost.setEntity(reqEntity);
 
         System.out.println("Executing request: " + httppost.getRequestLine());
-        CloseableHttpResponse response = httpclient.execute(httppost);
-        try {
-          System.out.println("----------------------------------------");
-          System.out.println(response.getStatusLine());
-          System.out.println(EntityUtils.toString(response.getEntity()));
-        } finally {
-          response.close();
+        try (CloseableHttpResponse response = httpclient.execute(httppost)) {
+          log.debug(response.getStatusLine().toString());
+          log.debug(EntityUtils.toString(response.getEntity()));
+          if (response.getStatusLine().getStatusCode() != HTTP_OK) {
+            return false;
+          }
         }
         ++part;
       }
+      return true;
     } catch (FileNotFoundException e) {
-      log.info("[OutputSenderEndpoint] Error: cannot find file to send: "+filename, e);
-      return false;
+      log.error("[OutputSenderEndpoint] Error: cannot find file to send: "+filename, e);
     } catch (IOException e) {
-      log.info("[OutputSenderEndpoint] IOError: cannot send file: "+filename, e);
-      return false;
+      log.error("[OutputSenderEndpoint] IOError: cannot send file: "+filename, e);
     } finally {
       httpclient.close();
     }
-    return true;
+    return false;
   }
   
   /**

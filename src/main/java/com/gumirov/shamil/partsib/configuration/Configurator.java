@@ -10,14 +10,7 @@ public class Configurator {
 
   HashMap<String, String> storage = new HashMap<>();
   
-  //todo set this via beans annotation for mocks
-  public static ConfiguratorFactory factory = new ConfiguratorFactory();
-
   Configurator() {
-  }
-
-  public HashMap<String, String> getStorage() {
-    return storage;
   }
 
   public void setStorage(HashMap<String, String> storage) {
