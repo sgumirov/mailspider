@@ -6,7 +6,8 @@ HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
 
-Version 1.3. [IMPORTANT] Changed name of email accept rules (".accept" added): email.accept.rules.config.filename
+Version 1.3. [IMPORTANT] Changed name of email accept rules (".accept" added): email.accept.rules.config.filename, multiple options added, 
+             added retries in case of output endpoint failure.
 Version 1.2. Deployed with pricehook tagging.
 Version 1.1. An officially deployed at the customer installation.
 
