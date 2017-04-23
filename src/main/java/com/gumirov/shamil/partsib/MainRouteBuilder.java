@@ -43,7 +43,6 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
-  public static final String BASE_DIR = "base.dir";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static int MAX_UPLOAD_SIZE;
@@ -249,7 +248,7 @@ public class MainRouteBuilder extends RouteBuilder {
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             choice().
               when(emailAcceptPredicate).
-                log("Accepted email from: $simple{in.header.From}").
+                log(LoggingLevel.INFO, "Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().

@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib.util;
 import org.apache.camel.Consume;
 import org.apache.camel.Header;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
@@ -18,17 +19,19 @@ import java.io.*;
 import java.security.SecureRandom;
 import java.util.*;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
  * Date: 4/1/2017 Time: 23:20<br/>
  */
-public class OutputSender {
+public class HttpPostFileSender {
 
   protected Logger log = LoggerFactory.getLogger(getClass());
   
   private String url;
 
-  public OutputSender(String url){
+  public HttpPostFileSender(String url){
     this.url = url;
   }
 
@@ -66,6 +69,9 @@ public class OutputSender {
           System.out.println("----------------------------------------");
           System.out.println(response.getStatusLine());
           System.out.println(EntityUtils.toString(response.getEntity()));
+          if (response.getStatusLine().getStatusCode() != HTTP_OK) {
+            return false;
+          }
         } finally {
           response.close();
         }
