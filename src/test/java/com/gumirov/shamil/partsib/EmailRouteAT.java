@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
@@ -47,8 +48,8 @@ public class EmailRouteAT extends CamelTestSupport {
   final String imapHost = "127.0.0.1"+":"+imapport;
   private List<String> filenames = Arrays.asList("sample1.csv", "Прайс лист1.csv");
   private byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
-
-  {
+  final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
+  { //ssl init
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
   }
 
@@ -57,8 +58,6 @@ public class EmailRouteAT extends CamelTestSupport {
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
-
-  final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
 
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
     @Override
@@ -75,22 +74,69 @@ public class EmailRouteAT extends CamelTestSupport {
   };
   Configurator config = cfactory.getConfigurator();
 
-//  MainRouteBuilder builder;
-
   @Before
   public void setup() throws Exception {
     //clear:
     new File(config.get("email.idempotent.repo")).delete();
     //http mock
-    stubFor(post(urlEqualTo(httpendpoint))
-        .willReturn(aResponse()
-            .withStatus(200)));
+    prepareHttpdOK();
     //disable ssl cert checking for imaps connections
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
 
     context.setTracing(false);
     context.setMessageHistory(false);
     context.start();
+  }
+
+  private void prepareHttpdOK() {
+    stubFor(post(urlEqualTo(httpendpoint))
+        .willReturn(aResponse()
+            .withStatus(200)));
+  }
+  private void prepareHttpdFailFirstNTimes(int n) {
+    stubFor(post(urlEqualTo(httpendpoint)).inScenario("fail")
+        .whenScenarioStateIs(Scenario.STARTED)
+        .willReturn(aResponse()
+            .withStatus(500).withStatusMessage("Internal server error"))
+        .willSetStateTo("STATE_"+1));
+    for (int i = 1; i < n; ++i) {
+      stubFor(post(urlEqualTo(httpendpoint)).inScenario("fail")
+          .whenScenarioStateIs("STATE_"+i)
+          .willReturn(aResponse()
+              .withStatus(500).withStatusMessage("Internal server error"))
+          .willSetStateTo( i < n-1 ?("STATE_"+(i+1)) : "OK"));
+    }
+    stubFor(post(urlEqualTo(httpendpoint)).inScenario("fail")
+        .whenScenarioStateIs("OK")
+        .willReturn(aResponse()
+            .withStatus(200)));
+  }
+
+  @Test
+  public void test() throws Exception{
+    execute(() -> sendMessage(filenames), 2000, () -> {
+      validate(filenames.get(0), 1, pricehookId);
+      validate(filenames.get(1), 1, pricehookId);
+      verify(2, postRequestedFor(urlEqualTo(httpendpoint)));
+    });
+    List<String> fnames = Arrays.asList("f1.txt");
+    execute(() -> prepareFail2Times(fnames),
+        5000,
+        validate(fnames.get(0), 1, pricehookId),
+        () -> verify(3, postRequestedFor(urlEqualTo(httpendpoint)))
+    );
+  }
+
+  private void prepareFail2Times(List<String> filenames) {
+    WireMock.reset();
+    prepareHttpdFailFirstNTimes(2);
+    sendMessage(filenames);
+  }
+
+  void execute(Runnable test, long timeWait, Runnable ... validators) throws InterruptedException {
+    test.run();
+    Thread.sleep(timeWait);
+    for (Runnable r : validators) r.run();
   }
 
   public Runnable validate(String filename, int parts, String pricehookId) {
@@ -111,26 +157,12 @@ public class EmailRouteAT extends CamelTestSupport {
     };
   }
 
-  @Override
-  public boolean isUseAdviceWith() {
-    return true;
-  }
-
-  @Test
-  public void test() throws Exception{
-    sendMessage();
-    Thread.sleep(2000);
-    validate(filenames.get(0), 1, pricehookId).run();
-    validate(filenames.get(1), 1, pricehookId).run();
-    verify(2, postRequestedFor(urlEqualTo(httpendpoint)));
-  }
-
-  private void sendMessage() throws MessagingException {
+  private void sendMessage(List<String> filenames) {
     GreenMailUser user = greenMail.setUser(to, login, pwd);
     HashMap<String, byte[]> attach = new HashMap<>();
-    attach.put(filenames.get(0), contents);
-    attach.put(filenames.get(1), contents);
-    user.deliver(createMimeMessage(to, "shamil.gumirov@gmail.com","Прайс-лист компании ASVA", attach));
+    for (String fn : filenames) attach.put(fn, contents);
+    try{ user.deliver(createMimeMessage(to, "shamil.gumirov@gmail.com","Прайс-лист компании ASVA", attach)); }
+    catch (Exception e){throw new RuntimeException(e);}
   }
 
   private MimeMessage createMimeMessage(String to, String from, String subject, Map<String, byte[]> attachments) throws MessagingException {
@@ -145,6 +177,11 @@ public class EmailRouteAT extends CamelTestSupport {
     }
     msg.setContent(multipart);
     return msg;
+  }
+
+  @Override
+  public boolean isUseAdviceWith() {
+    return true;
   }
 
   @Override
