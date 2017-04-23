@@ -1,7 +1,6 @@
 package com.gumirov.shamil.partsib.configuration;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * This is for creating mocks
@@ -36,7 +35,7 @@ public class ConfiguratorFactory {
     kv.put("output.url", "http://im.mad.gd/2.php");
 
     kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
-    kv.put("email.rules.config.filename", "target/classes/email_accept_rules.json");
+    kv.put("email.accept.rules.config.filename", "target/classes/email_accept_rules.json");
 
     kv.put("plugins.config.filename", "target/classes/plugins.json");
     kv.put("idempotent.repo", "idempotent_repo.dat");

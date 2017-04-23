@@ -26,6 +26,10 @@ public class PluginsProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
 //    log.info("PLUGINS: id="+exchange.getExchangeId()+" file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class));
+    if (plugins == null || plugins.size() == 0) {
+      log.info("No plugins loaded");
+      return;
+    }
     Plugin last = null;
     try {
       FileMetaData mdata = new FileMetaData(

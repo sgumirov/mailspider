@@ -4,8 +4,10 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
-# Version status
+# Version status and important changes
 
+Version 1.3. [IMPORTANT] Changed name of email accept rules (".accept" added): email.accept.rules.config.filename
+Version 1.2. Deployed with pricehook tagging.
 Version 1.1. An officially deployed at the customer installation.
 
 # Scripts
@@ -62,7 +64,7 @@ local.enabled=0
 output.url=http://im.mad.gd/2.php
 # references to other configs
 endpoints.config.filename=target/classes/test_local_endpoints.json
-email.rules.config.filename=target/classes/email_reject_rules.json
+email.accept.rules.config.filename=target/classes/email_reject_rules.json
 plugins.config.filename=target/classes/plugins.json
 pricehook.tagging.config.filename=target/classes/email_tagging_rules.json
 # locations for repeat-filters (lists of name-size pairs) for email and ftp.
@@ -74,7 +76,8 @@ max.upload.size=1024000
 pricehook.config.url=http://localhost/email_tagging_rules.json
 ```
 
-# Http post size split
+# Http post size partitioning
+
 The following headers are used to notice upload part number:
 - X-Part - a zero-based index
 - X-Parts-Total - total number of parts
@@ -164,9 +167,17 @@ logging in to different web sites, so we need to use the specific implementation
 }
 ```
 
-# Price hook ids tagging
+# Pricehook IDs tagging
 
-To send source pricehook id (one only) to the output the config the set of rules is used with the syntax similar to email filtering config:
+The network loading of this config is done via http every time the email message is processed and the same set of
+rules are applied to all the files attached to this email.
+
+Network url is specified in main config under parameter named 'pricehook.config.url'. Note that network rules
+replaces local config in sense of 'if at least one tagging rule is load from network, local tagging rules are
+dismissed for exchange'.
+
+To send source pricehook id (one per file) to the output the set of rules is used with the syntax similar to
+email filtering config. See example below.
 ```json
 [
   {
@@ -184,8 +195,6 @@ To send source pricehook id (one only) to the output the config the set of rules
 ]
 ```
 
-The network loading of this config is done via http every time the email is processed. Network url is specified in main 
-config under parameter named 'pricehook.config.url'.
 
 # Unit tests
 
