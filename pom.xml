@@ -11,7 +11,7 @@
 
   <name>MailSpider</name>
   <url>https://github.com/sgumirov/mailspider</url>
-  <description>MailSpider is a files fetcher and processor from Email, FTP, HTTP(S) sources.</description>
+  <description>MailSpider is an extensible file fetcher and processor from Email, FTP, HTTP(S) endpoints which outputs to HTTP(S).</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -134,6 +134,11 @@
       <artifactId>httpclient</artifactId>
       <version>4.5.3</version>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+    </dependency>
 
     <!-- TEST -->
     <dependency>
@@ -154,13 +159,22 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    
     <!-- Mocks for testing -->
+    <!-- HTTPD -->
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>
       <version>2.6.0</version>
+      <scope>test</scope>
     </dependency>
-
+    <!-- IMAP -->
+    <dependency>
+      <groupId>com.icegreen</groupId>
+      <artifactId>greenmail</artifactId>
+      <version>1.5.4</version>
+      <scope>test</scope>
+    </dependency>
 
     <!-- TEST-NG -->
     <!--dependency>
@@ -170,12 +184,6 @@
       <scope>test</scope>
     </dependency-->
 
-    <!-- OTHERS -->
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-    </dependency>
     <!-- systemd scripts generation plugin -->
     <dependency>
       <groupId>de.douglas.maven.plugin</groupId>
@@ -187,6 +195,7 @@
   </dependencies>
 
   <build>
+
     <defaultGoal>install</defaultGoal>
 
     <plugins>
@@ -262,7 +271,6 @@
         </configuration>
       </plugin>
     </plugins>
-
 
   </build>
 

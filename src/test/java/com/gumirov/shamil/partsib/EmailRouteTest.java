@@ -126,7 +126,7 @@ public class EmailRouteTest extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailAcceptRule> getEmailRules() throws IOException {
+      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="Subject";

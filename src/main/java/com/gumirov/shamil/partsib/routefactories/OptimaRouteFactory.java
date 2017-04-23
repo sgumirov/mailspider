@@ -1,4 +1,4 @@
-package com.gumirov.shamil.partsib.factories;
+package com.gumirov.shamil.partsib.routefactories;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;

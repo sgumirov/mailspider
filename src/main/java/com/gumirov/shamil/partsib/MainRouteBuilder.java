@@ -8,7 +8,8 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import com.gumirov.shamil.partsib.factories.RouteFactory;
+import com.gumirov.shamil.partsib.routefactories.RouteFactory;
+import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
@@ -42,7 +43,6 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
-  public static final String BASE_DIR = "base.dir";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static int MAX_UPLOAD_SIZE;
@@ -76,9 +76,9 @@ public class MainRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, Endpoints.class);
   }
 
-  public ArrayList<EmailAcceptRule> getEmailRules() throws IOException {
+  public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.rules.config.filename") ), CHARSET);
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.accept.rules.config.filename") ), CHARSET);
     return mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>(){});
   }
 
@@ -109,15 +109,14 @@ public class MainRouteBuilder extends RouteBuilder {
 
   public void configure() {
     try {
-      //debug
-      getContext().setTracing(Boolean.TRUE);
-      // lambda-a-a-a
+      //debug, will be overriden by config's 'tracing' boolean value
+      getContext().setTracing(config.is("tracing", true));
       FileNameExcluder excelExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
       );
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
-      PluginsProcessor pluginsProcessor = new PluginsProcessor(new PluginsLoader(config.get("plugins.config.filename")).getPlugins());
+      PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
@@ -216,7 +215,7 @@ public class MainRouteBuilder extends RouteBuilder {
       if (config.is("email.enabled")) {
         //prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
-        ArrayList<EmailAcceptRule> rules = getEmailRules();
+        ArrayList<EmailAcceptRule> rules = getEmailAcceptRules();
         for (EmailAcceptRule rule : rules){
           if (Configurator.isTrue(rule.ignorecase)) {
             predicatesAnyTrue.add(exchange -> exchange.getIn().getHeader(rule.header, String.class) != null &&
@@ -253,7 +252,7 @@ public class MainRouteBuilder extends RouteBuilder {
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             choice().
               when(emailAcceptPredicate).
-                log("Accepted email from: $simple{in.header.From}").
+                log(LoggingLevel.INFO, "Accepted email from: $simple{in.header.From}").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
@@ -264,7 +263,8 @@ public class MainRouteBuilder extends RouteBuilder {
         }
       }
 
-      from("direct:acceptedmail").
+      //pricehook tagging and attachment extraction
+      from("direct:acceptedmail").routeId("acceptedmail").
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").
           filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
@@ -281,6 +281,10 @@ public class MainRouteBuilder extends RouteBuilder {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  public List<Plugin> getPlugins() {
+    return new PluginsLoader(config.get("plugins.config.filename")).getPlugins();
   }
 }
 

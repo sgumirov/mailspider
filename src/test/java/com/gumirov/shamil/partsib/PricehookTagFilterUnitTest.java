@@ -6,6 +6,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.plugins.Plugin;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -29,7 +30,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
-      kv.put("email.rules.config.filename=", "src/main/resources/email_accept_rules.json");
+      kv.put("email.accept.rules.config.filename=", "src/main/resources/email_accept_rules.json");
     }
   };
   Configurator config = cfactory.getConfigurator();
@@ -57,7 +58,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         weaveById("pricehookTagger").after().to(mockEndpoint);
       }
     };
-    context.getRouteDefinition(ENDPID).adviceWith(context, mockemail);
+    context.getRouteDefinition("acceptedmail").adviceWith(context, mockemail);
     mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
 
     context.start();
@@ -79,6 +80,11 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   protected RoutesBuilder createRouteBuilder() throws Exception {
     builder = new MainRouteBuilder(config){
       @Override
+      public List<Plugin> getPlugins() {
+        return null;
+      }
+
+      @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();
         e.ftp=new ArrayList<>();
@@ -96,7 +102,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailAcceptRule> getEmailRules() throws IOException {
+      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="From";

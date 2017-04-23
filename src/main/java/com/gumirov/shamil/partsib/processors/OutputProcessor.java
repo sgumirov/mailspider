@@ -1,7 +1,7 @@
 package com.gumirov.shamil.partsib.processors;
 
 import com.gumirov.shamil.partsib.MainRouteBuilder;
-import com.gumirov.shamil.partsib.util.OutputSender;
+import com.gumirov.shamil.partsib.util.HttpPostFileSender;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
@@ -29,13 +29,13 @@ public class OutputProcessor implements Processor {
     }
     else {
       //pricehookId = endpointId;
-      log.warn("Output(): NOT SENDING file %s from route id=%s with no pricehook_id", filename, endpointId);
+      log.warn("Output(): NOT SENDING file %s from route id=%s with no pricehook_id", exchange.getExchangeId(), filename, endpointId);
       return;
     }
-    log.info(String.format("Output(): file %s from route id=%s with pricehook_id=%s",
+    log.info(String.format("Output(): file %s from route name=%s with pricehook_id=%s",
         filename, endpointId, pricehookId));
     byte[] b = exchange.getIn().getBody(byte[].class);
-    if (!new OutputSender(url).onOutput(filename, pricehookId, b, b.length, MainRouteBuilder.MAX_UPLOAD_SIZE))
-      throw new RuntimeException("File was not sent properly, this is please refer to HttpClient logs above");
+    if (!new HttpPostFileSender(url).onOutput(filename, pricehookId, b, b.length, MainRouteBuilder.MAX_UPLOAD_SIZE))
+      throw new Exception(String.format("[EUID=%s] File was not sent properly, this is please refer to HttpClient logs above", exchange.getExchangeId()));
   }
 }
