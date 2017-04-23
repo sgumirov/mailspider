@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
-import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
@@ -76,10 +76,10 @@ public class MainRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, Endpoints.class);
   }
 
-  public ArrayList<EmailRule> getEmailAcceptRules() throws IOException {
+  public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.accept.rules.config.filename") ), CHARSET);
-    return mapper.readValue(json, new TypeReference<List<EmailRule>>(){});
+    return mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>(){});
   }
 
   public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
@@ -215,9 +215,14 @@ public class MainRouteBuilder extends RouteBuilder {
       if (config.is("email.enabled")) {
         //prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
-        ArrayList<EmailRule> rules = getEmailAcceptRules();
-        for (EmailRule rule : rules){
-          predicatesAnyTrue.add(SimpleBuilder.simple("${in.header."+rule.header+"} contains \""+rule.contains+"\""));
+        ArrayList<EmailAcceptRule> rules = getEmailAcceptRules();
+        for (EmailAcceptRule rule : rules){
+          if (Configurator.isTrue(rule.ignorecase)) {
+            predicatesAnyTrue.add(exchange -> exchange.getIn().getHeader(rule.header, String.class) != null &&
+                exchange.getIn().getHeader(rule.header, String.class).toUpperCase().contains(rule.contains.toUpperCase()));
+          } else {
+            predicatesAnyTrue.add(SimpleBuilder.simple("${in.header." + rule.header + "} contains \"" + rule.contains + "\""));
+          }
           log.info("Email Accept Rule["+rule.id+"]: header="+rule.header+" contains='"+rule.contains+"'");
         }
 

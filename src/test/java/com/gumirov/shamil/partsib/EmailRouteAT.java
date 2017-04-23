@@ -6,7 +6,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
-import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
@@ -209,9 +209,9 @@ public class EmailRouteAT extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailRule> getEmailAcceptRules() throws IOException {
-        ArrayList<EmailRule> rules = new ArrayList<>();
-        EmailRule r1 = new EmailRule();
+      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
+        ArrayList<EmailAcceptRule> rules = new ArrayList<>();
+        EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="From";
         r1.contains="shamil";
         rules.add(r1);

@@ -39,8 +39,9 @@ public class Configurator {
   }
 
   public static boolean isTrue(String v){
-    return "1".equals(v) ||
-           "true".equalsIgnoreCase(v) ||
-           "enabled".equalsIgnoreCase(v);
+    return v != null &&
+        ( "1".equals(v) ||
+          "true".equalsIgnoreCase(v) ||
+          "enabled".equalsIgnoreCase(v) );
   }
 }

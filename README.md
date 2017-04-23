@@ -107,19 +107,21 @@ Accept-Encoding: gzip,deflate
 
 # Email filtering syntax
 
-The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS RECEIVED.
+The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS ACCEPTED.
 
 Single rule looks like:
 ```json
 {
   "id":"rule_01",
   "header":"From",
-  "contains":"@gmail.com"
+  "contains":"@gmail.com",
+  "ignorecase":"true"
 }
 ```
-
-Header takes the following values: From, Body, Subject. Please note!! Yes, it's Starting From Big Letter header name!
-Contains MUST NOT contain a double-quote symbol.
+Parameter 'id' is for logging, so it's better to set ids different values.
+If parameter 'ignorecase' is set to 'true' or '1' then 'contains' field value is compared ignoring case.
+Parameter 'contains' MUST NOT contain a double-quote symbol.
+Parameter 'header' is one of the following values: 'From', 'Body', 'Subject'. Please note: yep, it DOES start From Big Letter header name!
 
 # Plugins config
 
