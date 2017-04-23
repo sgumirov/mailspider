@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.gumirov.shamil.partsib.util.OutputSender;
+import com.gumirov.shamil.partsib.util.HttpPostFileSender;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static junit.framework.TestCase.assertTrue;
 
 
 /**
- * This is AT for OutputSender with mock HTTPD. This is a real simulation of HTTP req/res.
+ * This is AT for HttpPostFileSender with mock HTTPD. This is a real simulation of HTTP req/res.
  * TODO Add error response codes and see Camel session retries.
  */
 public class OutputTest {
@@ -55,7 +55,7 @@ public class OutputTest {
   @Test
   public void testOutputSender() throws Exception {
     byte[] b = new byte[]{'0','0','0','0','1','1','1','1'};
-    OutputSender sender = new OutputSender("http://127.0.0.1:"+port+"/endpoint");
+    HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:"+port+"/endpoint");
 
     assertTrue(sender.onOutput("0.bin", "pricehookId", b, b.length, 10)); //8
     List<LoggedRequest> list = findAll(postRequestedFor(urlEqualTo("/endpoint")));

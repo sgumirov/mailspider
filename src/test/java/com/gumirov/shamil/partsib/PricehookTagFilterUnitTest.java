@@ -29,7 +29,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
-      kv.put("email.rules.config.filename=", "src/main/resources/email_accept_rules.json");
+      kv.put("email.accept.rules.config.filename=", "src/main/resources/email_accept_rules.json");
     }
   };
   Configurator config = cfactory.getConfigurator();
@@ -96,7 +96,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailRule> getEmailRules() throws IOException {
+      public ArrayList<EmailRule> getEmailAcceptRules() throws IOException {
         ArrayList<EmailRule> rules = new ArrayList<>();
         EmailRule r1 = new EmailRule();
         r1.header="From";
