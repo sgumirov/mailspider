@@ -8,7 +8,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import com.gumirov.shamil.partsib.factories.RouteFactory;
+import com.gumirov.shamil.partsib.routefactories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
@@ -109,9 +109,8 @@ public class MainRouteBuilder extends RouteBuilder {
 
   public void configure() {
     try {
-      //debug
-      getContext().setTracing(Boolean.TRUE);
-      // lambda-a-a-a
+      //debug, will be overriden by config's 'tracing' boolean value
+      getContext().setTracing(config.is("tracing", true));
       FileNameExcluder excelExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
       );
@@ -259,6 +258,7 @@ public class MainRouteBuilder extends RouteBuilder {
         }
       }
 
+      //pricehook tagging and attachment extraction
       from("direct:acceptedmail").routeId("acceptedmail").
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").

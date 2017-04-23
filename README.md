@@ -10,6 +10,11 @@ Version 1.3. [IMPORTANT] Changed name of email accept rules (".accept" added): e
 Version 1.2. Deployed with pricehook tagging.
 Version 1.1. An officially deployed at the customer installation.
 
+# Messages tracing in log
+
+Camel tracing option is managed by "tracing" boolean config value. Tracing is enabled if not specified (this to be changed in
+2.0 assuming will to stabilize and more specific log error reporting).
+
 # Scripts
 
 Added systemd script called mailspider.service (see systemd docs on how to add service).
@@ -54,6 +59,8 @@ The following file names are configured via config.properties:
 
 Example of configuration file config.properties with comments is below:
 ```
+# tracing is Camel Tracing, by default true if not specified
+tracing=true
 # this section enables or disables endpoint groups:
 email.enabled=1
 ftp.enabled=0

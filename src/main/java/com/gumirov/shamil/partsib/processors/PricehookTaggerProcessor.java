@@ -19,7 +19,11 @@ import java.util.List;
  */
 public class PricehookTaggerProcessor implements Processor {
   List<PricehookIdTaggingRule> rules;
-  
+
+  /**
+   * @param rules default rules
+   * @throws IOException
+   */
   public PricehookTaggerProcessor(List<PricehookIdTaggingRule> rules) throws IOException {
     this.rules = rules;
     for (PricehookIdTaggingRule rule : rules) {
