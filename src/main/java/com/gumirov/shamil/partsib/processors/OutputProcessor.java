@@ -32,8 +32,8 @@ public class OutputProcessor implements Processor {
       log.warn("Output(): NOT SENDING file %s from route id=%s with no pricehook_id", exchange.getExchangeId(), filename, endpointId);
       return;
     }
-    log.info(String.format("Output(): file %s from route name=%s with exchange UID=%s with pricehook_id=%s",
-        exchange.getExchangeId(), filename, endpointId, exchange.getExchangeId(), pricehookId));
+    log.info(String.format("Output(): file %s from route name=%s with pricehook_id=%s",
+        filename, endpointId, pricehookId));
     byte[] b = exchange.getIn().getBody(byte[].class);
     if (!new HttpPostFileSender(url).onOutput(filename, pricehookId, b, b.length, MainRouteBuilder.MAX_UPLOAD_SIZE))
       throw new Exception(String.format("[EUID=%s] File was not sent properly, this is please refer to HttpClient logs above", exchange.getExchangeId()));

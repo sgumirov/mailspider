@@ -259,7 +259,7 @@ public class MainRouteBuilder extends RouteBuilder {
         }
       }
 
-      from("direct:acceptedmail").
+      from("direct:acceptedmail").routeId("acceptedmail").
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").
           filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).

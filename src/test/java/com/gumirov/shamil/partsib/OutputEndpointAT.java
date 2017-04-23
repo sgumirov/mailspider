@@ -18,9 +18,8 @@ import static junit.framework.TestCase.assertTrue;
 
 /**
  * This is AT for HttpPostFileSender with mock HTTPD. This is a real simulation of HTTP req/res.
- * TODO Add error response codes and see Camel session retries.
  */
-public class OutputTest {
+public class OutputEndpointAT {
   private static final String SESSION_ID = "00001";
   final int port = 8888;
   

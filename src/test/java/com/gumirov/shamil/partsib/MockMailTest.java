@@ -2,10 +2,8 @@ package com.gumirov.shamil.partsib;
 
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
-import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 

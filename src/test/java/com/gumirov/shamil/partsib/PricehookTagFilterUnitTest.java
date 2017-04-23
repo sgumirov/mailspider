@@ -6,6 +6,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.plugins.Plugin;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -57,7 +58,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         weaveById("pricehookTagger").after().to(mockEndpoint);
       }
     };
-    context.getRouteDefinition(ENDPID).adviceWith(context, mockemail);
+    context.getRouteDefinition("acceptedmail").adviceWith(context, mockemail);
     mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
 
     context.start();
@@ -78,6 +79,11 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
     builder = new MainRouteBuilder(config){
+      @Override
+      public List<Plugin> getPlugins() {
+        return null;
+      }
+
       @Override
       public Endpoints getEndpoints() throws IOException {
         Endpoints e = new Endpoints();
