@@ -238,6 +238,7 @@ public class MainRouteBuilder extends RouteBuilder {
         log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
+/*
           from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
                   "delete=false&" +
 //                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
@@ -245,9 +246,27 @@ public class MainRouteBuilder extends RouteBuilder {
                   "peek=true&" +
                   "fetchSize=25&" +
                   "skipFailedMessage=true&" +
-                  "maxMessagesPerPoll=25",
+                  "maxMessagesPerPoll=25&"+
+                  "mail.imap.partialfetch=false&"+
+                  "mail.imaps.partialfetch=false",
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).id(email.id).
+*/
+
+          from(String.format("pop3s://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+//                  "delete=false&" +
+                  "delete=true&" +
+//                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
+//                  "unseen=true&" +
+//                  "peek=true&" +
+                  "fetchSize=25&" +
+                  "skipFailedMessage=true&" +
+                  "maxMessagesPerPoll=25&"+
+                  "mail.imap.partialfetch=false&"+
+                  "mail.imaps.partialfetch=false",
+              email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
+              email.delay)).id(email.id).
+
             routeId(email.id).
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             choice().

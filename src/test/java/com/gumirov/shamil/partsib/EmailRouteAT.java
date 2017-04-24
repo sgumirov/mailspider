@@ -25,11 +25,13 @@ import org.junit.Test;
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Security;
 import java.util.*;
@@ -45,7 +47,9 @@ public class EmailRouteAT extends CamelTestSupport {
   private String httpendpoint="/endpoint";
   final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   private int imapport = 3993;
+  private int pop3port = 3995;
   final String imapHost = "127.0.0.1"+":"+imapport;
+  final String pop3Url = "127.0.0.1"+":"+pop3port;
   private List<String> filenames = Arrays.asList("sample1.csv", "Прайс лист1.csv");
   private byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
   final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
@@ -54,7 +58,8 @@ public class EmailRouteAT extends CamelTestSupport {
   }
 
   @Rule
-  public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTPS_IMAPS);
+  public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTPS_POP3S);
+//  public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTPS_IMAPS);
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
@@ -76,6 +81,11 @@ public class EmailRouteAT extends CamelTestSupport {
 
   @Before
   public void setup() throws Exception {
+    //javamail
+    System.setProperty("mail.mime.encodeparameters", "false");
+    System.setProperty("mail.mime.decodeparameters", "false");
+    System.setProperty("mail.imap.partialfetch", "false");
+    
     //clear:
     new File(config.get("email.idempotent.repo")).delete();
     //http mock
@@ -127,6 +137,31 @@ public class EmailRouteAT extends CamelTestSupport {
     );
   }
 
+  @Test
+  public void testBodyStructure() throws Exception {
+    WireMock.reset();
+    execute(() -> {
+          try {
+            prepareHttpdOK();
+            sendEml(getClass().getClassLoader().getResourceAsStream("message.eml"));
+//            sendEml(getClass().getClassLoader().getResourceAsStream("good.eml"));
+          } catch (MessagingException e) {
+            e.printStackTrace();
+          }
+        },
+        1000000,
+        () -> verify(1, postRequestedFor(urlEqualTo(httpendpoint)))
+    );
+  }
+
+  private void sendEml(InputStream emlIs) throws MessagingException {
+//    Session ses = GreenMailUtil.getSession(greenMail.getImaps().getServerSetup());
+    Session ses = GreenMailUtil.getSession(greenMail.getPop3s().getServerSetup());
+    ses.setDebug(true);
+    MimeMessage msg = new MimeMessage(ses, emlIs);
+    GreenMailUser user = greenMail.setUser(to, login, pwd);
+    user.deliver(msg);
+  }
   private void prepareFail2Times(List<String> filenames) {
     WireMock.reset();
     prepareHttpdFailFirstNTimes(2);
@@ -166,7 +201,8 @@ public class EmailRouteAT extends CamelTestSupport {
   }
 
   private MimeMessage createMimeMessage(String to, String from, String subject, Map<String, byte[]> attachments) throws MessagingException {
-    MimeMessage msg = GreenMailUtil.createTextEmail(to, from, subject, "body", greenMail.getImaps().getServerSetup());
+//    MimeMessage msg = GreenMailUtil.createTextEmail(to, from, subject, "body", greenMail.getImapsImaps().getServerSetup());
+    MimeMessage msg = GreenMailUtil.createTextEmail(to, from, subject, "body", greenMail.getPop3s().getServerSetup());
     Multipart multipart = new MimeMultipart();
     for (String fname : attachments.keySet()) {
       MimeBodyPart messageBodyPart = new MimeBodyPart();
@@ -200,7 +236,8 @@ public class EmailRouteAT extends CamelTestSupport {
         e.email = new ArrayList<>();
         Endpoint email = new Endpoint();
         email.id = "Test-EMAIL-01";
-        email.url = imapHost;
+//        email.url = imapHost;
+        email.url = pop3Url;
         email.user = login;
         email.pwd = pwd;
         email.delay = "1000";
@@ -213,7 +250,7 @@ public class EmailRouteAT extends CamelTestSupport {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="From";
-        r1.contains="shamil";
+        r1.contains="avto";
         rules.add(r1);
         return rules;
       }
@@ -228,7 +265,11 @@ public class EmailRouteAT extends CamelTestSupport {
         r2.header = "Subject";
         r2.contains = "АСВА";
         r2.pricehookid = pricehookId;
-        return Arrays.asList(r1, r2);
+        PricehookIdTaggingRule r3 = new PricehookIdTaggingRule();
+        r3.header = "Subject";
+        r3.contains = "Прайс";
+        r3.pricehookid = pricehookId;
+        return Arrays.asList(r1, r2, r3);
       }
     };
   }
