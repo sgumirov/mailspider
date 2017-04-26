@@ -122,7 +122,7 @@ Single rule looks like:
 Parameter 'id' is for logging, so it's better to set ids different values.
 If parameter 'ignorecase' is set to 'true' or '1' then 'contains' field value is compared ignoring case.
 Parameter 'contains' MUST NOT contain a double-quote symbol.
-Parameter 'header' is one of the following values: 'From', 'Body', 'Subject'. Please note: yep, it DOES start From Big Letter header name!
+Parameter 'header' is one of the following values: 'From', 'Subject'. Please note: yep, it DOES start From Big Letter header name!
 
 # Plugins config
 
@@ -137,7 +137,8 @@ Array of fully qualified class names, executed in order specified in config:
 # Endpoints config
 
 - id - is used everywhere in log to track source of message
-- url - address of source, see examples. Please note of url format (no imap:// in email)
+- url - address of source, see examples. Please note of url format: PROTOCOL://HOST:PORT, for protocol by default imaps://, could be imap:// for non-SSL, pop3:// or pop3s://. 
+See also config's parameter 'default.email.protocol' which could change default behaviour.  
 - user and pwd - self-explainory
 - delay - period of pull
 - factory - fully qualified class name, used ONLY for http endpoint. MUST BE USED for http. Purpose is maintaining the 

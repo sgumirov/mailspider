@@ -253,22 +253,24 @@ public class MainRouteBuilder extends RouteBuilder {
               email.delay)).id(email.id).
 */
 
-          from(String.format("pop3s://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
-//                  "delete=false&" +
-                  "delete=true&" +
+          from(String.format("%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+                  "delete=false&" +
+//                  "delete=true&" +
 //                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
-//                  "unseen=true&" +
-//                  "peek=true&" +
+                  "unseen=true&" +
+                  "folderName=partsib&" +
+                  "peek=true&" +
                   "fetchSize=25&" +
                   "skipFailedMessage=true&" +
                   "maxMessagesPerPoll=25&"+
                   "mail.imap.partialfetch=false&"+
                   "mail.imaps.partialfetch=false",
-              email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
+              addProtocol(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).id(email.id).
 
             routeId(email.id).
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
+            process(exchange -> exchange.getIn().setHeader("From", MimeUtility.decodeText(exchange.getIn().getHeader("From", String.class)))).id("FromMimeDecoder").
             choice().
               when(emailAcceptPredicate).
                 log(LoggingLevel.INFO, "Accepted email from: $simple{in.header.From}").
@@ -300,6 +302,13 @@ public class MainRouteBuilder extends RouteBuilder {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  private String addProtocol(String url) {
+    if (!url.contains("://")) {
+      return config.get("default.email.protocol", "imaps")+"://"+url;
+    }
+    return url;
   }
 
   public List<Plugin> getPlugins() {

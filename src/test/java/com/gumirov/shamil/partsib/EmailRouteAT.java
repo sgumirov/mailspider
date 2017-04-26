@@ -46,10 +46,8 @@ public class EmailRouteAT extends CamelTestSupport {
   final int httpPort = 8888;
   private String httpendpoint="/endpoint";
   final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
-  private int imapport = 3993;
-  private int pop3port = 3995;
-  final String imapHost = "127.0.0.1"+":"+imapport;
-  final String pop3Url = "127.0.0.1"+":"+pop3port;
+  private int imapport = 3143;
+  final String imapUrl = "imap://127.0.0.1"+":"+imapport;
   private List<String> filenames = Arrays.asList("sample1.csv", "Прайс лист1.csv");
   private byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
   final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
@@ -58,8 +56,7 @@ public class EmailRouteAT extends CamelTestSupport {
   }
 
   @Rule
-  public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTPS_POP3S);
-//  public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTPS_IMAPS);
+  public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.IMAP);
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
@@ -72,6 +69,7 @@ public class EmailRouteAT extends CamelTestSupport {
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
+//      kv.put("default.email.protocol",  "");
       kv.put("output.url", httpUrl);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
       kv.put("email.accept.rules.config.filename=", "src/main/resources/email_accept_rules.json");
@@ -82,14 +80,17 @@ public class EmailRouteAT extends CamelTestSupport {
   @Before
   public void setup() throws Exception {
     //javamail
+/*
     System.setProperty("mail.mime.encodeparameters", "false");
     System.setProperty("mail.mime.decodeparameters", "false");
     System.setProperty("mail.imap.partialfetch", "false");
+*/
     
     //clear:
     new File(config.get("email.idempotent.repo")).delete();
     //http mock
     prepareHttpdOK();
+    
     //disable ssl cert checking for imaps connections
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
 
@@ -149,15 +150,16 @@ public class EmailRouteAT extends CamelTestSupport {
             e.printStackTrace();
           }
         },
-        1000000,
+        50000,
         () -> verify(1, postRequestedFor(urlEqualTo(httpendpoint)))
     );
   }
 
   private void sendEml(InputStream emlIs) throws MessagingException {
-//    Session ses = GreenMailUtil.getSession(greenMail.getImaps().getServerSetup());
-    Session ses = GreenMailUtil.getSession(greenMail.getPop3s().getServerSetup());
+    System.setProperty("mail.debug", "true");
+    Session ses = GreenMailUtil.getSession(greenMail.getImap().getServerSetup());
     ses.setDebug(true);
+    ses.getProperties().setProperty("mail.imap.partialfetch", "false");
     MimeMessage msg = new MimeMessage(ses, emlIs);
     GreenMailUser user = greenMail.setUser(to, login, pwd);
     user.deliver(msg);
@@ -201,8 +203,7 @@ public class EmailRouteAT extends CamelTestSupport {
   }
 
   private MimeMessage createMimeMessage(String to, String from, String subject, Map<String, byte[]> attachments) throws MessagingException {
-//    MimeMessage msg = GreenMailUtil.createTextEmail(to, from, subject, "body", greenMail.getImapsImaps().getServerSetup());
-    MimeMessage msg = GreenMailUtil.createTextEmail(to, from, subject, "body", greenMail.getPop3s().getServerSetup());
+    MimeMessage msg = GreenMailUtil.createTextEmail(to, from, subject, "body", greenMail.getImap().getServerSetup());
     Multipart multipart = new MimeMultipart();
     for (String fname : attachments.keySet()) {
       MimeBodyPart messageBodyPart = new MimeBodyPart();
@@ -236,11 +237,11 @@ public class EmailRouteAT extends CamelTestSupport {
         e.email = new ArrayList<>();
         Endpoint email = new Endpoint();
         email.id = "Test-EMAIL-01";
-//        email.url = imapHost;
-        email.url = pop3Url;
+        email.url = imapUrl;
         email.user = login;
         email.pwd = pwd;
-        email.delay = "1000";
+
+        email.delay = "100000";
         e.email.add(email);
         return e;
       }
