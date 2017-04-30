@@ -44,7 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 public class EmailRouteAT extends CamelTestSupport {
   private static final String pricehookId = "1.2.0.1";
   final int httpPort = 8888;
-  private String httpendpoint="/endpoint";
+  public String httpendpoint="/endpoint";
   final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   private int imapport = 3143;
   final String imapUrl = "imap://127.0.0.1"+":"+imapport;
@@ -99,7 +99,7 @@ public class EmailRouteAT extends CamelTestSupport {
     context.start();
   }
 
-  private void prepareHttpdOK() {
+  public void prepareHttpdOK() {
     stubFor(post(urlEqualTo(httpendpoint))
         .willReturn(aResponse()
             .withStatus(200)));
@@ -125,6 +125,7 @@ public class EmailRouteAT extends CamelTestSupport {
 
   @Test
   public void test() throws Exception{
+    WireMock.reset();
     execute(() -> sendMessage(filenames), 2000, () -> {
       validate(filenames.get(0), 1, pricehookId);
       validate(filenames.get(1), 1, pricehookId);
@@ -144,18 +145,19 @@ public class EmailRouteAT extends CamelTestSupport {
     execute(() -> {
           try {
             prepareHttpdOK();
-            sendEml(getClass().getClassLoader().getResourceAsStream("message.eml"));
+            sendEml(getClass().getClassLoader().getResourceAsStream("fixed.eml"));
+//            sendEml(getClass().getClassLoader().getResourceAsStream("message.eml"));
 //            sendEml(getClass().getClassLoader().getResourceAsStream("good.eml"));
           } catch (MessagingException e) {
             e.printStackTrace();
           }
         },
-        50000,
+        500000,
         () -> verify(1, postRequestedFor(urlEqualTo(httpendpoint)))
     );
   }
 
-  private void sendEml(InputStream emlIs) throws MessagingException {
+  public void sendEml(InputStream emlIs) throws MessagingException {
     System.setProperty("mail.debug", "true");
     Session ses = GreenMailUtil.getSession(greenMail.getImap().getServerSetup());
     ses.setDebug(true);
@@ -173,7 +175,9 @@ public class EmailRouteAT extends CamelTestSupport {
   void execute(Runnable test, long timeWait, Runnable ... validators) throws InterruptedException {
     test.run();
     Thread.sleep(timeWait);
-    for (Runnable r : validators) r.run();
+    for (Runnable r : validators) {
+      r.run();
+    }
   }
 
   public Runnable validate(String filename, int parts, String pricehookId) {
@@ -182,7 +186,7 @@ public class EmailRouteAT extends CamelTestSupport {
         for (int i = 0; i < parts; ++i) {
           WireMock.verify(
               WireMock.postRequestedFor(urlPathEqualTo(httpendpoint))
-                  .withHeader("X-Filename", equalTo(java.util.Base64.getEncoder().encodeToString(filename.getBytes("UTF-8"))))
+                  .withHeader("X-Filename", equalTo(Base64.getEncoder().encodeToString(filename.getBytes("UTF-8"))))
                   .withHeader("X-Pricehook", equalTo(pricehookId))
                   .withHeader("X-Part", equalTo(""+i))
                   .withHeader("X-Parts-Total", equalTo(""+parts))
@@ -240,6 +244,13 @@ public class EmailRouteAT extends CamelTestSupport {
         email.url = imapUrl;
         email.user = login;
         email.pwd = pwd;
+/*
+//yahoo TODO REMOVE
+        email.url = "imaps://imap.mail.yahoo.com";
+        email.user = "shamilek@yahoo.com";
+        email.pwd = "Nafnafn12";
+        email.parameters = new HashMap<String, String>() {{ put("folderName", "partsib"); }};
+*/
 
         email.delay = "100000";
         e.email.add(email);
@@ -250,8 +261,8 @@ public class EmailRouteAT extends CamelTestSupport {
       public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
-        r1.header="From";
-        r1.contains="avto";
+        r1.header="Subject";
+        r1.contains="Re";
         rules.add(r1);
         return rules;
       }

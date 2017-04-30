@@ -18,6 +18,7 @@ import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
+import org.apache.camel.dataformat.mime.multipart.MimeMultipartDataFormat;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -30,10 +31,13 @@ import org.apache.http.util.EntityUtils;
 import javax.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static java.lang.String.format;
 import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 
 /**
@@ -133,7 +137,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //FTP <production>
       if (config.is("ftp.enabled")) {
-        log.info(String.format("[FTP] Setting up %d source endpoints", endpoints.ftp.size()));
+        log.info(format("[FTP] Setting up %d source endpoints", endpoints.ftp.size()));
         for (Endpoint ftp : endpoints.ftp) {
           //String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
           String ftpUrl = ftp.url+"?username="+ftp.user+"&password="+ftp.pwd+"&stepwise=false&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false&delay="+ftp.delay;
@@ -152,7 +156,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //HTTP <production>
       if (config.is("http.enabled")) {
-        log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
+        log.info(format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
         for (Endpoint http : endpoints.http) {
           
           String startEndpoint = "direct:start"+http.id;
@@ -235,7 +239,7 @@ public class MainRouteBuilder extends RouteBuilder {
           return false;
         };
 
-        log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
+        log.info(format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
           //fetchSize=1 1 at a time
 /*
@@ -253,20 +257,18 @@ public class MainRouteBuilder extends RouteBuilder {
               email.delay)).id(email.id).
 */
 
-          from(String.format("%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+          from(format("%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
                   "delete=false&" +
-//                  "delete=true&" +
 //                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
                   "unseen=true&" +
-                  "folderName=partsib&" +
                   "peek=true&" +
                   "fetchSize=25&" +
                   "skipFailedMessage=true&" +
                   "maxMessagesPerPoll=25&"+
                   "mail.imap.partialfetch=false&"+
-                  "mail.imaps.partialfetch=false",
+                  "mail.imaps.partialfetch=false%s",
               addProtocol(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
-              email.delay)).id(email.id).
+              email.delay, formatParameters(email.parameters))).id(email.id).
 
             routeId(email.id).
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
@@ -285,11 +287,22 @@ public class MainRouteBuilder extends RouteBuilder {
       }
 
       //pricehook tagging and attachment extraction
-      from("direct:acceptedmail").routeId("acceptedmail").
+      from("direct:acceptedmail").routeId("acceptedmail").streamCaching().
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").
           filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
+//          unmarshal().mimeMultipart(false, true, false).
+          process(exchange -> {
+            Message in = exchange.getIn();
+            log.info("Attachments size before split: "+in.getAttachments().size());
+            log.info("Attachment="+in.getAttachmentObjects().values().iterator().next());
+          }).
           split(splitEmailExpr).
+          process(exchange -> {
+            Message in = exchange.getIn();
+            log.info("Attachments size after split: "+in.getAttachments().size());
+            log.info("Attachment="+in.getAttachmentObjects().values().iterator().next());
+          }).
           process(emailAttachmentProcessor).
           to("direct:packed");
 
@@ -309,6 +322,22 @@ public class MainRouteBuilder extends RouteBuilder {
       return config.get("default.email.protocol", "imaps")+"://"+url;
     }
     return url;
+  }
+
+  public String formatParameters(Map<String, String> parameters){
+    if (parameters == null || parameters.size() == 0) {
+      return "";
+    }
+
+    StringBuilder sb = new StringBuilder();
+    for (String k : parameters.keySet()){
+      try {
+        sb.append('&').append(k).append('=').append(URLEncoder.encode(parameters.get(k), "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        log.error(format("Cannot encode parameter value of KV pair: %s='%s'", k, parameters.get(k)));
+      }
+    }
+    return sb.toString();
   }
 
   public List<Plugin> getPlugins() {
