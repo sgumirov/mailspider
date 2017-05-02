@@ -8,17 +8,21 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.mail.MailBindingFixNestedAttachments;
 import com.gumirov.shamil.partsib.routefactories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
+import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
+import org.apache.camel.component.mail.MailEndpoint;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
+import org.apache.camel.spi.CamelContextTracker;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -32,8 +36,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.String.format;
 import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 
 /**
@@ -111,10 +117,11 @@ public class MainRouteBuilder extends RouteBuilder {
     try {
       //debug, will be overriden by config's 'tracing' boolean value
       getContext().setTracing(config.is("tracing", true));
-      FileNameExcluder excelExcluder = filename -> filename != null && (
+      FileNameExcluder officeZipFormatsExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
+          || filename.endsWith("docx")
       );
-      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
+      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
@@ -122,6 +129,7 @@ public class MainRouteBuilder extends RouteBuilder {
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), url -> MainRouteBuilder.this.loadPricehookConfig(url));
+      List<String> extensionAcceptList = getExtensionsAcceptList();
       
       MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));
 
@@ -133,7 +141,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //FTP <production>
       if (config.is("ftp.enabled")) {
-        log.info(String.format("[FTP] Setting up %d source endpoints", endpoints.ftp.size()));
+        log.info(format("[FTP] Setting up %d source endpoints", endpoints.ftp.size()));
         for (Endpoint ftp : endpoints.ftp) {
           //String ftpUrl = "ftp://127.0.0.1:2021/?username=ftp&password=a@b.com&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false";
           String ftpUrl = ftp.url+"?username="+ftp.user+"&password="+ftp.pwd+"&stepwise=false&binary=true&passiveMode=true&runLoggingLevel=TRACE&delete=false&delay="+ftp.delay;
@@ -152,7 +160,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //HTTP <production>
       if (config.is("http.enabled")) {
-        log.info(String.format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
+        log.info(format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
         for (Endpoint http : endpoints.http) {
           
           String startEndpoint = "direct:start"+http.id;
@@ -197,6 +205,16 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //call plugins
       from("direct:unpacked").
+          filter(exchange -> {
+            String name = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
+            if (null == name) return false;
+            name = name.toLowerCase().trim();
+            for (String ext : extensionAcceptList) {
+              if (name.endsWith(ext.trim())) return true;
+            }
+            log.warn("Rejected filename by wrong extension: "+name);
+            return false;
+          }).id("FileExtensionFilter").
           process(pluginsProcessor).id("PluginsProcessor").
           to("direct:output").end();
 
@@ -235,21 +253,30 @@ public class MainRouteBuilder extends RouteBuilder {
           return false;
         };
 
-        log.info(String.format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
+        log.info(format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
-          //fetchSize=1 1 at a time
-          from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
-                  "delete=false&" +
-//                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
+          String url = format( "%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+//                  "delete=false&" +
+                  //"sortTerm=reverse,date&" + //todo Fill bug to Camel
                   "unseen=true&" +
                   "peek=true&" +
                   "fetchSize=25&" +
                   "skipFailedMessage=true&" +
-                  "maxMessagesPerPoll=25",
-              email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
-              email.delay)).id(email.id).
-            routeId(email.id).
+                  "maxMessagesPerPoll=25"+
+                  "&mail.imap.ignorebodystructuresize=true"+
+                  "&mail.imap.partialfetch=false"+
+                  "&mail.imaps.partialfetch=false"+
+                  "&mail.debug=true"+
+                  "%s",
+              addProtocolPrefix(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
+              email.delay, Util.formatParameters(email.parameters));
+          //set ours MailBinding implementation
+          MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
+          mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
+
+          from(mailEndpoint).routeId(email.id).
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
+            process(exchange -> exchange.getIn().setHeader("From", MimeUtility.decodeText(exchange.getIn().getHeader("From", String.class)))).id("FromMimeDecoder").
             choice().
               when(emailAcceptPredicate).
                 log(LoggingLevel.INFO, "Accepted email from: $simple{in.header.From}").
@@ -265,11 +292,20 @@ public class MainRouteBuilder extends RouteBuilder {
 
       //pricehook tagging and attachment extraction
       from("direct:acceptedmail").routeId("acceptedmail").
+          streamCaching().
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").
-          filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
+          filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).id("PricehookTagFilter").
+          process(exchange -> {
+            Message in = exchange.getIn();
+            log.info("Attachments size before split: "+in.getAttachments().size());
+            for (String s : in.getAttachmentNames()) {
+              log.info("Attachment=" + s);
+            }
+          }).
           split(splitEmailExpr).
           process(emailAttachmentProcessor).
+          process(exchange -> log.info("Attachment.split="+exchange.getIn().getHeader(Exchange.FILE_NAME))).id("logger").
           to("direct:packed");
 
       from("direct:rejected").
@@ -281,6 +317,20 @@ public class MainRouteBuilder extends RouteBuilder {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  /**
+   * @return lower-case list of extensions
+   */
+  public List<String> getExtensionsAcceptList() {
+    return Arrays.asList(config.get("file.extension.accept.list", "xls,txt,csv,xlsx").toLowerCase().split(","));
+  }
+
+  private String addProtocolPrefix(String url) {
+    if (!url.contains("://")) {
+      return config.get("default.email.protocol", "imaps")+"://"+url;
+    }
+    return url;
   }
 
   public List<Plugin> getPlugins() {

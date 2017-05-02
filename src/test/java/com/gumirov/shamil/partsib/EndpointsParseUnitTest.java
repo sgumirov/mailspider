@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import org.junit.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;

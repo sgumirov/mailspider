@@ -44,7 +44,7 @@ configuration/log4j2.properties.
 
 # Plugins
 
-For plugins developer notes please refer to com.gumirov.shamil.partsib.plugins.Plugin interface 
+For plugins developer notes please refer to 'com.gumirov.shamil.partsib.plugins.Plugin' interface 
 for details (see javadoc or source).
 
 # Configuration
@@ -62,12 +62,14 @@ Example of configuration file config.properties with comments is below:
 ```
 # tracing is Camel Tracing, by default true if not specified
 tracing=true
-# this section enables or disables endpoint groups:
+# this section enables or disables protocol routes:
 email.enabled=1
 ftp.enabled=0
 http.enabled=0
-# debug only:
+# route from local files, debug only:
 local.enabled=0
+# default email protocol (name only without '://'). Used in case when no protocol is specified  
+default.email.protocol=imaps
 # http post output:
 output.url=http://im.mad.gd/2.php
 # references to other configs
@@ -82,6 +84,9 @@ email.idempotent.repo=tmp/email_idempotent_repo.dat
 max.upload.size=1024000
 # pricehook id tagging rules url
 pricehook.config.url=http://localhost/email_tagging_rules.json
+#comma-separated list of extensions to accept (after unpack)
+file.extension.accept.list=xls,xlsx,csv,txt
+
 ```
 
 # Http post size partitioning
@@ -106,6 +111,12 @@ User-Agent: Apache-HttpClient/4.3.4 (java 1.5)
 Accept-Encoding: gzip,deflate
 ```
 
+# Extension filtering
+
+The file extension list to accept is defined in config parameter 'file.extension.accept.list' and takes 
+a list of comma-separated extensions without dots. See example. 
+To disable set empty value. 
+
 # Email filtering syntax
 
 The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS ACCEPTED.
@@ -122,7 +133,7 @@ Single rule looks like:
 Parameter 'id' is for logging, so it's better to set ids different values.
 If parameter 'ignorecase' is set to 'true' or '1' then 'contains' field value is compared ignoring case.
 Parameter 'contains' MUST NOT contain a double-quote symbol.
-Parameter 'header' is one of the following values: 'From', 'Body', 'Subject'. Please note: yep, it DOES start From Big Letter header name!
+Parameter 'header' is one of the following values: 'From', 'Subject'. Please note: yep, it DOES start From Big Letter header name!
 
 # Plugins config
 
@@ -137,9 +148,13 @@ Array of fully qualified class names, executed in order specified in config:
 # Endpoints config
 
 - id - is used everywhere in log to track source of message
-- url - address of source, see examples. Please note of url format (no imap:// in email)
+- url - address of source, see examples. Please note of url format: PROTOCOL://HOST:PORT. For email protocol by default 
+'imaps://' is used (note 's' for SSL)', could also be imap:// for non-SSL, pop3:// or pop3s://. 
+See also the config's parameter 'default.email.protocol' which could change the default behaviour.  
 - user and pwd - self-explainory
-- delay - period of pull
+- delay - period of pull in msec
+- parameters - map of key-value pairs to pass to camel endpoint. Use with care. Notable example is "delete: true" 
+parameter needed for pop3 to work fine.
 - factory - fully qualified class name, used ONLY for http endpoint. MUST BE USED for http. Purpose is maintaining the 
 procedure of logging in to web portals, see code for details. Actually this is needed because there's no universal of 
 logging in to different web sites, so we need to use the specific implementation for every http endpoint.

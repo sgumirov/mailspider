@@ -35,7 +35,8 @@ public class PluginsProcessor implements Processor {
       FileMetaData mdata = new FileMetaData(
           exchange.getIn().getHeader(ENDPOINT_ID_HEADER).toString(),
           exchange.getIn().getHeader(Exchange.FILE_NAME).toString(),
-          exchange.getIn().getBody(InputStream.class));
+          exchange.getIn().getBody(InputStream.class),
+          exchange.getIn().getHeaders());
       for (Plugin plugin : plugins) {
         last = plugin;
         InputStream is = plugin.processFile(mdata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));

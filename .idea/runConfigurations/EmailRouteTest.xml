@@ -5,7 +5,7 @@
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="PACKAGE_NAME" value="com.gumirov.shamil.partsib" />
-    <option name="MAIN_CLASS_NAME" value="com.gumirov.shamil.partsib.EmailRouteAT" />
+    <option name="MAIN_CLASS_NAME" value="com.gumirov.shamil.partsib.EmailRouteATest" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
     <option name="VM_PARAMETERS" value="-ea" />

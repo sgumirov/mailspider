@@ -7,7 +7,7 @@
   <groupId>com.gumirov.shamil.partsib</groupId>
   <artifactId>MailSpider</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.3-SNAPSHOT</version>
 
   <name>MailSpider</name>
   <url>https://github.com/sgumirov/mailspider</url>
@@ -31,6 +31,41 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- Geronimo javamail -->
+<!--
+    <dependency>
+      <groupId>org.apache.geronimo.javamail</groupId>
+      <artifactId>geronimo-javamail_1.4_mail</artifactId>
+      <version>1.9.0-alpha-2</version>
+    </dependency>
+-->
+<!--
+    &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.geronimo.javamail/geronimo-javamail_1.4_mail &ndash;&gt;
+    <dependency>
+      <groupId>org.apache.geronimo.javamail</groupId>
+      <artifactId>geronimo-javamail_1.4_mail</artifactId>
+      <version>1.8.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.javamail</groupId>
+      <artifactId>geronimo-javamail_1.4_provider</artifactId>
+      <version>1.8.4</version>
+    </dependency>
+    -->
+<!--
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>javax.mail-api</artifactId>
+      <version>1.5.6</version>
+    </dependency>
+-->
+    <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.5.0-b01</version>
+    </dependency>
+  
     <!-- CAMEL -->
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -147,12 +182,14 @@
       <version>2.18.1</version>
       <scope>test</scope>
     </dependency>
+<!--
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-testng</artifactId>
       <version>2.18.1</version>
       <scope>test</scope>
     </dependency>
+-->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -258,11 +295,13 @@
             <artifactId>surefire-junit47</artifactId>
             <version>2.19.1</version>
           </dependency>
+<!--
           <dependency>
             <groupId>org.apache.maven.surefire</groupId>
             <artifactId>surefire-testng</artifactId>
             <version>2.19.1</version>
           </dependency>
+-->
         </dependencies>
         <configuration>
           <includes>
