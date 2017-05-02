@@ -35,13 +35,15 @@ public class EmlParseTest {
     for (int i = 0; i < mpart.getCount(); ++i){
       BodyPart part = mpart.getBodyPart(i);
       String fname = part.getFileName(); fname = fname == null ? "" : fname;
-      log(level, "bodypart filename="+fname+" decoded="+MimeUtility.decodeText(fname)+" size="+part.getSize());
+      String ctype = part.getContentType();
+      log(level, "bodypart ["+ctype+"] filename="+fname+" decoded="+MimeUtility.decodeText(fname)+" size="+part.getSize());
       parseContent(part.getContent(), level);
     }
   }
   private static void parse(MimeMessage msg, int level) throws IOException, MessagingException {
     String fname = msg.getFileName(); fname = fname == null ? "" : fname;
-    log(level, "bodypart filename="+fname+" decoded="+MimeUtility.decodeText(fname)+" size="+msg.getSize());
+    String ctype = msg.getContentType();
+    log(level, "bodypart ["+ctype+"] filename="+fname+" decoded="+MimeUtility.decodeText(fname)+" size="+msg.getSize());
     parseContent(msg.getContent(), level);
   }
   static void parseContent(Object msg, int level) throws IOException, MessagingException {

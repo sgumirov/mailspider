@@ -152,7 +152,7 @@ public class EmailRouteAT extends CamelTestSupport {
             e.printStackTrace();
           }
         },
-        500000,
+        5000000,
         () -> verify(1, postRequestedFor(urlEqualTo(httpendpoint)))
     );
   }

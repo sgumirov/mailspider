@@ -8,6 +8,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.mail.MailBindingFixNestedAttachments;
 import com.gumirov.shamil.partsib.routefactories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
@@ -17,8 +18,12 @@ import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
+import org.apache.camel.component.mail.MailEndpoint;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
 import org.apache.camel.dataformat.mime.multipart.MimeMultipartDataFormat;
+import org.apache.camel.impl.JndiRegistry;
+import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RouteDefinitionHelper;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -256,10 +261,10 @@ public class MainRouteBuilder extends RouteBuilder {
               email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay)).id(email.id).
 */
-
-          from(format("%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+          String url = format( "%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+//                  "binding=#mailbinding" +
                   "delete=false&" +
-//                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
+                  //"sortTerm=reverse,date&" + //todo Fill bug to Camel
                   "unseen=true&" +
                   "peek=true&" +
                   "fetchSize=25&" +
@@ -268,8 +273,15 @@ public class MainRouteBuilder extends RouteBuilder {
                   "mail.imap.partialfetch=false&"+
                   "mail.imaps.partialfetch=false%s",
               addProtocol(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
-              email.delay, formatParameters(email.parameters))).id(email.id).
+              email.delay, formatParameters(email.parameters));
 
+//          getRouteCollection().setCamelContext(getContext());
+//          RouteDefinition answer = getRouteCollection().from(url);
+//          MailEndpoint mailEndpoint = ((MailEndpoint)answer.getInputs().get(0).getEndpoint());
+          MailEndpoint mailEndpoint = (MailEndpoint) getContext().getEndpoint(url, MailEndpoint.class);
+          mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
+
+          from(mailEndpoint).id(email.id).
             routeId(email.id).
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             process(exchange -> exchange.getIn().setHeader("From", MimeUtility.decodeText(exchange.getIn().getHeader("From", String.class)))).id("FromMimeDecoder").
