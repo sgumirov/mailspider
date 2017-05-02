@@ -291,7 +291,8 @@ public class MainRouteBuilder extends RouteBuilder {
       }
 
       //pricehook tagging and attachment extraction
-      from("direct:acceptedmail").routeId("acceptedmail").streamCaching().
+      from("direct:acceptedmail").routeId("acceptedmail").
+          streamCaching().
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").
           filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).id("PricehookTagFilter").
