@@ -1,9 +1,10 @@
 package com.gumirov.shamil.partsib.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URLEncoder;
+import java.util.Map;
+
+import static java.lang.String.format;
 
 /**
  * Created by phoenix on 1/15/17.
@@ -27,5 +28,22 @@ public class Util {
       bos.write(b, 0, i);
     }
     return bos.toByteArray();
+  }
+
+  public static String formatParameters(Map<String, String> parameters){
+    if (parameters == null || parameters.size() == 0) {
+      return "";
+    }
+
+    StringBuilder sb = new StringBuilder();
+    for (String k : parameters.keySet()){
+      try {
+        sb.append('&').append(k).append('=').append(URLEncoder.encode(parameters.get(k), "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(format("Cannot encode parameter value of KV pair: %s='%s'", k, parameters.get(k)), e);
+//        log.error(format("Cannot encode parameter value of KV pair: %s='%s'", k, parameters.get(k)));
+      }
+    }
+    return sb.toString();
   }
 }

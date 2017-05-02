@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Map;
@@ -38,10 +40,18 @@ public class MailBindingFixNestedAttachments extends MailBinding {
         LOG.trace("Part #" + i + ": is mimetype: multipart/*");
         extractAttachmentsFromMultipart((Multipart) part.getContent(), map);
       } else if (part.isMimeType("MESSAGE/*")){
-        extractAttachmentsFromMail((Message) part.getContent(), map);
+        LOG.trace("Part #" + i + ": is mimetype: MESSAGE/*");
+        try {
+          extractAttachmentsFromMail(/*new MimeMessage*/((MimeMessage) part.getContent()), map);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       } else {
         String disposition = part.getDisposition();
         String fileName = part.getFileName();
+        if (fileName != null) {
+          fileName = MimeUtility.decodeText(fileName);
+        }
 
         if (LOG.isTraceEnabled()) {
           LOG.trace("Part #{}: Disposition: {}", i, disposition);
@@ -54,7 +64,6 @@ public class MailBindingFixNestedAttachments extends MailBinding {
 
         if (validDisposition(disposition, fileName)
             || fileName != null) {
-          LOG.debug("Mail contains file attachment: {}", fileName);
           if (!map.containsKey(fileName)) {
             // Parts marked with a disposition of Part.ATTACHMENT are clearly attachments
             DefaultAttachment camelAttachment = new DefaultAttachment(part.getDataHandler());
@@ -65,6 +74,7 @@ public class MailBindingFixNestedAttachments extends MailBinding {
               camelAttachment.addHeader(header.getName(), header.getValue());
             }
             map.put(fileName, camelAttachment);
+            LOG.trace("Extracted file attachment: {}", fileName);
           } else {
             LOG.warn("Cannot extract duplicate file attachment: {}.", fileName);
           }

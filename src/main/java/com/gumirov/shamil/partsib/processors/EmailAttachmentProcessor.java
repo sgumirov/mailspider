@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -23,11 +24,15 @@ public class EmailAttachmentProcessor implements Processor {
     for (String fname : msg.getAttachmentObjects().keySet()){
       if (count > 0)
         throw new RuntimeException("EmailAttachmentProcessor must be used only after SplitAttachmentsExpression, so that only one attachment per message.");
-      DataHandler data = msg.getAttachmentObjects().get(fname).getDataHandler();
-      byte[] s = exchange.getContext().getTypeConverter().convertTo(byte[].class, data.getInputStream());
-      msg.setBody(s);
-      msg.setHeader(Exchange.FILE_NAME, fname);
-      log.info("Extracted attachment with name: "+fname);
+      try {
+        DataHandler data = msg.getAttachmentObjects().get(fname).getDataHandler();
+        byte[] s = exchange.getContext().getTypeConverter().convertTo(byte[].class, data.getInputStream());
+        msg.setBody(s);
+        msg.setHeader(Exchange.FILE_NAME, fname);
+        log.info("Extracted attachment name: "+fname);
+      } catch (Exception e) {
+        log.error("Cannot process attachment: "+fname);
+      }
       ++count;
     }
   }

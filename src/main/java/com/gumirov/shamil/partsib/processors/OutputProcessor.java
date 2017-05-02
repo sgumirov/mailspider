@@ -36,6 +36,6 @@ public class OutputProcessor implements Processor {
         filename, endpointId, pricehookId));
     byte[] b = exchange.getIn().getBody(byte[].class);
     if (!new HttpPostFileSender(url).onOutput(filename, pricehookId, b, b.length, MainRouteBuilder.MAX_UPLOAD_SIZE))
-      throw new Exception(String.format("[EUID=%s] File was not sent properly, this is please refer to HttpClient logs above", exchange.getExchangeId()));
+      throw new Exception(String.format("File %s was not sent properly, please refer to HttpClient logs", filename));
   }
 }

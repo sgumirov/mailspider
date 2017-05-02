@@ -15,16 +15,14 @@ import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
+import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.MailEndpoint;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
-import org.apache.camel.dataformat.mime.multipart.MimeMultipartDataFormat;
-import org.apache.camel.impl.JndiRegistry;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.model.RouteDefinitionHelper;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
+import org.apache.camel.spi.CamelContextTracker;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -36,11 +34,10 @@ import org.apache.http.util.EntityUtils;
 import javax.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static java.lang.String.format;
 import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
@@ -120,10 +117,11 @@ public class MainRouteBuilder extends RouteBuilder {
     try {
       //debug, will be overriden by config's 'tracing' boolean value
       getContext().setTracing(config.is("tracing", true));
-      FileNameExcluder excelExcluder = filename -> filename != null && (
+      FileNameExcluder officeZipFormatsExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
+          || filename.endsWith("docx")
       );
-      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(excelExcluder);
+      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
@@ -131,6 +129,7 @@ public class MainRouteBuilder extends RouteBuilder {
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), url -> MainRouteBuilder.this.loadPricehookConfig(url));
+      List<String> extensionAcceptList = getExtensionsAcceptList();
       
       MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));
 
@@ -206,6 +205,16 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //call plugins
       from("direct:unpacked").
+          filter(exchange -> {
+            String name = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
+            if (null == name) return false;
+            name = name.toLowerCase().trim();
+            for (String ext : extensionAcceptList) {
+              if (name.endsWith(ext.trim())) return true;
+            }
+            log.warn("Rejected filename by wrong extension: "+name);
+            return false;
+          }).id("FileExtensionFilter").
           process(pluginsProcessor).id("PluginsProcessor").
           to("direct:output").end();
 
@@ -246,43 +255,26 @@ public class MainRouteBuilder extends RouteBuilder {
 
         log.info(format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
-          //fetchSize=1 1 at a time
-/*
-          from(String.format("imaps://%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
-                  "delete=false&" +
-//                  "sortTerm=reverse,date&" + //todo Fill bug to Camel
-                  "unseen=true&" +
-                  "peek=true&" +
-                  "fetchSize=25&" +
-                  "skipFailedMessage=true&" +
-                  "maxMessagesPerPoll=25&"+
-                  "mail.imap.partialfetch=false&"+
-                  "mail.imaps.partialfetch=false",
-              email.url, URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
-              email.delay)).id(email.id).
-*/
           String url = format( "%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
-//                  "binding=#mailbinding" +
-                  "delete=false&" +
+//                  "delete=false&" +
                   //"sortTerm=reverse,date&" + //todo Fill bug to Camel
                   "unseen=true&" +
                   "peek=true&" +
                   "fetchSize=25&" +
                   "skipFailedMessage=true&" +
-                  "maxMessagesPerPoll=25&"+
-                  "mail.imap.partialfetch=false&"+
-                  "mail.imaps.partialfetch=false%s",
-              addProtocol(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
-              email.delay, formatParameters(email.parameters));
-
-//          getRouteCollection().setCamelContext(getContext());
-//          RouteDefinition answer = getRouteCollection().from(url);
-//          MailEndpoint mailEndpoint = ((MailEndpoint)answer.getInputs().get(0).getEndpoint());
-          MailEndpoint mailEndpoint = (MailEndpoint) getContext().getEndpoint(url, MailEndpoint.class);
+                  "maxMessagesPerPoll=25"+
+                  "&mail.imap.ignorebodystructuresize=true"+
+                  "&mail.imap.partialfetch=false"+
+                  "&mail.imaps.partialfetch=false"+
+                  "&mail.debug=true"+
+                  "%s",
+              addProtocolPrefix(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
+              email.delay, Util.formatParameters(email.parameters));
+          //set ours MailBinding implementation
+          MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
           mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
 
-          from(mailEndpoint).id(email.id).
-            routeId(email.id).
+          from(mailEndpoint).routeId(email.id).
             process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
             process(exchange -> exchange.getIn().setHeader("From", MimeUtility.decodeText(exchange.getIn().getHeader("From", String.class)))).id("FromMimeDecoder").
             choice().
@@ -302,20 +294,17 @@ public class MainRouteBuilder extends RouteBuilder {
       from("direct:acceptedmail").routeId("acceptedmail").streamCaching().
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").
-          filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
-//          unmarshal().mimeMultipart(false, true, false).
+          filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).id("PricehookTagFilter").
           process(exchange -> {
             Message in = exchange.getIn();
             log.info("Attachments size before split: "+in.getAttachments().size());
-            log.info("Attachment="+in.getAttachmentObjects().values().iterator().next());
+            for (String s : in.getAttachmentNames()) {
+              log.info("Attachment=" + s);
+            }
           }).
           split(splitEmailExpr).
-          process(exchange -> {
-            Message in = exchange.getIn();
-            log.info("Attachments size after split: "+in.getAttachments().size());
-            log.info("Attachment="+in.getAttachmentObjects().values().iterator().next());
-          }).
           process(emailAttachmentProcessor).
+          process(exchange -> log.info("Attachment.split="+exchange.getIn().getHeader(Exchange.FILE_NAME))).id("logger").
           to("direct:packed");
 
       from("direct:rejected").
@@ -329,27 +318,18 @@ public class MainRouteBuilder extends RouteBuilder {
     }
   }
 
-  private String addProtocol(String url) {
+  /**
+   * @return lower-case list of extensions
+   */
+  public List<String> getExtensionsAcceptList() {
+    return Arrays.asList(config.get("file.extension.accept.list", "xls,txt,csv,xlsx").toLowerCase().split(","));
+  }
+
+  private String addProtocolPrefix(String url) {
     if (!url.contains("://")) {
       return config.get("default.email.protocol", "imaps")+"://"+url;
     }
     return url;
-  }
-
-  public String formatParameters(Map<String, String> parameters){
-    if (parameters == null || parameters.size() == 0) {
-      return "";
-    }
-
-    StringBuilder sb = new StringBuilder();
-    for (String k : parameters.keySet()){
-      try {
-        sb.append('&').append(k).append('=').append(URLEncoder.encode(parameters.get(k), "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        log.error(format("Cannot encode parameter value of KV pair: %s='%s'", k, parameters.get(k)));
-      }
-    }
-    return sb.toString();
   }
 
   public List<Plugin> getPlugins() {
