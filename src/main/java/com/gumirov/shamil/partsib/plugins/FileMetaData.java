@@ -3,7 +3,7 @@ package com.gumirov.shamil.partsib.plugins;
 import com.sun.istack.Nullable;
 
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -18,9 +18,9 @@ public class FileMetaData {
    * headers than FTP for example. Could be null.
    */
   @Nullable
-  HashMap<String,String> headers;
+  public Map<String, Object> headers;
 
-  public FileMetaData(String senderId, String filename, InputStream is, HashMap<String, String> headers) {
+  public FileMetaData(String senderId, String filename, InputStream is, Map<String, Object> headers) {
     this.senderId = senderId;
     this.filename = filename;
     this.is = is;

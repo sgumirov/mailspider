@@ -153,6 +153,8 @@ Array of fully qualified class names, executed in order specified in config:
 See also the config's parameter 'default.email.protocol' which could change the default behaviour.  
 - user and pwd - self-explainory
 - delay - period of pull in msec
+- parameters - map of key-value pairs to pass to camel endpoint. Use with care. Notable example is "delete: true" 
+parameter needed for pop3 to work fine.
 - factory - fully qualified class name, used ONLY for http endpoint. MUST BE USED for http. Purpose is maintaining the 
 procedure of logging in to web portals, see code for details. Actually this is needed because there's no universal of 
 logging in to different web sites, so we need to use the specific implementation for every http endpoint.
