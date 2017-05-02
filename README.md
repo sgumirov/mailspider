@@ -44,7 +44,7 @@ configuration/log4j2.properties.
 
 # Plugins
 
-For plugins developer notes please refer to com.gumirov.shamil.partsib.plugins.Plugin interface 
+For plugins developer notes please refer to 'com.gumirov.shamil.partsib.plugins.Plugin' interface 
 for details (see javadoc or source).
 
 # Configuration
