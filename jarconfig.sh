@@ -1,3 +1,3 @@
 cd configuration
-jar cvf ../MailSpider-1.0-SNAPSHOT-configs.jar *
+jar cvf ../MailSpider-configs.jar *
 cd ..
