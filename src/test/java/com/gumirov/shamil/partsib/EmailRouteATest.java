@@ -79,6 +79,7 @@ public class EmailRouteATest extends CamelTestSupport {
     //disable ssl cert checking for imaps connections
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
     context.start();
+    context.setTracing(false);
   }
 
   public void prepareHttpdOK() {
@@ -111,7 +112,7 @@ public class EmailRouteATest extends CamelTestSupport {
 //    WireMock.reset();
     prepareHttpdOK();
     execute(() -> sendMessage(filenames), 
-        10000,
+        60000,
         validate(filenames.get(0)+".csv", 1, pricehookId),
         validate(filenames.get(1)+".csv", 1, pricehookId),
         () -> verify(2, postRequestedFor(urlEqualTo(httpendpoint))),
@@ -226,7 +227,8 @@ public class EmailRouteATest extends CamelTestSupport {
 /*
         email.url = imapUrl;
         email.user = login;
-        email.pwd = pwd;*/
+        email.pwd = pwd;
+*/
 
         email.url = "imaps://imap.mail.yahoo.com";
         email.user = "shamilg1@yahoo.com";

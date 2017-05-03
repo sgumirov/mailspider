@@ -51,7 +51,8 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
-  private static final String VERSION = "1.3";
+  public static final String VERSION = "1.3";
+  public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static int MAX_UPLOAD_SIZE;
 
   public enum CompressorType {
@@ -118,7 +119,7 @@ public class MainRouteBuilder extends RouteBuilder {
     log.info("============ MailSpider version: "+VERSION);
     try {
       //debug, will be overriden by config's 'tracing' boolean value
-      getContext().setTracing(config.is("tracing", true));
+      getContext().setTracing(config.is("tracing", false));
       FileNameExcluder officeZipFormatsExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
           || filename.endsWith("docx")
@@ -218,6 +219,7 @@ public class MainRouteBuilder extends RouteBuilder {
             return false;
           }).id("FileExtensionFilter").
           process(pluginsProcessor).id("PluginsProcessor").
+          filter((exchange)-> Boolean.TRUE.equals(exchange.getIn().getHeader(PLUGINS_STATUS_OK, Boolean.class)) ).id("PluginsStatusFilter").
           to("direct:output").end();
 
 //dead letter channel:
@@ -259,7 +261,7 @@ public class MainRouteBuilder extends RouteBuilder {
         for (Endpoint email : endpoints.email) {
           System.setProperty("mail.mime.decodetext.strict", "false");
           
-          String url = format( "%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
+          String url = format( "%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay=true&" +
 //                  "delete=false&" +
                   //"sortTerm=reverse,date&" + //todo Fill bug to Camel
                   "unseen=true&" +

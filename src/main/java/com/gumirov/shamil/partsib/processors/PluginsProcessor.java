@@ -1,5 +1,6 @@
 package com.gumirov.shamil.partsib.processors;
 
+import com.gumirov.shamil.partsib.MainRouteBuilder;
 import com.gumirov.shamil.partsib.plugins.FileMetaData;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import org.apache.camel.Exchange;
@@ -53,8 +54,10 @@ public class PluginsProcessor implements Processor {
         }
       }
       exchange.getIn().setBody(metadata.is);
+      exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.TRUE);
     } catch (Exception e) {
       log.error("Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);
+      exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.FALSE);
     }
   }
 }
