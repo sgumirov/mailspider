@@ -112,7 +112,7 @@ public class EmailRouteATest extends CamelTestSupport {
 //    WireMock.reset();
     prepareHttpdOK();
     execute(() -> sendMessage(filenames), 
-        60000,
+        10000,
         validate(filenames.get(0)+".csv", 1, pricehookId),
         validate(filenames.get(1)+".csv", 1, pricehookId),
         () -> verify(2, postRequestedFor(urlEqualTo(httpendpoint))),
@@ -142,13 +142,13 @@ public class EmailRouteATest extends CamelTestSupport {
     );
   }
   
-  @Test
-  public void testRealEmail() throws Exception{
+  //@Test
+/*  public void testRealEmail() throws Exception{
     prepareHttpdOK();
     execute(()->{}, 120000, ()->{
       int i = 0;
     });
-  }
+  }*/
 
   void execute(Runnable test, long timeWait, Runnable ... validators) throws InterruptedException {
     test.run();
@@ -224,15 +224,15 @@ public class EmailRouteATest extends CamelTestSupport {
         Endpoint email = new Endpoint();
         email.id = "Test-EMAIL-01";
 
-/*
         email.url = imapUrl;
         email.user = login;
         email.pwd = pwd;
-*/
 
+/*
         email.url = "imaps://imap.mail.yahoo.com";
         email.user = "shamilg1@yahoo.com";
         email.pwd = "gfhjkmcdfv";
+*/
 
         email.delay = "10000";
         e.email.add(email);
