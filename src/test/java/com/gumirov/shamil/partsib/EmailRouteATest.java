@@ -112,7 +112,7 @@ public class EmailRouteATest extends CamelTestSupport {
 //    WireMock.reset();
     prepareHttpdOK();
     execute(() -> sendMessage(filenames), 
-        10000,
+        40000,
         validate(filenames.get(0)+".csv", 1, pricehookId),
         validate(filenames.get(1)+".csv", 1, pricehookId),
         () -> verify(2, postRequestedFor(urlEqualTo(httpendpoint))),
@@ -129,15 +129,15 @@ public class EmailRouteATest extends CamelTestSupport {
 //    WireMock.reset();
     prepareHttpdFailFirstNTimes(2);
     execute(() -> sendMessage(filenames),
-        5000,
+        50000,
         validate(filenames.get(0)+".csv", 1, pricehookId),
         validate(filenames.get(1)+".csv", 1, pricehookId),
-        () -> verify(2, postRequestedFor(urlEqualTo(httpendpoint))),
+        () -> verify(4, postRequestedFor(urlEqualTo(httpendpoint))),
         () -> {
           //TRANSACTION: deleted processed message
           UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
           Message[] messages = unseenRetriever.getMessages(login, pwd);
-          assertEquals(1, messages.length);
+          assertEquals(0, messages.length);
         }
     );
   }
@@ -244,9 +244,14 @@ public class EmailRouteATest extends CamelTestSupport {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="From";
-        r1.contains="yahoo";
+        r1.contains="someone";
         rules.add(r1);
         return rules;
+      }
+
+      @Override
+      public List<String> getExtensionsAcceptList() {
+        return Arrays.asList("xls","csv","txt","xlsx");
       }
 
       @Override

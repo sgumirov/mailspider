@@ -213,7 +213,9 @@ public class MainRouteBuilder extends RouteBuilder {
             if (null == name) return false;
             name = name.toLowerCase().trim();
             for (String ext : extensionAcceptList) {
-              if (name.endsWith(ext.trim())) return true;
+              if (name.endsWith(ext.trim())) {
+                return true;
+              }
             }
             log.warn("Rejected filename by wrong extension: "+name);
             return false;

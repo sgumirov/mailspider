@@ -99,7 +99,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     execute(() -> {
           sendEml(getClass().getClassLoader().getResourceAsStream("fixed.eml"));
         }, 
-        10000,
+        20000,
         //check filenames and tags
         validate("Остатки Москва 17.04.xlsx", 2, pricehookId),
         validate("Остатки новолайн 17.04.xls", 1, pricehookId),
@@ -142,6 +142,11 @@ public class EmailNestedMessageTest extends CamelTestSupport {
         email.delay = "10000";
         e.email.add(email);
         return e;
+      }
+
+      @Override
+      public List<String> getExtensionsAcceptList() {
+        return Arrays.asList("xls","csv","txt","xlsx");
       }
 
       @Override
