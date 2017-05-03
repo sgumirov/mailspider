@@ -257,6 +257,8 @@ public class MainRouteBuilder extends RouteBuilder {
 
         log.info(format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
         for (Endpoint email : endpoints.email) {
+          System.setProperty("mail.mime.decodetext.strict", "false");
+          
           String url = format( "%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay&" +
 //                  "delete=false&" +
                   //"sortTerm=reverse,date&" + //todo Fill bug to Camel

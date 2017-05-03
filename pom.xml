@@ -31,35 +31,7 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- Geronimo javamail -->
-<!--
-    <dependency>
-      <groupId>org.apache.geronimo.javamail</groupId>
-      <artifactId>geronimo-javamail_1.4_mail</artifactId>
-      <version>1.9.0-alpha-2</version>
-    </dependency>
--->
-<!--
-    &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.geronimo.javamail/geronimo-javamail_1.4_mail &ndash;&gt;
-    <dependency>
-      <groupId>org.apache.geronimo.javamail</groupId>
-      <artifactId>geronimo-javamail_1.4_mail</artifactId>
-      <version>1.8.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.javamail</groupId>
-      <artifactId>geronimo-javamail_1.4_provider</artifactId>
-      <version>1.8.4</version>
-    </dependency>
-    -->
-<!--
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>javax.mail-api</artifactId>
-      <version>1.5.6</version>
-    </dependency>
--->
-    <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+    <!-- JavaMail -->
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
@@ -86,6 +58,15 @@
       <artifactId>camel-http4</artifactId>
       <version>2.18.2</version>
     </dependency>
+    
+    <!-- Mime decode -->
+<!--
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mime4j</artifactId>
+      <version>0.8.0</version>
+    </dependency>
+-->
 
     <!-- LOGGING -->
     <dependency>

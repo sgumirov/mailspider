@@ -1,5 +1,6 @@
 package com.gumirov.shamil.partsib.plugins;
 
+import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 
 import java.io.InputStream;
@@ -10,7 +11,7 @@ import java.io.InputStream;
 public class NoOpPlugin implements Plugin {
   @Override
   public InputStream processFile(FileMetaData metadata, Logger log) {
-    log.info("NoOpPlugin: processFile() f = "+metadata);
+    log.info("processFile() f = "+metadata.headers.get(Exchange.FILE_NAME));
     return null;
   }
 }

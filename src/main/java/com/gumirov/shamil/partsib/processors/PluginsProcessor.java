@@ -12,7 +12,7 @@ import java.util.List;
 
 import static com.gumirov.shamil.partsib.MainRouteBuilder.ENDPOINT_ID_HEADER;
 /**
- * NOTE: We abort any changes ("rollback") in case of any error (exception) happened and rolling back to original 
+ * NOTE: We write to log and mark as SUCCESS in case of any error (exception) happened and rolling back to original 
  * content. 
  */
 public class PluginsProcessor implements Processor {
@@ -32,24 +32,29 @@ public class PluginsProcessor implements Processor {
     }
     Plugin last = null;
     try {
-      FileMetaData mdata = new FileMetaData(
+      FileMetaData metadata = new FileMetaData(
           exchange.getIn().getHeader(ENDPOINT_ID_HEADER).toString(),
           exchange.getIn().getHeader(Exchange.FILE_NAME).toString(),
           exchange.getIn().getBody(InputStream.class),
           exchange.getIn().getHeaders());
       for (Plugin plugin : plugins) {
         last = plugin;
-        InputStream is = plugin.processFile(mdata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
+        InputStream is = plugin.processFile(metadata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
         if (is != null) {
-          log.debug("Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+mdata.filename);
-          mdata.is = is;
+          log.debug("Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
+          metadata.is = is;
         } else {
-          log.debug("Plugin "+plugin.getClass().getSimpleName()+" DID NOT file: "+mdata.filename);
+          log.debug("Plugin "+plugin.getClass().getSimpleName()+" DID NOT file: "+metadata.filename);
+        }
+        if (metadata.headers != null) {
+          exchange.getIn().setHeaders(metadata.headers);
+        } else {
+          log.warn("Plugin MUST NOT return null headers: "+plugin.getClass().getSimpleName());
         }
       }
-      exchange.getIn().setBody(mdata.is);
+      exchange.getIn().setBody(metadata.is);
     } catch (Exception e) {
-      log.error("Error occured while plugins execution. ABORTING ALL changes done by ANY plugin in sequence! Error at plugin instance = "+last+" of class = "+last.getClass().getSimpleName()+" with an exception = "+e.getMessage(), e);
+      log.error("Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);
     }
   }
 }
