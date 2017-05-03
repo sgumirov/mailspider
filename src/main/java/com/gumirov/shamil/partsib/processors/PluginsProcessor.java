@@ -40,7 +40,12 @@ public class PluginsProcessor implements Processor {
       for (Plugin plugin : plugins) {
         last = plugin;
         InputStream is = plugin.processFile(mdata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
-        if (is != null) mdata.is = is;
+        if (is != null) {
+          log.debug("Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+mdata.filename);
+          mdata.is = is;
+        } else {
+          log.debug("Plugin "+plugin.getClass().getSimpleName()+" DID NOT file: "+mdata.filename);
+        }
       }
       exchange.getIn().setBody(mdata.is);
     } catch (Exception e) {
