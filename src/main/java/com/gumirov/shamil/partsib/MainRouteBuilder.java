@@ -51,6 +51,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
+  private static final String VERSION = "1.3";
   public static int MAX_UPLOAD_SIZE;
 
   public enum CompressorType {
@@ -114,6 +115,7 @@ public class MainRouteBuilder extends RouteBuilder {
   }
 
   public void configure() {
+    log.info("============ MailSpider version: "+VERSION);
     try {
       //debug, will be overriden by config's 'tracing' boolean value
       getContext().setTracing(config.is("tracing", true));

@@ -9,6 +9,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.plugins.NoOpPlugin;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.server.AbstractServer;
@@ -44,7 +45,7 @@ public class EmailRouteATest extends CamelTestSupport {
   final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   private int imapport = 3143;
   final String imapUrl = "imap://127.0.0.1"+":"+imapport;
-  private List<String> filenames = Arrays.asList("sample1.csv", "Прайс лист1.csv", "wrongfile.jpg");
+  private List<String> filenames = Arrays.asList("=?koi8-r?B?8NLBytMg6e7l9DUueGxz?=", "Прайс лист1.csv", "wrongfile.jpg");
   private byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
   final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
   { //ssl init
@@ -201,7 +202,7 @@ public class EmailRouteATest extends CamelTestSupport {
     return new MainRouteBuilder(config){
       @Override
       public List<Plugin> getPlugins() {
-        return null;
+        return Arrays.asList(new NoOpPlugin());
       }
 
       @Override
