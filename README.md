@@ -6,10 +6,11 @@ HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
 
-Version 1.3. [IMPORTANT] Changed name of email accept rules (".accept" added): email.accept.rules.config.filename, multiple options added, 
-             added retries in case of output endpoint failure.
-Version 1.2. Deployed with pricehook tagging.
-Version 1.1. An officially deployed at the customer installation.
+- Version 1.3. Changed name of email accept rules (".accept" added): email.accept.rules.config.filename, multiple options added, 
+ added retries removed in case of output endpoint failure.
+-- Now loading pricehook config from network, see below in 'Pricehook IDs tagging config loading from network'
+- Version 1.2. Deployed with pricehook tagging.
+- Version 1.1. An officially deployed at the customer installation.
 
 # Messages tracing in log
 
@@ -119,16 +120,20 @@ To disable set empty value.
 
 # Email filtering syntax
 
-The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS ACCEPTED.
+The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS ACCEPTED. The config file is loaded
+ from file with filename specified in main config's key 'email.accept.rules.config.filename'.
 
-Single rule looks like:
+
+Rule list example:
 ```json
-{
-  "id":"rule_01",
-  "header":"From",
-  "contains":"@gmail.com",
-  "ignorecase":"true"
-}
+[
+  {
+    "id":"rule_01",
+    "header":"From",
+    "contains":"@gmail.com",
+    "ignorecase":"true"
+  }
+]
 ```
 Parameter 'id' is for logging, so it's better to set ids different values.
 If parameter 'ignorecase' is set to 'true' or '1' then 'contains' field value is compared ignoring case.
@@ -197,6 +202,7 @@ logging in to different web sites, so we need to use the specific implementation
 The network loading of this config is done via http every time the email message is processed and the same set of
 rules are applied to all the files attached to this email.
 
+## Pricehook IDs tagging config loading from network
 Network url is specified in main config under parameter named 'pricehook.config.url'. Note that network rules
 replaces local config in sense of 'if at least one tagging rule is load from network, local tagging rules are
 dismissed for exchange'.
@@ -221,9 +227,9 @@ email filtering config. See example below.
 ```
 
 
-# Unit tests
+# Tests
 
-Unit tests are OK to run any time with 'mvn tests' command.
-Please note that _integration_ (AT) tests require a real FTP/Email to be prepared. Refer to source code, they are not 
-documented anywhere: EmailRouteTest, FTPRouteTest. Integration tests are excluded from execution using @Ignore.
+Unit tests are OK to run any time with 'mvn tests' command. They all must pass. Known issue: AT could fail due to 
+high cpu/io load of server. As about AT refer to the source code. Integration tests require external setup are excluded 
+from execution using @Ignore.
 
