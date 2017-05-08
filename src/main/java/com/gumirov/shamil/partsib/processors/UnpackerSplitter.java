@@ -44,7 +44,7 @@ public class UnpackerSplitter {
     try {
       SevenZip.initSevenZipFromPlatformJAR();
       inArchive = SevenZip.openInArchive(null, // Choose format automatically
-          new ByteArrayStream(b, false, 102400));
+          new ByteArrayStream(b, false, Integer.MAX_VALUE)); //disable max size as per javadoc
       ISimpleInArchive simpleInArchive = inArchive.getSimpleInterface();
       for (ISimpleInArchiveItem item : simpleInArchive.getArchiveItems()) {
         if (!item.isFolder()) {
