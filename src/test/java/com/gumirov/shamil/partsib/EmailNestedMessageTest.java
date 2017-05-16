@@ -117,6 +117,24 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     );
   }
 
+  @Test
+  public void testFile() throws Exception{
+    WireMock.reset();
+    prepareHttpdOK();
+    execute(() -> {
+        sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml"));
+      }, 
+      20000,
+      //check filenames and tags
+      () -> {
+        //TRANSACTION: deleted processed message
+        Retriever retriever = new Retriever(greenMail.getPop3());
+        Message[] messages = retriever.getMessages(login, pwd);
+        assertEquals(0, messages.length);
+      }
+    );
+  }
+
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
     return new MainRouteBuilder(config){
@@ -153,8 +171,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
-        r1.header="Subject";
-        r1.contains="FW";
+        r1.header="From";
+        r1.contains="@";
         rules.add(r1);
         return rules;
       }
@@ -162,8 +180,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       @Override
       public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
         PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
-        r1.header = "Subject";
-        r1.contains = "FW";
+        r1.header = "From";
+        r1.contains = "@";
         r1.pricehookid = pricehookId;
         return Arrays.asList(r1);
       }

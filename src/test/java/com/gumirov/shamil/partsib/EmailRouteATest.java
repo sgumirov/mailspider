@@ -228,12 +228,6 @@ public class EmailRouteATest extends CamelTestSupport {
         email.user = login;
         email.pwd = pwd;
 
-/*
-        email.url = "imaps://imap.mail.yahoo.com";
-        email.user = "shamilg1@yahoo.com";
-        email.pwd = "gfhjkmcdfv";
-*/
-
         email.delay = "10000";
         e.email.add(email);
         return e;

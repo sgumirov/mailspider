@@ -93,9 +93,9 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         //imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
         Endpoint email = new Endpoint();
         email.id=ENDPID;
-        email.url= "imap.mail.ru";
-        email.user="sh.roller@mail.ru";
-        email.pwd="gfhjkm12";
+        email.url= "imap.example.com";
+        email.user="email@a.com";
+        email.pwd="pwd";
         email.delay="5000";
         e.email.add(email);
         return e;
