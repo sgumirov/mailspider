@@ -6,6 +6,9 @@ HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
 
+- Version 1.4. Important Camel bug fixed: 'Bare attachment' issue. When mail message has no body but a single attachment on 
+the root level (without multipart), then Camel fails to extract attachment. This release fixes this. 
+AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is against 'issue.eml'.
 - Version 1.3. Changed name of email accept rules (".accept" added): email.accept.rules.config.filename, multiple options added, 
  added retries removed in case of output endpoint failure.
 -- Now loading pricehook config from network, see below in 'Pricehook IDs tagging config loading from network'

@@ -21,6 +21,8 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
 import javax.mail.Message;
@@ -42,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  *
  */
 public class EmailNestedMessageTest extends CamelTestSupport {
+  private static Logger LOG = LoggerFactory.getLogger(EmailNestedMessageTest.class.getSimpleName());
   //properties
   final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
   private static final String pricehookId = "1.2.0.1";
@@ -118,7 +121,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
   }
 
   @Test
-  public void testBaseAttachmentIssue() throws Exception{
+  public void testBareAttachmentIssue() throws Exception{
+    LOG.info("Test: testBareAttachmentIssue");
     WireMock.reset();
     prepareHttpdOK();
     final String expectedName = "Прайс-лист за 2017-04-17.xls";
