@@ -118,14 +118,16 @@ public class EmailNestedMessageTest extends CamelTestSupport {
   }
 
   @Test
-  public void testFile() throws Exception{
+  public void testBaseAttachmentIssue() throws Exception{
     WireMock.reset();
     prepareHttpdOK();
+    final String expectedName = "Прайс-лист за 2017-04-17.xls";
     execute(() -> {
         sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml"));
       }, 
       20000,
       //check filenames and tags
+      validate(expectedName, 3, pricehookId),
       () -> {
         //TRANSACTION: deleted processed message
         Retriever retriever = new Retriever(greenMail.getPop3());
