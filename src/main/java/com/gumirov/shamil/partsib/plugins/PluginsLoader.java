@@ -3,23 +3,19 @@ package com.gumirov.shamil.partsib.plugins;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.MainRouteBuilder;
-import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by phoenix on 2/27/17.
+ * Inititalizes plugins with the default constructor.
  */
 public class PluginsLoader {
-  static Logger logger = LoggerFactory.getLogger(PluginsLoader.class);
-  ArrayList<Plugin> plugins = new ArrayList<>(); 
+  private static Logger logger = LoggerFactory.getLogger(PluginsLoader.class);
+  private ArrayList<Plugin> plugins = new ArrayList<>();
   
   public PluginsLoader(String pluginsConfigFile) {
     try {

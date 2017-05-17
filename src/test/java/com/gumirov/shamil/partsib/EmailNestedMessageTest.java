@@ -21,6 +21,8 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
 import javax.mail.Message;
@@ -42,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  *
  */
 public class EmailNestedMessageTest extends CamelTestSupport {
+  private static Logger LOG = LoggerFactory.getLogger(EmailNestedMessageTest.class.getSimpleName());
   //properties
   final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
   private static final String pricehookId = "1.2.0.1";
@@ -117,6 +120,27 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     );
   }
 
+  @Test
+  public void testBareAttachmentIssue() throws Exception{
+    LOG.info("Test: testBareAttachmentIssue");
+    WireMock.reset();
+    prepareHttpdOK();
+    final String expectedName = "Прайс-лист за 2017-04-17.xls";
+    execute(() -> {
+        sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml"));
+      }, 
+      20000,
+      //check filenames and tags
+      validate(expectedName, 3, pricehookId),
+      () -> {
+        //TRANSACTION: deleted processed message
+        Retriever retriever = new Retriever(greenMail.getPop3());
+        Message[] messages = retriever.getMessages(login, pwd);
+        assertEquals(0, messages.length);
+      }
+    );
+  }
+
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
     return new MainRouteBuilder(config){
@@ -153,8 +177,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
-        r1.header="Subject";
-        r1.contains="FW";
+        r1.header="From";
+        r1.contains="@";
         rules.add(r1);
         return rules;
       }
@@ -162,8 +186,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       @Override
       public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
         PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
-        r1.header = "Subject";
-        r1.contains = "FW";
+        r1.header = "From";
+        r1.contains = "@";
         r1.pricehookid = pricehookId;
         return Arrays.asList(r1);
       }

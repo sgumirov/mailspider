@@ -12,6 +12,7 @@ import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -48,10 +49,7 @@ public class MailBindingFixNestedAttachments extends MailBinding {
         }
       } else {
         String disposition = part.getDisposition();
-        String fileName = part.getFileName();
-        if (fileName != null) {
-          fileName = MimeUtility.decodeText(fileName);
-        }
+        String fileName = mimeDecodeText(part.getFileName());
 
         if (LOG.isTraceEnabled()) {
           LOG.trace("Part #{}: Disposition: {}", i, disposition);
@@ -87,5 +85,48 @@ public class MailBindingFixNestedAttachments extends MailBinding {
     return disposition != null
         && fileName != null
         && (disposition.equalsIgnoreCase(Part.ATTACHMENT) || disposition.equalsIgnoreCase(Part.INLINE));
+  }
+
+  //fix issue with bare attachment
+
+  @Override
+  public void extractAttachmentsFromMail(Message message, Map<String, Attachment> map) throws MessagingException, IOException {
+    super.extractAttachmentsFromMail(message, map);
+
+    if (message.getContent() != null && map == null || map.isEmpty()) {
+      String disposition = message.getDisposition();
+
+      if (disposition.contains(Part.ATTACHMENT) || disposition.contains(Part.INLINE)){
+        LOG.trace("No attachments was extracted using default MailBinding class, extract attachment without body.");
+        String filename = mimeDecodeText(message.getFileName());
+
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Disposition: {}", disposition);
+          LOG.trace("Description: {}", message.getDescription());
+          LOG.trace("ContentType: {}", message.getContentType());
+          LOG.trace("FileName: {}", filename);
+          LOG.trace("Size: {}", message.getSize());
+          LOG.trace("LineCount: {}", message.getLineCount());
+        }
+
+        if (filename != null && !map.containsKey(filename)) {
+          LOG.debug("Extracting file attachment: {}", filename);
+          DefaultAttachment camelAttachment = new DefaultAttachment(message.getDataHandler());
+          Enumeration<Header> headers = message.getAllHeaders();
+          while (headers.hasMoreElements()) {
+            Header header = headers.nextElement();
+            camelAttachment.setHeader(header.getName(), header.getValue());
+          }
+          map.put(filename, camelAttachment);
+        } else {
+          LOG.warn("Already extracted same filename attachment: {}.", filename);
+        }
+      }
+    }
+  }
+
+  private String mimeDecodeText(String text) throws UnsupportedEncodingException {
+    if (text == null) return null;
+    return MimeUtility.decodeText(text);
   }
 }
