@@ -1,5 +1,6 @@
 package com.gumirov.shamil.partsib;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
@@ -21,6 +22,8 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
 import javax.mail.*;
@@ -30,6 +33,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.search.FlagTerm;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Security;
 import java.util.*;
@@ -40,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Automation FTP endpoint test with local FTP daemon
  */
 public class EmailRouteATest extends CamelTestSupport {
+  private static Logger LOG = LoggerFactory.getLogger(EmailRouteATest.class.getSimpleName());
   private static final String pricehookId = "1.2.0.1";
   final int httpPort = 8888;
   public String httpendpoint="/endpoint";
@@ -125,6 +130,47 @@ public class EmailRouteATest extends CamelTestSupport {
   }
 
   @Test
+  public void testRealEmails() throws Exception {
+    //does not work under POP3
+    LOG.info("Test: testRealEmails");
+    WireMock.reset();
+    prepareHttpdOK();
+    execute(() -> {
+          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-1.eml"));
+          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-2.eml"));
+          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-3.eml"));
+          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-4.eml"));
+          sendEml(getClass().getClassLoader().getResourceAsStream("nocontent.eml"));
+        },
+        20000,
+        //check filenames
+//        validate(expectedName, 3, pricehookId),
+        () -> {
+          //TRANSACTION: deleted processed message
+          Retriever retriever = new Retriever(greenMail.getImap());
+          Message[] messages = retriever.getMessages(login, pwd);
+          LOG.info("Messages not processed: "+messages.length);
+          assertEquals(0, messages.length);
+        }
+    );
+  }
+
+  public void sendEml(InputStream emlIs) {
+    System.setProperty("mail.debug", "true");
+    Session ses = GreenMailUtil.getSession(greenMail.getImap().getServerSetup());
+//    Session ses = GreenMailUtil.getSession(greenMail.getPop3().getServerSetup());
+    ses.setDebug(true);
+    ses.getProperties().setProperty("mail.imap.partialfetch", "false");
+    try {
+      MimeMessage msg = new MimeMessage(ses, emlIs);
+      GreenMailUser user = greenMail.setUser(to, login, pwd);
+      user.deliver(msg);
+    } catch (MessagingException e) {
+      throw new RuntimeException("Fuck", e);
+    }
+  }
+
+  @Test
   public void testWithHttpFailures() throws Exception{
 //    WireMock.reset();
     prepareHttpdFailFirstNTimes(2);
@@ -141,13 +187,6 @@ public class EmailRouteATest extends CamelTestSupport {
         }
     );
   }
-  //@Test
-/*  public void testRealEmail() throws Exception{
-    prepareHttpdOK();
-    execute(()->{}, 120000, ()->{
-      int i = 0;
-    });
-  }*/
 
   void execute(Runnable test, long timeWait, Runnable ... validators) throws InterruptedException {
     test.run();
@@ -226,7 +265,10 @@ public class EmailRouteATest extends CamelTestSupport {
         email.user = login;
         email.pwd = pwd;
 
+        email.parameters = new HashMap<>();
+        email.parameters.put("delete", "true");
         email.delay = "10000";
+
         e.email.add(email);
         return e;
       }
@@ -236,7 +278,7 @@ public class EmailRouteATest extends CamelTestSupport {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="From";
-        r1.contains="someone";
+        r1.contains="@";
         rules.add(r1);
         return rules;
       }
@@ -249,8 +291,8 @@ public class EmailRouteATest extends CamelTestSupport {
       @Override
       public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
         PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
-        r1.header = "Subject";
-        r1.contains = "ASVA";
+        r1.header = "From";
+        r1.contains = "@";
         r1.pricehookid = pricehookId;
         PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
         r2.header = "Subject";

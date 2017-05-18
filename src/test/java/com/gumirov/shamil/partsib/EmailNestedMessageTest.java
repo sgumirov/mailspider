@@ -122,45 +122,22 @@ public class EmailNestedMessageTest extends CamelTestSupport {
 
   @Test
   public void testBareAttachmentIssue() throws Exception{
+    //use POP3: this does NOT work under IMAP (due to GreenMail bug)
     LOG.info("Test: testBareAttachmentIssue");
     WireMock.reset();
     prepareHttpdOK();
     final String expectedName = "Прайс-лист за 2017-04-17.xls";
-    execute(() -> {
-        sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml"));
-      }, 
+    execute(
+      () -> sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml")),
       20000,
       //check filenames and tags
-      validate(expectedName, 3, pricehookId),
       () -> {
         //TRANSACTION: deleted processed message
         Retriever retriever = new Retriever(greenMail.getPop3());
         Message[] messages = retriever.getMessages(login, pwd);
         assertEquals(0, messages.length);
-      }
-    );
-  }
-
-
-  @Test
-  public void testRealEmails() throws Exception {
-    LOG.info("Test: testRealEmails");
-    WireMock.reset();
-    prepareHttpdOK();
-    execute(() -> {
-          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-1.eml"));
-          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-2.eml"));
-          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-3.eml"));
-        },
-        20000,
-        //check filenames
-//        validate(expectedName, 3, pricehookId),
-        () -> {
-          //TRANSACTION: deleted processed message
-          Retriever retriever = new Retriever(greenMail.getPop3());
-          Message[] messages = retriever.getMessages(login, pwd);
-          assertEquals(0, messages.length);
-        }
+      },
+      validate(expectedName, 3, pricehookId)
     );
   }
 
