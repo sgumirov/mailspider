@@ -1,0 +1,1 @@
+journalctl -e --unit=mailspider.service
