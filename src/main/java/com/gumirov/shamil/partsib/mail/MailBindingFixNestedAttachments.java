@@ -96,7 +96,7 @@ public class MailBindingFixNestedAttachments extends MailBinding {
     if (message.getContent() != null && map == null || map.isEmpty()) {
       String disposition = message.getDisposition();
 
-      if (disposition != null && disposition.contains(Part.ATTACHMENT) || disposition.contains(Part.INLINE)){
+      if (disposition != null && (disposition.contains(Part.ATTACHMENT) || disposition.contains(Part.INLINE))){
         LOG.trace("No attachments was extracted using default MailBinding class, extract attachment without body.");
         String filename = mimeDecodeText(message.getFileName());
 
