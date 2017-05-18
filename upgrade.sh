@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-FILE=target/MailSpider-1.3-SNAPSHOT-jar-with-dependencies.jar
+FILE=target/MailSpider-1.4-SNAPSHOT-jar-with-dependencies.jar
 
 runuser -u mailspider git pull
 runuser -u mailspider mvn clean compile assembly:single
