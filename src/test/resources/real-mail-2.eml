@@ -1,0 +1,157 @@
+X-Apparently-To: partsibprice@yahoo.com; Thu, 18 May 2017 02:04:45 +0000
+Return-Path: <vadim.salnikov@rossko.ru>
+Received-SPF: none (domain of rossko.ru does not designate permitted sender hosts)
+X-YMailISG: 45qQmC0WLDtAbpUV6q_FaLS5dhujaQOdBDaQt_B19Us1AOSD
+ izZb3.8jSQtsp8xUsRUKJgn7JdwZLRXpt5kEAhMnvTgeWspRmtCGMF8lRso.
+ 34a8SjGtHAeYDEefifSXI0b5c9S5pHyCG31e5rDDdPj68_eZbYvsUvj7VcKg
+ LXwo9Cls3XzOgmfGlW4mGV9oDIdlHPp_pFmtJcjqCosFNoQfw42y663gNOvE
+ INo8MdlL.57Q4parPFFAA_zgwbucNhWBbRRiT_QH4kECGPgt7epLBQYVX5Ui
+ dy_llzPpj6tKJ4BJ.8.YQs3ByvSbeebje1R6Gju4hY8Vl_sS0Kvsv977UDjb
+ TtqR7ARQGDqSXIKBwDriIjLQ.Xcv922iVKXyepKg0fXdchzQwWi1sZclZmx8
+ Ajc_SZIjIU8L78WvOKVWyP9CJ2AKdfKezn.hN819gKvL4exPqFmq4nU4c3lQ
+ 65nXvdSY5PcbfnJnDZ7wrQ_ueKPuZtJvbGqD1eOmHNyziVmTTiuYD_8oXS3L
+ xoOEJMvsGe40CDOGyzEAI.sB.32S09beLY9EUbUfmHvMP9uPcmOGMWrPuRZR
+ n1PxM8qKqr1SeTobesjzd.nx1Ypi3h289oFJ93jBoClsG8PBlVumm2T6nv85
+ yIzvL2ytpw1hqLvCWg83HR0zvGa_AXtPiZtGGKgjfoq8ifFEus1RvnH1I15f
+ 8Xm4zmwP7kU0kXJtCwgMLBvQ0Pfi2NuI83S54MLTJpYfnLMncd0Xjz0.strP
+ 0z.ZyKItXCYGphYySoUtHkGA57wScV0DEs15PZ2CjT1GPVYAYgq4EvWrfjbN
+ ROucU4pFj28gftDhtXxFCSVxiKD5MAGN5HWFxbFmmorHVMiZo4LL7bXG_Ixg
+ SjR5DdcF5IvcKzWd3iUi7RXeS5ceeU72tzITTzezSN4VugOgr34YYFXWMWF_
+ sL0HQzfjOEdvkYWpD00rTQxEICnaSv2q9d8RdBurq_MqtDFPO3i7bWlcJLwC
+ BByE.m4OPi.o9ziHZM86VdTpEKw_PJBvk6Gd2Hyp0ivEmHPNfa5tvg4GxIp2
+ _8ZyZNsM8IqYaY7NowbVBu7DqrHLAsFIxw3BYuOUa70ALbhZwRxnLYmzhA8M
+ jCk7dMkeNvOdUQcybib_64EAFPo5gpFbQFk9xL6FdsZ0fTbUXSG.D5aBSH1W
+ BIw_N45Jo.LPmF_6YZxLIF3bAhFsa6drl4jk0l6UX_gTwiCsuDeMV_M2ScQV
+ wyYApkeIJeesSP1UdHIxP6nDYpwyAxaUafGJYQhZ9mqmki6hkRM5sxsuBFQw
+ o9CKZtserqXw2lSJ.2gUhPftSgvX5JAFkJLrVZpS4QdiRNWesFfBKLEtNDNn
+ A6yrS7aIS3chSwDLc9_qQypvHh75ZcwqkypPrHfI2hdwFVaaj0WdYGWWAm7m
+ 38HusVNWY1PwjxdoscgRu6Xu6X6DADxOfNwQ
+X-Originating-IP: [94.100.176.242]
+Authentication-Results: mta1683.mail.gq1.yahoo.com  from=; domainkeys=neutral (no sig);  from=rossko.ru; dkim=neutral (no sig)
+Received: from 127.0.0.1  (EHLO mx167.mail.ru) (94.100.176.242)
+  by mta1683.mail.gq1.yahoo.com with SMTPS; Thu, 18 May 2017 02:04:44 +0000
+Received: from [195.208.107.161] (ident=mail)
+	by mx167.mail.ru with local (envelope-from <vadim.salnikov@rossko.ru>)
+	id 1dBAny-0006nP-Cq
+	for partsibprice@yahoo.com; Thu, 18 May 2017 05:04:42 +0300
+X-ResentFrom: <partsib@mail.ru>
+X-MailRu-Forward: 1
+Authentication-Results: mxs.mail.ru; spf=none () smtp.mailfrom=vadim.salnikov@rossko.ru smtp.helo=exchange-edge01.rossko.ru
+Received-SPF: none
+Received: from mail.rossko.ru ([195.208.107.161]:39816 helo=exchange-edge01.rossko.ru)
+	by mx167.mail.ru with esmtp (envelope-from <vadim.salnikov@rossko.ru>)
+	id 1dBAnx-0006mP-U1
+	for partsib@mail.ru; Thu, 18 May 2017 05:04:42 +0300
+Received: from exchange-02.rossko.local (192.168.166.7) by
+ exchange-edge01.rossko.ru (192.168.166.116) with Microsoft SMTP Server (TLS)
+ id 15.0.1156.6; Thu, 18 May 2017 09:04:44 +0700
+Received: from exchange2013.rossko.local (192.168.166.118) by
+ exchange-02.rossko.local (192.168.166.7) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.1.669.32; Thu, 18 May 2017 09:04:39 +0700
+Received: from exchange2013.rossko.local ([::1]) by exchange2013.rossko.local
+ ([::1]) with mapi id 15.00.1156.000; Thu, 18 May 2017 09:04:39 +0700
+From: =?koi8-r?B?88HM2M7Jy8/XIPfBxMnN?= <Vadim.Salnikov@rossko.ru>
+To: "partsib@mail.ru" <partsib@mail.ru>
+Subject: =?koi8-r?B?y8/S0sXL1MnSz9fLwQ==?=
+Thread-Topic: =?koi8-r?B?y8/S0sXL1MnSz9fLwQ==?=
+Thread-Index: AdLPewL2tTKsDJ6cS9m3TQVucRz2zQ==
+Date: Thu, 18 May 2017 02:04:38 +0000
+Message-ID: <090c1701f7f948a593a02f7f51a9a0f1@exchange2013.rossko.local>
+Accept-Language: ru-RU, en-US
+Content-Language: ru-RU
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [192.168.166.155]
+Content-Type: multipart/alternative;
+	boundary="_000_090c1701f7f948a593a02f7f51a9a0f1exchange2013rosskolocal_"
+MIME-Version: 1.0
+X-7FA49CB5: A9FCD207E66530D88AA50765F790063792A92EB849DAEAB8CFB931F3CA250F2426E476CCD9869EB1A97D441D8FF7050AF3E74250C91F7588DA443D62BC94F3F4A0EA9E45FEB1C3DD40A5AABA2AD37119C229A0D60935BCDFFD36698289AA997CCDD1EB9DA22DB4256BA297DBC24807EA62C0DB630611AE6CA18204E546F3947CB861051D4BA689FC9F9579BDA94BCB102EF20D2F80756B5F0E13004A1EE203C262C0DB630611AE6C8AA50765F7900637C7B8297813FB1FBB7BBAAF6CCB0D364E35F6B50594872566EEC634BD975A286DA9174E9CC096D7C00458174351F65B0CE5BFE6E7EFDEDCD73C2226A172C13FDBD8FC6C240DEA76428AA50765F790063708CFC4E1398F6CDD4AD6D5ED66289B52BA69B7DF0B3EA92AB289B51CCB092ABD8AA50765F790063757004B04402545C5B3661434B16C20AC4E407312DDAC5531A0CE4F2CABFC2051A496736C98DFA1443031D41C29DB2EF100306258E7E6ABB419792E3A7644507DDF9932F5BADC41B2D700DB039FEF3DE98E09E0D8A118BD11
+X-DMARC-Policy: no
+X-Mras: OK
+X-Spam: undefined
+X-7FA49CB5: A9FCD207E66530D88AA50765F790063792A92EB849DAEAB8CFB931F3CA250F2426E476CCD9869EB1A97D441D8FF7050AF3E74250C91F7588DA443D62BC94F3F4A0EA9E45FEB1C3DD40A5AABA2AD37119C229A0D60935BCDFFD36698289AA997CCDD1EB9DA22DB4256BA297DBC24807EA62C0DB630611AE6CA18204E546F3947CB861051D4BA689FC9F9579BDA94BCB102EF20D2F80756B5F0E13004A1EE203C262C0DB630611AE6C8AA50765F7900637C7B8297813FB1FBB7BBAAF6CCB0D364E35F6B50594872566EEC634BD975A286DA9174E9CC096D7C00458174351F65B0CE5BFE6E7EFDEDCD73C2226A172C13FDBD8FC6C240DEA76428AA50765F790063708CFC4E1398F6CDD4AD6D5ED66289B52BA69B7DF0B3EA92AB289B51CCB092ABD8AA50765F790063757004B04402545C5B3661434B16C20AC4E407312DDAC5531A0CE4F2CABFC2051A496736C98DFA1443031D41C29DB2EF100306258E7E6ABB419792E3A7644507DDF9932F5BADC41B20487928615C6E27EEE54DA14123922F2
+X-DMARC-Policy: no
+X-Mras: OK
+Content-Length: 2876
+
+--_000_090c1701f7f948a593a02f7f51a9a0f1exchange2013rosskolocal_
+Content-Type: text/plain; charset="koi8-r"
+Content-Transfer-Encoding: quoted-printable
+
+=E4=CF=C2=D2=CF=C5 =D5=D4=D2=CF!
+C9346 =F3=C1=CA=CC=C5=CE=D4=C2=CC=CF=CB =D2=D9=DE=C1=C7=C1 =D0=CF=C4=D7=C5=
+=D3=CB=C9 | =D0=C5=D2=C5=C4 =D0=D2=C1=D7/=CC=C5=D7 | LYNXauto
+1=DB=D4 =D3=CB=CF=D2=D2=C5=CB=D4=C9=D2=CF=D7=C1=CE, =C5=C7=CF =CE=C5 =C2=D5=
+=C4=C5=D4 =D7 =DA=C1=CB=C1=DA=C5.
+
+--_000_090c1701f7f948a593a02f7f51a9a0f1exchange2013rosskolocal_
+Content-Type: text/html; charset="koi8-r"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:x=3D"urn:schemas-microsoft-com:office:excel" xmlns:m=3D"http://schema=
+s.microsoft.com/office/2004/12/omml" xmlns=3D"http://www.w3.org/TR/REC-html=
+40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dkoi8-r">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:2.0cm 42.5pt 2.0cm 3.0cm;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"RU" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">=E4=CF=C2=D2=CF=C5 =D5=D4=D2=CF!<o:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:10.0pt;font-family:&quot;Ar=
+ial&quot;,sans-serif;mso-fareast-language:RU">C9346 =F3=C1=CA=CC=C5=CE=D4=
+=C2=CC=CF=CB =D2=D9=DE=C1=C7=C1 =D0=CF=C4=D7=C5=D3=CB=C9 | =D0=C5=D2=C5=C4 =
+=D0=D2=C1=D7/=CC=C5=D7 | LYNXauto<o:p></o:p></span></p>
+<p class=3D"MsoNormal">1=DB=D4 =D3=CB=CF=D2=D2=C5=CB=D4=C9=D2=CF=D7=C1=CE, =
+=C5=C7=CF =CE=C5 =C2=D5=C4=C5=D4 =D7 =DA=C1=CB=C1=DA=C5.<o:p></o:p></p>
+</div>
+</body>
+</html>
+
+--_000_090c1701f7f948a593a02f7f51a9a0f1exchange2013rosskolocal_--

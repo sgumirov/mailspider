@@ -141,6 +141,29 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     );
   }
 
+
+  @Test
+  public void testRealEmails() throws Exception {
+    LOG.info("Test: testRealEmails");
+    WireMock.reset();
+    prepareHttpdOK();
+    execute(() -> {
+          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-1.eml"));
+          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-2.eml"));
+          sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-3.eml"));
+        },
+        20000,
+        //check filenames
+//        validate(expectedName, 3, pricehookId),
+        () -> {
+          //TRANSACTION: deleted processed message
+          Retriever retriever = new Retriever(greenMail.getPop3());
+          Message[] messages = retriever.getMessages(login, pwd);
+          assertEquals(0, messages.length);
+        }
+    );
+  }
+
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
     return new MainRouteBuilder(config){

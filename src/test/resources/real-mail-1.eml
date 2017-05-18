@@ -1,0 +1,128 @@
+X-Apparently-To: partsibprice@yahoo.com; Thu, 18 May 2017 01:30:16 +0000
+Return-Path: <no-reply@sitemail.abcp.ru>
+Received-SPF: pass (domain of sitemail.abcp.ru designates 94.100.188.17 as permitted sender)
+X-YMailISG: yIXxbskWLDuMhAT8pB7dLZ_.T7YzJ14IuzdFrQo5Mw0RW7kf
+ Ijn2fRdEI_88peD9b.uOS1cHZfU43fE0A35OSO2ix_M9KqB08YatjltkRj.q
+ TMly1.yzm_Vd4YzTjeU3FHDhX_S7S3O3BhMKLmUwIiwkDCEtyyh__bOxHaXY
+ YE6Y6wQAkYWOHs0ZXprbzL684jmbEmGp1Lriccr0eg7KA481nkSl4n_2OC7u
+ okzgG94B5KmJhsWXnTiyEgq6cX5zKdm3Zd2TEhsjXGlFWuDIbaL640o43EG6
+ YeY0dRmznZeWssdy_EdsDPsyWr67rmOhikEK.Kp.1CGElhLFYg.GEFz7ikNR
+ osrxD6eG2RIrvlWLZfKAEu7sjmlEl4ENTzC81sgGqOJQiRjTps5Ac11rxTNz
+ WykPbOgqGkLu6pij_22ugdCsZNPGe5AhqtIXOzR2WNfNkvLRufulI9AsHrV9
+ m4AflrkoVAXQ3DCl9N63cpOG5C2qklyVDMdZCkLigl8LDY2x8Y5BOMSsuZBB
+ HnBtB10lEOWRrgK0_yc6LNhAhyCXnMwxgM9zx1KPJoTGOc71hyjIcfZ7vKfE
+ pcDZE28tdJ98cx0Se.Jyfix_NFrDW.EhFHMvlktc5c5jCYpZS7SQEPIS2sgt
+ zIHnbaRAJbBFv8IRMH9EaMw9LPXMXBGuRw3Xm3tbVRfk3ReVmnLB8QUDo02v
+ f2g5J0FWDdfwDAKzxBxL8KZ2qQGVYE_U2Bu1CTIKjrsJn7qtRrgqHuWUz8vk
+ I4jg3nLNPh9teyt.rBO3y_lwK78jmJqkD1AmDYSIu_WdL6WGPmkAY37nYd7M
+ SCNr4JbA9AuTJmCsYlJX.S6C9kUMcU25.ys4F6ph5puRndii.jneGZSFDfYy
+ mJjv1c9iNVJRFKOYfKr9GI4Rzm5NMPZoV6syIYMygXwX72T0E2XBuXaEOOmK
+ A.HYmGY5PUAQ34JkqT6NJmsNCKMGhqV7Ak.l3L7nJoWc8s9RQcZp711TCtKX
+ FUN6WOziL6HOdf7bWkrb8HY21nDeiG1gXBRr740FUvjv2s6xVD2mqzvzQLEB
+ fMAAQnoS_wOAhuVafCtzjNldhEIKQGA6hZsd9.df971k_XqIenWOV4jRDDxm
+ aD8H4LQYrk7Ve_m9NJ6UHGydVROHghWM9RQ34XpTpyiUzaN0sh9Ue0UtyarM
+ jkF6G.oqb.XqOf89v3NUUlILOvhB40o6oF_wcg1u.KUbRj5X_2W7MGeuzUqR
+ twj5ac1F1xlRfBi9NgClU4KXyHaNY5ILib8ZmGra5ug1v91DVgU7pUbKTs7X
+ IXw4y0iZ_38Fgc_Lyt6AKG4FCbEDAFanfmJfNuQvd3_V.EWT4mH7EyZsTqRU
+ IvgLUypxBrQkbT8Uzs96uq46E58wlScDb83Oe4Fos8mtL_rPEOyLVgB.1dsX
+ IcBTqY4NoDFChf.XTyHyJvEQsps3O0KRjq_9
+X-Originating-IP: [94.100.188.17]
+Authentication-Results: mta1250.mail.bf1.yahoo.com  from=; domainkeys=neutral (no sig);  from=avtolev.ru; dkim=neutral (no sig)
+Received: from 127.0.0.1  (EHLO mx127.mail.ru) (94.100.188.17)
+  by mta1250.mail.bf1.yahoo.com with SMTPS; Thu, 18 May 2017 01:30:16 +0000
+Received: from [88.99.102.9] (ident=mail)
+	by mx127.mail.ru with local (envelope-from <no-reply@sitemail.abcp.ru>)
+	id 1dBAGc-0007yu-9v
+	for partsibprice@yahoo.com; Thu, 18 May 2017 04:30:14 +0300
+X-ResentFrom: <partsib@mail.ru>
+X-MailRu-Forward: 1
+Authentication-Results: mxs.mail.ru; spf=pass (mx127.mail.ru: domain of sitemail.abcp.ru designates 88.99.102.9 as permitted sender) smtp.mailfrom=no-reply@sitemail.abcp.ru smtp.helo=bmail.abcp.ru
+Received-SPF: pass (mx127.mail.ru: domain of sitemail.abcp.ru designates 88.99.102.9 as permitted sender) client-ip=88.99.102.9; envelope-from=no-reply@sitemail.abcp.ru; helo=bmail.abcp.ru;
+Received: from bmail.abcp.ru ([88.99.102.9]:45820)
+	by mx127.mail.ru with esmtp (envelope-from <no-reply@sitemail.abcp.ru>)
+	id 1dBAGb-0007xl-Jl
+	for partsib@mail.ru; Thu, 18 May 2017 04:30:14 +0300
+Received: from uscreen by bmail.abcp.ru with local (Exim 4.82)
+	(envelope-from <no-reply@sitemail.abcp.ru>)
+	id 1dBAGa-0008R0-70
+	for partsib@mail.ru; Thu, 18 May 2017 04:30:12 +0300
+X-From-Addr: no-reply@sitemail.abcp.ru
+X-Mail-Node: c9252
+To: partsib@mail.ru
+Subject: =?utf-8?B?0JjQt9C80LXQvdC10L3QuNC1INGB0YLQsNGC0YPRgdC+0LIg0L/QvtC30LjRhtC40Lkg0LfQsNC60LDQt9C+0LI=?=
+X-PHP-Originating-Script: 820:MIME_Mail.php
+MIME-Version: 1.0
+Content-Transfer-Encoding: binary
+Content-Type: multipart/mixed; boundary="_----------=_1495071012"
+X-Mailer: MIME Mail 1.0
+From: no-reply@avtolev.ru
+Message-Id: <E1dBAGa-0008R0-70@bmail.abcp.ru>
+Date: Thu, 18 May 2017 04:30:12 +0300
+X-7FA49CB5: A9FCD207E66530D88AA50765F790063792A92EB849DAEAB8CFB931F3CA250F2426E476CCD9869EB1A97D441D8FF7050A6D39A651AE6956421D42F9AA6E412455A0EA9E45FEB1C3DD40A5AABA2AD37119C229A0D60935BCDFFD6F4F5CC2EFF595C229A0D60935BCDF4E70A05D1297E1BB9F9579BDA94BCB109E625A9149C048EE33AC447995A7AD185445B94FC4F949BCC8A9BA7A39EFB766E0E083C1BD22B2549F9579BDA94BCB1027C277FBC8AE2E8BAE9A1BBD95851C5B44FF08DBBF35306CC3346DCF53ADF86FDD8B91A062C83054D9B7C4F32B44FF572E80D170B11D3167574AF45C6390F746BCA8734010DFDAB01A6F0662D31253905F5C1EE8F4F765FC5FC25ED3FCEC33751A6F0662D3125390A8DF7F3B2552694ADE1E78D024F7D04BD5E8D9A59859A8B6A70DDFFB3186CBC51FFEE92B44163D305DD925DA8D3DC5743F576C6BCF9FC8884C021287EC0A6BE9B4CDF0A75A354099E5BFE6E7EFDEDCD7D1DB134E79BD61627866D6147AF826D83F5116AB793CEDA35E5CF89ED004C205BDAD6C7F3747799A
+X-DMARC-Policy: no
+X-Mailru-Noreply: yes
+X-Mras: OK
+X-Spam: undefined
+X-7FA49CB5: A9FCD207E66530D88AA50765F790063792A92EB849DAEAB8CFB931F3CA250F2426E476CCD9869EB1A97D441D8FF7050A6D39A651AE6956421D42F9AA6E412455A0EA9E45FEB1C3DD40A5AABA2AD37119C229A0D60935BCDFFD6F4F5CC2EFF595C229A0D60935BCDF4E70A05D1297E1BB9F9579BDA94BCB109E625A9149C048EE33AC447995A7AD185445B94FC4F949BCC8A9BA7A39EFB766E0E083C1BD22B2549F9579BDA94BCB1027C277FBC8AE2E8BAE9A1BBD95851C5B44FF08DBBF35306CC3346DCF53ADF86FDD8B91A062C83054D9B7C4F32B44FF572E80D170B11D3167574AF45C6390F746BCA8734010DFDAB01A6F0662D31253905F5C1EE8F4F765FC5FC25ED3FCEC33751A6F0662D3125390A8DF7F3B2552694ADE1E78D024F7D04BD5E8D9A59859A8B6A70DDFFB3186CBC51FFEE92B44163D305DD925DA8D3DC5743F576C6BCF9FC8884C021287EC0A6BE9B4CDF0A75A354099E5BFE6E7EFDEDCD7D1DB134E79BD61627866D6147AF826D87E2A5312F9027E7CE1416FEB9E99EDC6BDAD6C7F3747799A
+X-DMARC-Policy: no
+X-Mailru-MI: 3000
+X-Mailru-Noreply: yes
+X-Mras: OK
+Content-Length: 2006
+
+This is a multi-part message in MIME format.
+
+--_----------=_1495071012
+Content-Disposition: inline
+Content-Length: 1814
+Content-Type: text/html; charset=utf-8
+
+<html>
+<style>
+text, body, p, tr, td {
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+    color: #000000;
+    font-size: 8pt;
+    line-height: 15px;
+}
+</style>
+<body>
+<b>Уведомление об изменениях в статусах позиций заказов для Пиунов Алексей Николаевич</b><br/>
+<b>В статусах позиций Ваших заказов произошли следующие изменения:</b>
+<p>
+<table cellspacing="1" cellpadding="4" border="0" bgcolor="#999" width="100%" class="cart_table">
+	<tr bgcolor="#dddfff">
+		<td width="1%" nowrap="nowrap"><b>№ Заказа</b></td>
+		<td width="1%" nowrap="nowrap"><b>Фирма</b></td>
+		<td width="1%" nowrap="nowrap"><b>Код детали</b></td>
+		<td><b>Описание</b></td>
+		<td width="1%" nowrap="nowrap"><b>Кол-во</b></td>
+		<td width="1%" nowrap="nowrap"><b>Было заказано</b></td>
+		<td width="1%" nowrap="nowrap"><b>Текущий статус</b></td>
+		<td width="1%" nowrap="nowrap"><b>Дата</b></td>
+		<td width="1%" nowrap="nowrap"><b>Цена, руб.</b></td>
+		<td width="1%" nowrap="nowrap"><b>Сумма, руб.</b></td>
+		<td width="1%" nowrap="nowrap"><b>Комментарий</b></td>
+	</tr>
+			<tr bgcolor="#eeeeee">
+			<td nowrap="nowrap">12976472</td>
+			<td nowrap="nowrap">Amiwa</td>
+			<td nowrap="nowrap">2001037</td>
+			<td>ФИЛЬТР САЛОНА</td>
+			<td nowrap="nowrap">1</td>
+			<td nowrap="nowrap">1</td>
+			<td nowrap="nowrap">Нет в наличии</td>
+			<td nowrap="nowrap">18.05.2017</td>
+			<td nowrap="nowrap">125,00</td>
+			<td nowrap="nowrap">125,00</td>
+			<td nowrap="nowrap"></td>
+		</tr>
+	</table>
+<p>
+С Уважением,<br />
+<a href="http://avtolev.ru">http://avtolev.ru</a>
+</body>
+</html>
+--_----------=_1495071012--
+
+

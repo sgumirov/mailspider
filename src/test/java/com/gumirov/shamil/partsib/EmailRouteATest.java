@@ -141,7 +141,6 @@ public class EmailRouteATest extends CamelTestSupport {
         }
     );
   }
-  
   //@Test
 /*  public void testRealEmail() throws Exception{
     prepareHttpdOK();
@@ -160,7 +159,6 @@ public class EmailRouteATest extends CamelTestSupport {
 
   public Runnable validate(String filename, int parts, String pricehookId) {
     return () -> {
-//      assertTrue(getAllServeEvents().size() > 0);
       try {
         for (int i = 0; i < parts; ++i) {
           verify(
