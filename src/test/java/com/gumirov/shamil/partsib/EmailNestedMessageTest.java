@@ -24,14 +24,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.activation.DataHandler;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.Session;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -44,7 +40,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  *
  */
 public class EmailNestedMessageTest extends CamelTestSupport {
-  private static Logger LOG = LoggerFactory.getLogger(EmailNestedMessageTest.class.getSimpleName());
+  private static Logger log = LoggerFactory.getLogger(EmailNestedMessageTest.class.getSimpleName());
   //properties
   final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
   private static final String pricehookId = "1.2.0.1";
@@ -85,7 +81,6 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     super.setUp(); //todo?
     context.setTracing(false);
     context.setMessageHistory(false);
-    context.start();
   }
 
   @Before
@@ -101,7 +96,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     prepareHttpdOK();
     execute(() -> {
           sendEml(getClass().getClassLoader().getResourceAsStream("fixed.eml"));
-        }, 
+        },
         20000,
         //check filenames and tags
         validate("Остатки Москва 17.04.xlsx", 2, pricehookId),
@@ -123,22 +118,55 @@ public class EmailNestedMessageTest extends CamelTestSupport {
   @Test
   public void testBareAttachmentIssue() throws Exception{
     //use POP3: this does NOT work under IMAP (due to GreenMail bug)
-    LOG.info("Test: testBareAttachmentIssue");
+    log.info("Test: testBareAttachmentIssue");
     WireMock.reset();
     prepareHttpdOK();
     final String expectedName = "Прайс-лист за 2017-04-17.xls";
     execute(
       () -> sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml")),
       20000,
-      //check filenames and tags
       () -> {
         //TRANSACTION: deleted processed message
         Retriever retriever = new Retriever(greenMail.getPop3());
         Message[] messages = retriever.getMessages(login, pwd);
         assertEquals(0, messages.length);
       },
+      //check filenames and tags
       validate(expectedName, 3, pricehookId)
     );
+  }
+
+  @Test
+  public void testNewIssue() throws Exception{
+    log.info("Test: testBareAttachmentIssue");
+    WireMock.reset();
+    prepareHttpdOK();
+    final String expectedName = "NSB-VTRPrice-O4.xls";
+    execute(
+      () -> {
+        sendEml(getClass().getClassLoader().getResourceAsStream("20_05_issue.eml"));
+        try{
+          context.start();
+        }catch(Exception e) {
+          log.error("Cannot start Camel");
+        }
+      },
+      20000,
+      //check filenames and tags
+      () -> assureMailConsumed(),
+      validate(expectedName, 1, pricehookId)
+    );
+  }
+
+  public void assureMailConsumed() {
+    Retriever retriever = new Retriever(greenMail.getPop3());
+    Message[] messages = retriever.getMessages(login, pwd);
+    assertEquals(0, messages.length);
+  }
+
+  @Override
+  public boolean isUseAdviceWith() {
+    return true;
   }
 
   @Override
@@ -212,6 +240,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       MimeMessage msg = new MimeMessage(ses, emlIs);
       GreenMailUser user = greenMail.setUser(to, login, pwd);
       user.deliver(msg);
+      log.info("sendEml(): EML was sent");
     } catch (MessagingException e) {
       throw new RuntimeException("Fuck", e);
     }
