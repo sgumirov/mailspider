@@ -96,6 +96,11 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     prepareHttpdOK();
     execute(() -> {
           sendEml(getClass().getClassLoader().getResourceAsStream("fixed.eml"));
+          try{
+            context.start();
+          }catch(Exception e) {
+            log.error("Cannot start Camel");
+          }
         },
         20000,
         //check filenames and tags
@@ -123,7 +128,14 @@ public class EmailNestedMessageTest extends CamelTestSupport {
     prepareHttpdOK();
     final String expectedName = "Прайс-лист за 2017-04-17.xls";
     execute(
-      () -> sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml")),
+      () -> {
+        sendEml(getClass().getClassLoader().getResourceAsStream("issue.eml"));
+        try{
+          context.start();
+        }catch(Exception e) {
+          log.error("Cannot start Camel");
+        }
+      },
       20000,
       () -> {
         //TRANSACTION: deleted processed message
