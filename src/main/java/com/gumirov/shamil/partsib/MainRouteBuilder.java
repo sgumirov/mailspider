@@ -104,11 +104,15 @@ public class MainRouteBuilder extends RouteBuilder {
       HttpEntity entity = res.getEntity();
       String json = IOUtils.toString(entity.getContent());
       EntityUtils.consume(entity);
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
+      return parseTaggingRules(json);
     } finally {
       res.close();
     }
+  }
+
+  public static List<PricehookIdTaggingRule> parseTaggingRules(String json) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
   }
 
   public int getMaxUploadSize(String maxSizeText) {
@@ -131,7 +135,8 @@ public class MainRouteBuilder extends RouteBuilder {
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
-          new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), url -> MainRouteBuilder.this.loadPricehookConfig(url));
+          new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"),
+              url -> MainRouteBuilder.this.loadPricehookConfig(url));
       List<String> extensionAcceptList = getExtensionsAcceptList();
       
       MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));

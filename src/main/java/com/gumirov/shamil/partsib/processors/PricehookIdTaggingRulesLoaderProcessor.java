@@ -30,8 +30,8 @@ public class PricehookIdTaggingRulesLoaderProcessor implements Processor {
         for (PricehookIdTaggingRule rule : rules) {
           rule.predicate = SimpleBuilder.simple("${in.header." + rule.header + "} contains \"" + rule.contains + "\"");
         }
+        exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER, rules);
       }
-      exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER, rules);
     }
   }
 }
