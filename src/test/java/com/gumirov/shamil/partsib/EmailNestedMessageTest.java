@@ -224,6 +224,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
 
   void execute(Runnable test, long timeWait, Runnable ... validators) throws InterruptedException {
     test.run();
+    //todo implement semaphore here
     Thread.sleep(timeWait);
     for (Runnable r : validators) {
       r.run();
