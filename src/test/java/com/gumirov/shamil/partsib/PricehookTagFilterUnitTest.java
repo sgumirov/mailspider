@@ -51,29 +51,38 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
 
   @Test
   public void test() throws Exception{
-    AdviceWithRouteBuilder mockemail = new AdviceWithRouteBuilder() {
+    context.getRouteDefinition("acceptedmail").adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
       public void configure() throws Exception {
-        replaceFromWith(template.getDefaultEndpoint());
-        weaveById("pricehookTagger").after().to(mockEndpoint);
+        weaveById("PricehookTagFilter").after().to(mockEndpoint);
       }
-    };
-    context.getRouteDefinition("acceptedmail").adviceWith(context, mockemail);
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, Arrays.asList("badSupplier", "goodSupplier"));
+    });
 
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER,
+        Arrays.asList("quotedSupplier", "goodSupplier"));
+    mockEndpoint.expectedMessageCount(2);
+
+    context.setTracing(true);
     context.start();
+    //to be passed:
+    template.sendBodyAndHeader("direct:emailreceived", "", "Subject", "\"quoted\" string");
+    template.sendBodyAndHeader("direct:emailreceived", "", "From", "good");
+    //to be rejected
+    template.sendBodyAndHeader("direct:emailreceived", "", "Subject", "to be rejected");
+    template.sendBodyAndHeader("direct:emailreceived", "", "Subject", "to be \"rejected\"");
 
-    HashMap<String,Object> h = new HashMap<>();
-    h.put("From", "bad");
-    template.sendBodyAndHeaders("", h);
-    h.put("From", "good");
-    template.sendBodyAndHeaders("", h);
     mockEndpoint.assertIsSatisfied();
+    context.stop();
   }
 
   @Override
   protected int getShutdownTimeout() {
     return 60;
+  }
+
+  @Override
+  public boolean isDumpRouteCoverage() {
+    return true;
   }
 
   @Override
@@ -105,8 +114,8 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
-        r1.header="From";
-        r1.contains="bad";
+        r1.header="Subject";
+        r1.contains="\"quoted\"";
         EmailAcceptRule r2 = new EmailAcceptRule();
         r2.header="From";
         r2.contains="good";
@@ -119,9 +128,9 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
         PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
         PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
-        r1.header = "From";
-        r1.contains = "bad";
-        r1.pricehookid = "badSupplier";
+        r1.header = "Subject";
+        r1.contains = "\"quoted\"";
+        r1.pricehookid = "quotedSupplier";
         r2.header = "From";
         r2.contains = "good";
         r2.pricehookid = "goodSupplier";

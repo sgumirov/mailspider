@@ -242,7 +242,8 @@ public class MainRouteBuilder extends RouteBuilder {
 
 //email protocol
       if (config.is("email.enabled")) {
-        //prepare email accept rules
+
+        // ===== prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
         ArrayList<EmailAcceptRule> rules = getEmailAcceptRules();
         for (EmailAcceptRule rule : rules){
@@ -250,7 +251,7 @@ public class MainRouteBuilder extends RouteBuilder {
             predicatesAnyTrue.add(exchange -> exchange.getIn().getHeader(rule.header, String.class) != null &&
                 exchange.getIn().getHeader(rule.header, String.class).toUpperCase().contains(rule.contains.toUpperCase()));
           } else {
-            predicatesAnyTrue.add(SimpleBuilder.simple("${in.header." + rule.header + "} contains \"" + rule.contains + "\""));
+            predicatesAnyTrue.add(SimpleBuilder.simple("${in.header." + rule.header + "} contains '" + rule.contains + "'"));
           }
           log.info("Email Accept Rule["+rule.id+"]: header="+rule.header+" contains='"+rule.contains+"'");
         }
@@ -263,8 +264,10 @@ public class MainRouteBuilder extends RouteBuilder {
           }
           return false;
         };
+        //===== END prepare accept rules
 
         log.info(format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
+
         for (Endpoint email : endpoints.email) {
           System.setProperty("mail.mime.decodetext.strict", "false");
           
@@ -287,9 +290,17 @@ public class MainRouteBuilder extends RouteBuilder {
           MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
           mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
 
-          from(mailEndpoint).routeId(email.id).
-            process(exchange -> exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)))).id("SubjectMimeDecoder").
-            process(exchange -> exchange.getIn().setHeader("From", MimeUtility.decodeText(exchange.getIn().getHeader("From", String.class)))).id("FromMimeDecoder").
+          from(mailEndpoint).to("direct:emailreceived");
+
+          from("direct:emailreceived").routeId(email.id).
+            process(exchange -> {
+                if (null != exchange.getIn().getHeader("Subject"))
+                  exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)));
+            }).id("SubjectMimeDecoder").
+            process(exchange -> {
+              if (null != exchange.getIn().getHeader("From"))
+                exchange.getIn().setHeader("From", MimeUtility.decodeText(exchange.getIn().getHeader("From", String.class)));
+            }).id("FromMimeDecoder").
             choice().
               when(emailAcceptPredicate).
                 log(LoggingLevel.INFO, "Accepted email from: $simple{in.header.From}").
@@ -308,7 +319,9 @@ public class MainRouteBuilder extends RouteBuilder {
           streamCaching().
           process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
           process(pricehookIdTaggerProcessor).id("pricehookTagger").
-          filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).id("PricehookTagFilter").
+          filter(exchange -> {
+            return null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER);
+          }).id("PricehookTagFilter").
           process(exchange -> {
             Message in = exchange.getIn();
             log.info("Attachments size before split: "+in.getAttachments().size());

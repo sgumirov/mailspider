@@ -27,7 +27,7 @@ public class PricehookTaggerProcessor implements Processor {
   public PricehookTaggerProcessor(List<PricehookIdTaggingRule> rules) throws IOException {
     this.rules = rules;
     for (PricehookIdTaggingRule rule : rules) {
-      rule.predicate = SimpleBuilder.simple("${in.header."+rule.header+"} contains \""+rule.contains+"\"");
+      rule.predicate = SimpleBuilder.simple("${in.header."+rule.header+"} contains '"+rule.contains+"'");
     }
   }
 
