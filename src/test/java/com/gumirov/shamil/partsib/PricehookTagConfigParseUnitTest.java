@@ -76,8 +76,8 @@ public class PricehookTagConfigParseUnitTest {
       " },\n" +
       " {\n" +
       " \"id\":\"rule_02\",\n" +
-      " \"header\":\"From\",\n" +
-      " \"contains\":\"test123\",\n" +
+      " \"header\":\"Subject\",\n" +
+      " \"contains\":\"\\\"test123\\\"\",\n" +
       " \"pricehookid\":\"11\"\n" +
       " }\n" +
       " ]\n";
@@ -106,5 +106,8 @@ public class PricehookTagConfigParseUnitTest {
     Assert.assertTrue("10.2".equals(filerulesMap.get("_NSK_2").pricehookid));
     Assert.assertTrue("10.6".equals(filerulesMap.get("_MOSCOW_6").pricehookid));
     Assert.assertTrue("10.15".equals(filerulesMap.get("_MOSCOW_15").pricehookid));
+
+    PricehookIdTaggingRule r02 = rulesMap.get("rule_02");
+    Assert.assertTrue(r02.contains.equals("\"test123\""));
   }
 }

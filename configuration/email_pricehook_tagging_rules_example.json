@@ -1,10 +1,10 @@
 [
   {
-    "id":"rule_01",
-    "header":"From",
-    "contains":"rossko",
-    "pricehookid":"10",
-    "by-attachment": [
+    "id": "rule_01",
+    "header": "From",
+    "contains": "rossko",
+    "pricehookid": "10",
+    "filerules": [
       {
         "namecontains": "_NSK_1",
         "pricehookid": "10.1"
@@ -12,21 +12,13 @@
       {
         "namecontains": "_NSK_2",
         "pricehookid": "10.2"
-      },
-      {
-        "namecontains": "_MOSCOW_6",
-        "pricehookid": "10.6"
-      },
-      {
-        "namecontains": "_MOSCOW_15",
-        "pricehookid": "10.5"
       }
     ]
   },
   {
-    "id":"rule_02",
-    "header":"From",
-    "contains":"test123",
-    "pricehookid":"11"
+    "id": "rule_02",
+    "header": "From",
+    "contains": "test123",
+    "pricehookid": "11"
   }
 ]

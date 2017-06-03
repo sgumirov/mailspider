@@ -5,7 +5,7 @@ The processing route has endpoints (ftp, http, email), plugins and output (now i
 HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
-
+- [Pending: not released yet] pre-1.5: Added support for quotes in rules. Added 'filerules' for tagging separate attachments.
 - Version 1.4. Important Camel bug fixed: 'Bare attachment' issue. When mail message has no body but a single attachment on 
 the root level (without multipart), then Camel fails to extract attachment. This release fixes this. 
 AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is against 'issue.eml'.
@@ -212,19 +212,34 @@ dismissed for exchange'.
 
 To send source pricehook id (one per file) to the output the set of rules is used with the syntax similar to
 email filtering config. See example below.
+
+## Attachment tagging
+It's possible to add subrules into config for tagging attachments separately (email tag id will be overwritten if filename matches).
+See section 'filerules' in example below.
+
 ```json
 [
   {
-    "id":"rule_01",
-    "header":"From",
-    "contains":"rossko",
-    "supplierid":"10"
+    "id": "rule_01",
+    "header": "From",
+    "contains": "rossko",
+    "pricehookid": "10",
+    "filerules": [
+      {
+        "namecontains": "_NSK_1",
+        "pricehookid": "10.1"
+      },
+      {
+        "namecontains": "_NSK_2",
+        "pricehookid": "10.2"
+      }
+    ]
   },
   {
-    "id":"rule_01",
-    "header":"From",
-    "contains":"rossko1",
-    "supplierid":"11"
+    "id": "rule_02",
+    "header": "Subject",
+    "contains": "test123",
+    "pricehookid": "11"
   }
 ]
 ```

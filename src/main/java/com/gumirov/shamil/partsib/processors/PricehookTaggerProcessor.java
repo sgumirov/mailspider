@@ -2,7 +2,6 @@ package com.gumirov.shamil.partsib.processors;
 
 import com.gumirov.shamil.partsib.MainRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import jdk.internal.org.objectweb.asm.TypeReference;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.SimpleBuilder;
