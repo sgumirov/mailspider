@@ -140,7 +140,7 @@ Rule list example:
 ```
 Parameter 'id' is for logging, so it's better to set ids different values.
 If parameter 'ignorecase' is set to 'true' or '1' then 'contains' field value is compared ignoring case.
-Parameter 'contains' MUST NOT contain a double-quote symbol.
+Parameter 'contains' can have double-quote symbol escaped with '\"'. See section 'Attachment tagging' for example.
 Parameter 'header' is one of the following values: 'From', 'Subject'. Please note: yep, it DOES start From Big Letter header name!
 
 # Plugins config
@@ -211,11 +211,13 @@ replaces local config in sense of 'if at least one tagging rule is load from net
 dismissed for exchange'.
 
 To send source pricehook id (one per file) to the output the set of rules is used with the syntax similar to
-email filtering config. See example below.
+email filtering config. See example below in section 'Attachment tagging'.
+
+Note that double-quotes could be escaped with backslash: '\"'.
 
 ## Attachment tagging
 It's possible to add subrules into config for tagging attachments separately (email tag id will be overwritten if filename matches).
-See section 'filerules' in example below.
+See section 'filerules' in example below. Note that double-quotes could be escaped with backslash: '\"'.
 
 ```json
 [
@@ -238,7 +240,7 @@ See section 'filerules' in example below.
   {
     "id": "rule_02",
     "header": "Subject",
-    "contains": "test123",
+    "contains": "test123 \"quoted\"",
     "pricehookid": "11"
   }
 ]
