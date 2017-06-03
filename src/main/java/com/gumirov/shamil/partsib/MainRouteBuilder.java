@@ -49,6 +49,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
+  public static final String PRICEHOOK_RULE = "pricehook.rule";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static final String VERSION = "1.3";
@@ -137,6 +138,7 @@ public class MainRouteBuilder extends RouteBuilder {
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"),
               url -> MainRouteBuilder.this.loadPricehookConfig(url));
+      AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
       List<String> extensionAcceptList = getExtensionsAcceptList();
       
       MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));
@@ -312,33 +314,32 @@ public class MainRouteBuilder extends RouteBuilder {
                 to("direct:rejected");
           log.info("Email endpoint is added with id="+email.id);
         }
+
+        //pricehook tagging and attachment extraction
+        from("direct:acceptedmail").routeId("acceptedmail").
+            streamCaching().
+            process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
+            process(pricehookIdTaggerProcessor).id(PricehookTaggerProcessor.ID).
+            filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).id("PricehookTagFilter").
+            split(splitEmailExpr).
+            process(emailAttachmentProcessor).
+            process(exchange -> {
+              //logging only here
+              Message in = exchange.getIn();
+              log.info("Attachments size before split: "+in.getAttachments().size());
+              for (String s : in.getAttachmentNames()) {
+                log.info("Attachment=" + s);
+              }
+            }).
+            process(attachmentTaggerProcessor).id(AttachmentTaggerProcessor.ID).
+            process(exchange -> log.info("Attachment: name={} tag={}", exchange.getIn().getHeader(Exchange.FILE_NAME), exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).id("taglogger").
+            to("direct:packed");
+
+        from("direct:rejected").
+            routeId("REJECTED_EMAILS").
+            log(LoggingLevel.INFO, "Rejected email from: ${in.header.From} with subject: ${in.header.Subject}").
+            to("log:REJECT_MAILS?level=INFO&showAll=true");
       }
-
-      //pricehook tagging and attachment extraction
-      from("direct:acceptedmail").routeId("acceptedmail").
-          streamCaching().
-          process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
-          process(pricehookIdTaggerProcessor).id("pricehookTagger").
-          filter(exchange -> {
-            return null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER);
-          }).id("PricehookTagFilter").
-          process(exchange -> {
-            Message in = exchange.getIn();
-            log.info("Attachments size before split: "+in.getAttachments().size());
-            for (String s : in.getAttachmentNames()) {
-              log.info("Attachment=" + s);
-            }
-          }).
-          split(splitEmailExpr).
-          process(emailAttachmentProcessor).
-          process(exchange -> log.info("Attachment.split="+exchange.getIn().getHeader(Exchange.FILE_NAME))).id("logger").
-          to("direct:packed");
-
-      from("direct:rejected").
-          routeId("REJECTED_EMAILS").
-          log(LoggingLevel.INFO, "Rejected email from: ${in.header.From} with subject: ${in.header.Subject}").
-          to("log:REJECT_MAILS?level=INFO&showAll=true");
-
     } catch (Exception e) {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);

@@ -31,7 +31,7 @@ public class EmailAttachmentProcessor implements Processor {
         msg.setHeader(Exchange.FILE_NAME, fname);
         log.info("Extracted attachment name: "+fname);
       } catch (Exception e) {
-        log.error("Cannot process attachment: "+fname);
+        log.error("Cannot process attachment: "+fname, e);
       }
       ++count;
     }

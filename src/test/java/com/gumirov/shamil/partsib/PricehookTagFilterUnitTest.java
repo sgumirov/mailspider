@@ -2,10 +2,8 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
-import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
+import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
-import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
@@ -13,7 +11,10 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
+import javax.activation.DataHandler;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -75,19 +76,95 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     context.stop();
   }
 
-  @Override
-  protected int getShutdownTimeout() {
-    return 60;
-  }
+  /**
+   * This is test for separate tagging of attachments.
+   * @throws Exception
+   */
+  @Test
+  public void testSeparateAttachmentTags() throws Exception{
+    context.getRouteDefinition("acceptedmail").adviceWith(context, new AdviceWithRouteBuilder() {
+      @Override
+      public void configure() throws Exception {
+        weaveById("taglogger").after().to(mockEndpoint);
+      }
+    });
+    List<String> tags = Arrays.asList("filerule_1_1", "filerule_1_2", "filerule_2_2", "goodSupplier");
+    List<String> fnames = Arrays.asList("filerule_1.csv", "filerule_2.csv", "filerule_2.csv", "goodSupplier.csv");
 
-  @Override
-  public boolean isDumpRouteCoverage() {
-    return true;
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, tags.toArray());
+//    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, fnames.toArray());
+    mockEndpoint.expectedMessageCount(4);
+
+    context.setTracing(true);
+    context.start();
+    //to be changed by attachment tagger:
+    HashMap<String, Object> headers1 = new HashMap<String, Object>(){{
+      put("Subject", "\"quoted\" string");
+      put("From", "first");
+    }};
+    InputStream is = new ByteArrayInputStream(new byte[]{'1','2','3','4','5','6','7','8','9','0'});
+    template.send("direct:emailreceived", exchange -> {
+      exchange.getIn().setHeaders(headers1);
+      exchange.getIn().addAttachment(fnames.get(0), new DataHandler(is, "text/plain"));
+    });
+    template.send("direct:emailreceived", exchange -> {
+      exchange.getIn().setHeaders(headers1);
+      exchange.getIn().addAttachment(fnames.get(1), new DataHandler(is, "text/plain"));
+    });
+    HashMap<String, Object> headers2 = new HashMap<String, Object>(){{
+      put("From", "good");
+      put("Subject", "some subject");
+    }};
+    template.send("direct:emailreceived", exchange -> {
+      exchange.getIn().setHeaders(headers2);
+      exchange.getIn().addAttachment(fnames.get(2), new DataHandler(is, "text/plain"));
+    });
+    template.send("direct:emailreceived", exchange -> {
+      exchange.getIn().setHeaders(headers2);
+      exchange.getIn().addAttachment(fnames.get(3), new DataHandler(is, "text/plain"));
+    });
+
+    mockEndpoint.assertIsSatisfied();
+    context.stop();
   }
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
     builder = new MainRouteBuilder(config){
+      @Override
+      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
+        PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
+        PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
+        r1.header = "Subject";
+        r1.contains = "\"quoted\"";
+        r1.pricehookid = "quotedSupplier";
+        r1.filerules = Arrays.asList(
+            new AttachmentTaggingRule("1", "filerule_1_1"),
+            new AttachmentTaggingRule("2", "filerule_1_2")
+        );
+        r2.header = "From";
+        r2.contains = "good";
+        r2.pricehookid = "goodSupplier";
+        r2.filerules = Arrays.asList(
+            new AttachmentTaggingRule("2", "filerule_2_2")
+        );
+        return Arrays.asList(r1, r2);
+      }
+
+      @Override
+      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
+        ArrayList<EmailAcceptRule> rules = new ArrayList<>();
+        EmailAcceptRule r1 = new EmailAcceptRule();
+        r1.header="Subject";
+        r1.contains="\"quoted\"";
+        EmailAcceptRule r2 = new EmailAcceptRule();
+        r2.header="From";
+        r2.contains="good";
+        rules.add(r1);
+        rules.add(r2);
+        return rules;
+      }
+
       @Override
       public List<Plugin> getPlugins() {
         return null;
@@ -109,34 +186,17 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         e.email.add(email);
         return e;
       }
-
-      @Override
-      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
-        ArrayList<EmailAcceptRule> rules = new ArrayList<>();
-        EmailAcceptRule r1 = new EmailAcceptRule();
-        r1.header="Subject";
-        r1.contains="\"quoted\"";
-        EmailAcceptRule r2 = new EmailAcceptRule();
-        r2.header="From";
-        r2.contains="good";
-        rules.add(r1);
-        rules.add(r2);
-        return rules;
-      }
-
-      @Override
-      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
-        PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
-        PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
-        r1.header = "Subject";
-        r1.contains = "\"quoted\"";
-        r1.pricehookid = "quotedSupplier";
-        r2.header = "From";
-        r2.contains = "good";
-        r2.pricehookid = "goodSupplier";
-        return Arrays.asList(r1, r2); 
-      }
     };
     return builder;
+  }
+
+  @Override
+  protected int getShutdownTimeout() {
+    return 60;
+  }
+
+  @Override
+  public boolean isDumpRouteCoverage() {
+    return true;
   }
 }

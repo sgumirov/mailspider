@@ -8,6 +8,15 @@ public class AttachmentTaggingRule {
   public String namecontains;
   public String pricehookid;
 
+  public AttachmentTaggingRule() {
+    //needed for jackson JSON parser
+  }
+
+  public AttachmentTaggingRule(String namecontains, String pricehookid) {
+    this.namecontains = namecontains;
+    this.pricehookid = pricehookid;
+  }
+
   public String getNamecontains() {
     return namecontains;
   }

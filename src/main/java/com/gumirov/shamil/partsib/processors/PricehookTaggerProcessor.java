@@ -2,6 +2,7 @@ package com.gumirov.shamil.partsib.processors;
 
 import com.gumirov.shamil.partsib.MainRouteBuilder;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import jdk.internal.org.objectweb.asm.TypeReference;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.SimpleBuilder;
@@ -18,11 +19,11 @@ import java.util.List;
  * are forgotten).
  */
 public class PricehookTaggerProcessor implements Processor {
+  public static final String ID = "EmailPricehookTagger";
   List<PricehookIdTaggingRule> rules;
 
   /**
    * @param rules default rules
-   * @throws IOException
    */
   public PricehookTaggerProcessor(List<PricehookIdTaggingRule> rules) throws IOException {
     this.rules = rules;
@@ -33,12 +34,14 @@ public class PricehookTaggerProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    List<PricehookIdTaggingRule> rulesDynamic = (List<PricehookIdTaggingRule>) exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER);
+    List<PricehookIdTaggingRule> rulesDynamic = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER, List.class);
     if (rulesDynamic != null) rules  = rulesDynamic;
     if (rules == null) throw new Exception("FATAL: No pricehook id tagging rules");
     for (PricehookIdTaggingRule rule : rules){
       if (rule.predicate.matches(exchange)) {
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);
+        //set rule. This is needed for separate attachment tagging.
+        exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_RULE, rule);
       }
     }
   }
