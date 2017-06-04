@@ -54,6 +54,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static final String VERSION = "1.3";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
+  public static final String SOURCE_ID = "server.source";
   public static int MAX_UPLOAD_SIZE;
 
   public enum CompressorType {
@@ -292,7 +293,7 @@ public class MainRouteBuilder extends RouteBuilder {
           MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
           mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
 
-          from(mailEndpoint).to("direct:emailreceived");
+          from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
 
           from("direct:emailreceived").routeId(email.id).
             process(exchange -> {
@@ -317,6 +318,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
         //pricehook tagging and attachment extraction
         from("direct:acceptedmail").routeId("acceptedmail").
+            log(LoggingLevel.INFO, "Accepted email sent at ${in.header.Date} from ${in.header.From} with subject '${in.header.Subject}'").
             streamCaching().
             process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
             process(pricehookIdTaggerProcessor).id(PricehookTaggerProcessor.ID).
@@ -337,7 +339,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
         from("direct:rejected").
             routeId("REJECTED_EMAILS").
-            log(LoggingLevel.INFO, "Rejected email from: ${in.header.From} with subject: ${in.header.Subject}").
+            log(LoggingLevel.INFO, "Rejected email sent at ${in.header.Date} from ${in.header.From} with subject: '${in.header.Subject}'").
             to("log:REJECT_MAILS?level=INFO&showAll=true");
       }
     } catch (Exception e) {

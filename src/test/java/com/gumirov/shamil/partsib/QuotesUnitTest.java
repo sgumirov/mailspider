@@ -30,7 +30,7 @@ public class QuotesUnitTest extends CamelTestSupport {
 
   @Test
   public void testQuotes() throws InterruptedException {
-    resultEndpoint.expectedMessageCount(2);
+    resultEndpoint.expectedMessageCount(1);
     template.sendBodyAndHeader("anything", HEADER, "something 'with' \"quotes\"");
     template.sendBodyAndHeader("anything", HEADER, "\"");
     resultEndpoint.assertIsSatisfied();
@@ -48,9 +48,10 @@ public class QuotesUnitTest extends CamelTestSupport {
   protected RouteBuilder createRouteBuilder() {
     return new RouteBuilder() {
       public void configure() {
-        Predicate predicate = SimpleBuilder.simple("${in.header."+HEADER+"} contains '\"'");
+//        Predicate predicate = SimpleBuilder.simple("${in.header."+HEADER+"} contains '\"'");
+        Predicate predicate2 = SimpleBuilder.simple("${in.header."+HEADER+"} contains '\"quotes\"'");
         from("direct:start").process(exchange -> {
-          if (!predicate.matches(exchange)) {
+          if (!(/*predicate.matches(exchange) || */predicate2.matches(exchange))) {
             exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
             log.info("Stopping exchange at message: "+exchange.getIn());
           }

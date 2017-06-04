@@ -79,7 +79,13 @@ public class PricehookTagConfigParseUnitTest {
       " \"header\":\"Subject\",\n" +
       " \"contains\":\"\\\"test123\\\"\",\n" +
       " \"pricehookid\":\"11\"\n" +
-      " }\n" +
+      " },\n" +
+      "{\n" +
+      "    \"id\": \"rule_977_498\",\n" +
+      "    \"header\": \"Subject\",\n" +
+      "    \"contains\": \"Прайс-лист ООО \\\"Мастер Сервис\\\" наличие Новосибирск\",\n" +
+      "    \"pricehookid\": \"977.0.nsk\"\n" +
+      "  }"+
       " ]\n";
 
   @Test
@@ -91,10 +97,11 @@ public class PricehookTagConfigParseUnitTest {
     ));
     Assert.assertTrue(rulesMap.containsKey("rule_01"));
     Assert.assertTrue(rulesMap.containsKey("rule_02"));
+    Assert.assertTrue(rulesMap.containsKey("rule_977_498"));
     Assert.assertTrue(rulesMap.get("rule_01").filerules != null);
     Assert.assertTrue(rulesMap.get("rule_01").filerules.size() == 4);
-    List<AttachmentTaggingRule> filerules = rulesMap.get("rule_01").filerules;
-    Map<String, AttachmentTaggingRule> filerulesMap = filerules.stream().collect(Collectors.toMap(
+    List<AttachmentTaggingRule> file01rules = rulesMap.get("rule_01").filerules;
+    Map<String, AttachmentTaggingRule> filerulesMap = file01rules.stream().collect(Collectors.toMap(
         AttachmentTaggingRule::getNamecontains,
         Function.identity()
     ));
@@ -109,5 +116,8 @@ public class PricehookTagConfigParseUnitTest {
 
     PricehookIdTaggingRule r02 = rulesMap.get("rule_02");
     Assert.assertTrue(r02.contains.equals("\"test123\""));
+
+    PricehookIdTaggingRule rule_977_498 = rulesMap.get("rule_977_498");
+    Assert.assertTrue(rule_977_498.contains.equals("Прайс-лист ООО \"Мастер Сервис\" наличие Новосибирск"));
   }
 }
