@@ -5,6 +5,8 @@ import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.SimpleBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.List;
 public class PricehookTaggerProcessor implements Processor {
   public static final String ID = "EmailPricehookTagger";
   List<PricehookIdTaggingRule> rules;
+  private final Logger log = LoggerFactory.getLogger(PricehookTaggerProcessor.class.getSimpleName());
 
   /**
    * @param rules default rules
@@ -41,6 +44,7 @@ public class PricehookTaggerProcessor implements Processor {
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);
         //set rule. This is needed for separate attachment tagging.
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_RULE, rule);
+        log.info("Tagging message with tag: "+rule.pricehookid);
       }
     }
   }

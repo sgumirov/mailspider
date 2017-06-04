@@ -52,28 +52,14 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
 
   @Test
   public void test() throws Exception{
-    context.getRouteDefinition("acceptedmail").adviceWith(context, new AdviceWithRouteBuilder() {
-      @Override
-      public void configure() throws Exception {
-        weaveById("PricehookTagFilter").after().to(mockEndpoint);
-      }
-    });
-
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER,
-        Arrays.asList("quotedSupplier", "goodSupplier"));
-    mockEndpoint.expectedMessageCount(2);
-
-    context.setTracing(true);
-    context.start();
-    //to be passed:
-    template.sendBodyAndHeader("direct:emailreceived", "", "Subject", "\"quoted\" string");
-    template.sendBodyAndHeader("direct:emailreceived", "", "From", "good");
-    //to be rejected
-    template.sendBodyAndHeader("direct:emailreceived", "", "Subject", "to be rejected");
-    template.sendBodyAndHeader("direct:emailreceived", "", "Subject", "to be \"rejected\"");
-
-    mockEndpoint.assertIsSatisfied();
-    context.stop();
+    launch("acceptedmail", "taglogger",
+        Arrays.asList("quotedSupplier", "goodSupplier"), null, 2,
+        "direct:emailreceived",
+        new EmailMessage("\"quoted\" string", Collections.singletonList("a")),
+        new EmailMessage("good", Collections.singletonList("b")),
+        new EmailMessage("to be rejected", Collections.singletonList("b")),
+        new EmailMessage("to be \"rejected\"", Collections.singletonList("b"))
+    );
   }
 
   @Test
@@ -106,6 +92,13 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   }
 
   public void launch(String route, String id, List<String> expectTags, List<String> expectNames,
+              int expectNumTotal, String sendToEndpoint, EmailMessage...msgs) throws Exception {
+    HashMap<EmailMessage, String> map = new HashMap<>();
+    for (EmailMessage m : msgs)
+      map.put(m, sendToEndpoint);
+    launch(route, id, expectTags, expectNames, expectNumTotal, map);
+  }
+  public void launch(String route, String id, List<String> expectTags, List<String> expectNames,
               int expectNumTotal, Map<EmailMessage, String> toSend) throws Exception {
     context.getRouteDefinition(route).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
@@ -121,10 +114,12 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
     });
 
-    if (expectNumTotal != expectNames.size() || expectNames.size() != expectTags.size()) throw new IllegalArgumentException("Illegal arguments: must be same size of expected tags/names and number of messages");
+    if (expectNames != null && expectNumTotal != expectNames.size() ||
+        expectTags != null && expectTags.size() != expectNumTotal)
+      throw new IllegalArgumentException("Illegal arguments: must be same size of expected tags/names and number of messages");
 
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, expectTags.toArray());
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectNames.toArray());
+    if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, expectTags.toArray());
+    if (expectNames != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectNames.toArray());
     mockEndpoint.expectedMessageCount(expectNumTotal);
 
     context.setTracing(true);
@@ -180,12 +175,18 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         weaveById("taglogger").after().to(mockEndpoint);
       }
     });
-    List<String> tags = Arrays.asList("filerule_1_1", "filerule_1_2", "filerule_2_2", "goodSupplier", "master.nsk");
+    context.getRouteDefinition("source-"+ENDPID).adviceWith(context, new AdviceWithRouteBuilder() {
+      @Override
+      public void configure() throws Exception {
+        replaceFromWith("direct:none");
+      }
+    });
+    List<String> tags = Arrays.asList("filerule_1_1", "filerule_1_2", "filerule_2_2", "goodSupplier");
     List<String> fnames = Arrays.asList("filerule_1.csv", "filerule_2.csv", "filerule_2.csv", "goodSupplier.csv");
 
     mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, tags.toArray());
-//    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, fnames.toArray());
-    mockEndpoint.expectedMessageCount(5);
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, fnames.toArray());
+    mockEndpoint.expectedMessageCount(4);
 
     context.setTracing(true);
     context.start();
@@ -194,7 +195,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     //to be changed by attachment tagger:
     HashMap<String, Object> headers1 = new HashMap<String, Object>(){{
       put("Subject", "\"quoted\" string");
-      put("From", "first");
+      put("From", "@");
     }};
     InputStream is = new ByteArrayInputStream(new byte[]{'1','2','3','4','5','6','7','8','9','0'});
     template.send("direct:emailreceived", exchange -> {
@@ -207,8 +208,8 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     });
 
     HashMap<String, Object> headers2 = new HashMap<String, Object>(){{
-      put("From", "good");
-      put("Subject", "some subject");
+      put("From", "@");
+      put("Subject", "good");
     }};
     template.send("direct:emailreceived", exchange -> {
       exchange.getIn().setHeaders(headers2);
@@ -217,17 +218,6 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     template.send("direct:emailreceived", exchange -> {
       exchange.getIn().setHeaders(headers2);
       exchange.getIn().addAttachment(fnames.get(3), new DataHandler(is, "text/plain"));
-    });
-
-    //quotes:
-    String s = "Прайс-лист ООО \"Мастер Сервис\" наличие Новосибирск";
-    HashMap<String, Object> headers3 = new HashMap<String, Object>(){{
-      put("From", "some");
-      put("Subject", s+" декабрь");
-    }};
-    template.send("direct:emailreceived", exchange -> {
-      exchange.getIn().setHeaders(headers3);
-      exchange.getIn().addAttachment("doublequotes-test.txt", new DataHandler(is, "text/plain"));
     });
 
     mockEndpoint.assertIsSatisfied();
@@ -249,7 +239,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
             new AttachmentTaggingRule("1", "filerule_1_1"),
             new AttachmentTaggingRule("2", "filerule_1_2")
         );
-        r2.header = "From";
+        r2.header = "Subject";
         r2.contains = "good";
         r2.pricehookid = "goodSupplier";
         r2.filerules = Arrays.asList(
