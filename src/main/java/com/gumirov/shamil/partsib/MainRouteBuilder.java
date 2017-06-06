@@ -331,7 +331,10 @@ public class MainRouteBuilder extends RouteBuilder {
             streamCaching().
             process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
             process(pricehookIdTaggerProcessor).id(PricehookTaggerProcessor.ID).
-            filter(exchange -> null != exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).id("PricehookTagFilter").
+            choice().
+              when(exchange -> null == exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).to("direct:rejected").
+            endChoice().
+            otherwise().
             split(splitEmailExpr).
             process(emailAttachmentProcessor).
             process(exchange -> {
