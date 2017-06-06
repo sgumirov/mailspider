@@ -5,9 +5,11 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
@@ -26,6 +28,8 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     @Override
     protected void initDefaultValues(HashMap<String, String> kv) {
       super.initDefaultValues(kv);
+      //next line is to enter condition PricehookIdTaggingRulesLoaderProcessor:27
+      kv.put("pricehook.config.url", "http://ANYTHING");
       kv.put("email.enabled", "true");
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
@@ -98,6 +102,20 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       map.put(m, sendToEndpoint);
     launch(route, id, expectTags, expectNames, expectNumTotal, map);
   }
+
+  /**
+   * This impl removed real imap endpoint. Override to change.
+   */
+  public void beforeLaunch() throws Exception {
+    //remove imap endpoint
+    context.getRouteDefinition("source-"+ENDPID).adviceWith(context, new AdviceWithRouteBuilder() {
+      @Override
+      public void configure() throws Exception {
+        replaceFromWith("direct:none");
+      }
+    });
+  }
+
   public void launch(String route, String id, List<String> expectTags, List<String> expectNames,
               int expectNumTotal, Map<EmailMessage, String> toSend) throws Exception {
     context.getRouteDefinition(route).adviceWith(context, new AdviceWithRouteBuilder() {
@@ -106,13 +124,8 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         weaveById(id).after().to(mockEndpoint);
       }
     });
-    //remove imap endpoint
-    context.getRouteDefinition("source-"+ENDPID).adviceWith(context, new AdviceWithRouteBuilder() {
-      @Override
-      public void configure() throws Exception {
-        replaceFromWith("direct:none");
-      }
-    });
+
+    beforeLaunch();
 
     if (expectNames != null && expectNumTotal != expectNames.size() ||
         expectTags != null && expectTags.size() != expectNumTotal)
@@ -125,6 +138,19 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     context.setTracing(true);
     context.start();
 
+    sendMessages(context, toSend);
+
+    log.info("Expecting {} messages", expectNumTotal);
+    mockEndpoint.assertIsSatisfied();
+    context.stop();
+  }
+
+  /**
+   * Override this in subclasses to change default sending behaviour.
+   * @param context camel context
+   * @param toSend messages list to send.
+   */
+  public void sendMessages(CamelContext context, Map<EmailMessage, String> toSend) {
     for (EmailMessage m : toSend.keySet()) {
       HashMap h = new HashMap(){{put("Subject", m.subject); put("From", "@");}};
       template.send(toSend.get(m), exchange -> {
@@ -134,10 +160,6 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         }
       });
     }
-
-    log.info("Expecting {} messages", expectNumTotal);
-    mockEndpoint.assertIsSatisfied();
-    context.stop();
   }
 
   class EmailMessage {
@@ -222,33 +244,19 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
 
     mockEndpoint.assertIsSatisfied();
     context.stop();
-   }
+  }
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
     builder = new MainRouteBuilder(config){
       @Override
       public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
-        PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
-        PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
-        PricehookIdTaggingRule r3 = new PricehookIdTaggingRule();
-        r1.header = "Subject";
-        r1.contains = "\"quoted\"";
-        r1.pricehookid = "quotedSupplier";
-        r1.filerules = Arrays.asList(
-            new AttachmentTaggingRule("1", "filerule_1_1"),
-            new AttachmentTaggingRule("2", "filerule_1_2")
-        );
-        r2.header = "Subject";
-        r2.contains = "good";
-        r2.pricehookid = "goodSupplier";
-        r2.filerules = Arrays.asList(
-            new AttachmentTaggingRule("2", "filerule_2_2")
-        );
-        r3.header = "Subject";
-        r3.contains = "Прайс-лист ООО \"Мастер Сервис\"  наличие Новосибирск";
-        r3.pricehookid = "master.nsk";
-        return Arrays.asList(r1, r2, r3);
+        return getTagRules();
+      }
+
+      @Override
+      public PricehookIdTaggingRulesConfigLoaderProvider getConfigLoaderProvider() {
+        return url -> getPricehookConfig();
       }
 
       @Override
@@ -288,6 +296,29 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
     };
     return builder;
+  }
+
+  public List<PricehookIdTaggingRule> getTagRules() {
+    PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
+    PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
+    PricehookIdTaggingRule r3 = new PricehookIdTaggingRule();
+    r1.header = "Subject";
+    r1.contains = "\"quoted\"";
+    r1.pricehookid = "quotedSupplier";
+    r1.filerules = Arrays.asList(
+        new AttachmentTaggingRule("1", "filerule_1_1"),
+        new AttachmentTaggingRule("2", "filerule_1_2")
+    );
+    r2.header = "Subject";
+    r2.contains = "good";
+    r2.pricehookid = "goodSupplier";
+    r2.filerules = Arrays.asList(
+        new AttachmentTaggingRule("2", "filerule_2_2")
+    );
+    r3.header = "Subject";
+    r3.contains = "Прайс-лист ООО \"Мастер Сервис\"  наличие Новосибирск";
+    r3.pricehookid = "master.nsk";
+    return Arrays.asList(r1, r2, r3);
   }
 
   @Override

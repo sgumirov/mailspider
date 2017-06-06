@@ -8,6 +8,6 @@ import java.util.List;
 /**
  *
  */
-public interface PricehookIdTaggingRulesConfigProvider {
+public interface PricehookIdTaggingRulesConfigLoaderProvider {
   List<PricehookIdTaggingRule> loadPricehookConfig(String url) throws IOException;
 }

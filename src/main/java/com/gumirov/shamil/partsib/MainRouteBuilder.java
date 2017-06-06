@@ -15,6 +15,7 @@ import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
 import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
+import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
 import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
@@ -22,7 +23,6 @@ import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mail.MailEndpoint;
 import org.apache.camel.component.mail.SplitAttachmentsExpression;
 import org.apache.camel.processor.idempotent.FileIdempotentRepository;
-import org.apache.camel.spi.CamelContextTracker;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -56,6 +56,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final String SOURCE_ID = "server.source";
   public static int MAX_UPLOAD_SIZE;
+  private int cachedStringHash;
 
   public enum CompressorType {
     GZIP, ZIP, RAR, _7Z
@@ -101,14 +102,22 @@ public class MainRouteBuilder extends RouteBuilder {
   public List<PricehookIdTaggingRule> loadPricehookConfig(String url) throws IOException {
     CloseableHttpClient httpclient = HttpClients.createDefault();
     HttpGet req = new HttpGet(url);
-    CloseableHttpResponse res = httpclient.execute(req);
+    CloseableHttpResponse res = null;
     try {
+      res = httpclient.execute(req);
       HttpEntity entity = res.getEntity();
       String json = IOUtils.toString(entity.getContent());
       EntityUtils.consume(entity);
+      if (json.hashCode() != cachedStringHash) {
+        cachedStringHash = json.hashCode();
+        log.info("-=| Loaded pricehooks tags config has changed |=- The new one:\n{}", json);
+      }
       return parseTaggingRules(json);
+    } catch (Exception e){
+      return null;
     } finally {
-      res.close();
+      if (res != null) res.close();
+      httpclient.close();
     }
   }
 
@@ -138,7 +147,7 @@ public class MainRouteBuilder extends RouteBuilder {
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"),
-              url -> MainRouteBuilder.this.loadPricehookConfig(url));
+              getConfigLoaderProvider());
       AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
       List<String> extensionAcceptList = getExtensionsAcceptList();
       
@@ -346,6 +355,14 @@ public class MainRouteBuilder extends RouteBuilder {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  /**
+   * Override to use own configloader (for unit-tests).
+   * @return
+   */
+  public PricehookIdTaggingRulesConfigLoaderProvider getConfigLoaderProvider() {
+    return url -> MainRouteBuilder.this.loadPricehookConfig(url);
   }
 
   /**
