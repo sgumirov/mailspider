@@ -55,7 +55,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   }
 
   @Test
-  public void test() throws Exception{
+  public void test() throws Exception {
     launch("acceptedmail", "taglogger",
         Arrays.asList("quotedSupplier", "goodSupplier"), null, 2,
         "direct:emailreceived",
@@ -72,24 +72,21 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         Collections.singletonList("master.nsk"), Collections.singletonList("a"),
         1,
         new HashMap<EmailMessage, String>(){{
-          //right: double space
-          put(new EmailMessage("Прайс-лист ООО \"Мастер Сервис\"  наличие Новосибирск",
+          //right: tests double space
+          put(new EmailMessage("Прайс-лист ООО \"Мастер    Сервис\"  наличие Новосибирск",
               Collections.singletonList("a")), "direct:emailreceived");
-          //wrong: single space
-          put(new EmailMessage("Прайс-лист ООО \"Мастер Сервис\" наличие Новосибирск",
-              Collections.singletonList("b")), "direct:emailreceived");
         }}
     );
   }
 
   @Test
   public void testDoubleQuotesRulesNegative() throws Exception {
-    //test negative: single space in subject
+    //test negative: no quotes
     launch("acceptedmail", "taglogger",
         new ArrayList<>(), new ArrayList<>(),
         0,
         new HashMap<EmailMessage, String>(){{
-          put(new EmailMessage("Прайс-лист ООО \"Мастер Сервис\" наличие Новосибирск",
+          put(new EmailMessage("Прайс-лист ООО 'Мастер Сервис' наличие Новосибирск",
               Collections.singletonList("b")), "direct:emailreceived");
         }}
     );
@@ -316,7 +313,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         new AttachmentTaggingRule("2", "filerule_2_2")
     );
     r3.header = "Subject";
-    r3.contains = "Прайс-лист ООО \"Мастер Сервис\"  наличие Новосибирск";
+    r3.contains = "Прайс-лист ООО \"Мастер Сервис\" наличие Новосибирск";
     r3.pricehookid = "master.nsk";
     return Arrays.asList(r1, r2, r3);
   }

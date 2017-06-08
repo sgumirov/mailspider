@@ -306,16 +306,15 @@ public class MainRouteBuilder extends RouteBuilder {
 
           from("direct:emailreceived").routeId(email.id).
             process(exchange -> {
-                if (null != exchange.getIn().getHeader("Subject"))
-                  exchange.getIn().setHeader("Subject", MimeUtility.decodeText(exchange.getIn().getHeader("Subject", String.class)));
-            }).id("SubjectMimeDecoder").
-            process(exchange -> {
-              if (null != exchange.getIn().getHeader("From"))
-                exchange.getIn().setHeader("From", MimeUtility.decodeText(exchange.getIn().getHeader("From", String.class)));
-            }).id("FromMimeDecoder").
+              String s;
+              if (null != (s = exchange.getIn().getHeader("Subject", String.class)))
+                exchange.getIn().setHeader("Subject", MimeUtility.decodeText(s.trim().replaceAll(" +", " ")));
+              if (null != (s = exchange.getIn().getHeader("From", String.class)))
+                exchange.getIn().setHeader("From", MimeUtility.decodeText(s.trim().replaceAll(" +", " ")));
+            }).id("HeadersMimeDecoder").
             choice().
               when(emailAcceptPredicate).
-                log(LoggingLevel.INFO, "Accepted email from: $simple{in.header.From}").
+                log(LoggingLevel.INFO, "Accepted email from: '$simple{in.header.From}' sent at: '$simple{in.header.Date}'").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
