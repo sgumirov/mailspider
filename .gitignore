@@ -3,3 +3,4 @@ target/classes/*
 target/maven-status/*
 target/test-classes/*
 .idea/workspace.xml
+src/test/resources/test_mail.properties

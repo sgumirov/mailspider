@@ -44,7 +44,7 @@ public class PricehookTaggerProcessor implements Processor {
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);
         //set rule. This is needed for separate attachment tagging.
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_RULE, rule);
-        log.info("Tagging message with tag: "+rule.pricehookid);
+        log.info("Tagged message with tag: "+rule.pricehookid);
       }
     }
   }

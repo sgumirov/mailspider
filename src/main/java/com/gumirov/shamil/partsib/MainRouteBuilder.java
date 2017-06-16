@@ -308,9 +308,9 @@ public class MainRouteBuilder extends RouteBuilder {
             process(exchange -> {
               String s;
               if (null != (s = exchange.getIn().getHeader("Subject", String.class)))
-                exchange.getIn().setHeader("Subject", MimeUtility.decodeText(s.trim().replaceAll(" +", " ")));
+                exchange.getIn().setHeader("Subject", MimeUtility.decodeText(s.trim()).replaceAll(" +", " "));
               if (null != (s = exchange.getIn().getHeader("From", String.class)))
-                exchange.getIn().setHeader("From", MimeUtility.decodeText(s.trim().replaceAll(" +", " ")));
+                exchange.getIn().setHeader("From", MimeUtility.decodeText(s.trim()).replaceAll(" +", " "));
             }).id("HeadersMimeDecoder").
             choice().
               when(emailAcceptPredicate).
@@ -319,7 +319,7 @@ public class MainRouteBuilder extends RouteBuilder {
                 to("direct:acceptedmail").
                 endChoice().
               otherwise().
-                log("rejected email from: $simple{in.header.From}").
+                log("rejected email as not matched any of accepted rules: from=$simple{in.header.From}").
                 to("direct:rejected");
           log.info("Email endpoint is added with id="+email.id);
         }
@@ -331,9 +331,12 @@ public class MainRouteBuilder extends RouteBuilder {
             process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
             process(pricehookIdTaggerProcessor).id(PricehookTaggerProcessor.ID).
             choice().
-              when(exchange -> null == exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).to("direct:rejected").
-            endChoice().
+              when(exchange -> null == exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
+                log("rejecting email due to no tag: sent at ${in.header.Date} from ${in.header.From}").
+                to("direct:rejected").
+              endChoice().
             otherwise().
+            log("Starting to process attachments for email: sent at ${in.header.Date} from ${in.header.From}").
             split(splitEmailExpr).
             process(emailAttachmentProcessor).
             process(exchange -> {
