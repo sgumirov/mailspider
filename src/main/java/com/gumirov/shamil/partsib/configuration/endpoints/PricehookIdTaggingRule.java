@@ -17,4 +17,17 @@ public class PricehookIdTaggingRule
   public String getId() {
     return id;
   }
+
+  @Override
+  public String toString() {
+    return "PricehookIdTaggingRule{" +
+        "id='" + id + '\'' +
+        ", header='" + header + '\'' +
+        ", contains='" + contains + '\'' +
+        ", pricehookid='" + pricehookid + '\'' +
+        ", predicate=" + predicate +
+        (filerules != null ? ", filerules[].length=" + filerules.size() +
+        ", filerules=" + filerules : "") +
+        '}';
+  }
 }

@@ -4,5 +4,29 @@
     "header": "Subject",
     "contains": "Прайс-лист ООО \"Мастер Сервис\" наличие Москва",
     "pricehookid": "977.0.msk"
+  },
+  {
+    "id": "rule_977_4991",
+    "header": "Subject",
+    "contains": "Прайс-лист за 2017-10-21",
+    "pricehookid": "977.0.msk.1",
+    "filerules": [
+      {
+        "namecontains": "_NSK_1",
+        "pricehookid": "10.1"
+      }
+    ]
+  },
+  {
+    "id": "rule_123",
+    "header": "Subject",
+    "contains": "Прайс-лист за 2017-10-24",
+    "pricehookid": "977.0.msk.2",
+    "filerules": [
+      {
+        "namecontains": "xls",
+        "pricehookid": "10.1.123"
+      }
+    ]
   }
 ]

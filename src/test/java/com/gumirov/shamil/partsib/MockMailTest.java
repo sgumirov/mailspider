@@ -52,7 +52,6 @@ public class MockMailTest {
     for (String fname : attachments.keySet()) {
       MimeBodyPart messageBodyPart = new MimeBodyPart();
       byte[] file = attachments.get(fname);
-      String fileName = fname;
       messageBodyPart.setDataHandler(new DataHandler(file, "application/octet-stream"));
       messageBodyPart.setFileName(fname);
       multipart.addBodyPart(messageBodyPart);

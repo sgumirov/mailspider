@@ -301,6 +301,7 @@ public class MainRouteBuilder extends RouteBuilder {
           //set ours MailBinding implementation
           MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
           mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
+//          mailEndpoint.setContentTypeResolver();
 
           from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
 
@@ -314,11 +315,13 @@ public class MainRouteBuilder extends RouteBuilder {
             }).id("HeadersMimeDecoder").
             choice().
               when(emailAcceptPredicate).
+                //todo fix logging as $simple does not work
                 log(LoggingLevel.INFO, "Accepted email from: '$simple{in.header.From}' sent at: '$simple{in.header.Date}'").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
               otherwise().
+                //todo fix logging as $simple does not work
                 log("rejected email as not matched any of accepted rules: from=$simple{in.header.From}").
                 to("direct:rejected");
           log.info("Email endpoint is added with id="+email.id);

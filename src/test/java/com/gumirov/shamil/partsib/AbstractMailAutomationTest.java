@@ -1,5 +1,8 @@
 package com.gumirov.shamil.partsib;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.*;
@@ -12,21 +15,30 @@ import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.Rule;
 
 import javax.activation.DataHandler;
 import javax.mail.*;
-import javax.mail.internet.MimeMessage;
+import javax.mail.internet.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.Properties;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 /**
  * Abstract AT.
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   private static final String ENDPID = "Test-EMAIL-01";
+  private final int httpPort = 8888;
+  private String httpendpoint="/endpoint";
+  private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
+
+  @Rule
+  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
 
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
     @Override
@@ -34,6 +46,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       super.initDefaultValues(kv);
       //next line is to enter condition PricehookIdTaggingRulesLoaderProcessor:27
       kv.put("pricehook.config.url", "http://ANYTHING");
+      kv.put("output.url", httpUrl);
       kv.put("email.enabled", "true");
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
@@ -68,6 +81,11 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
         replaceFromWith("direct:none");
       }
     });
+
+    //http mock endpoint setup
+    stubFor(post(urlEqualTo(httpendpoint))
+        .willReturn(aResponse()
+            .withStatus(200)));
   }
 
   /**
@@ -113,6 +131,10 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
     log.info("Expecting {} messages", expectNumTotal);
     mockEndpoint.assertIsSatisfied();
+
+    WireMock.verify(
+        WireMock.postRequestedFor(urlPathEqualTo(httpendpoint))
+    );
     context.stop();
   }
 
@@ -148,15 +170,59 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       super(null);
       Session ses = Session.getDefaultInstance(new Properties());
       MimeMessage msg = new MimeMessage(ses, is);
-      this.subject = msg.getSubject();
-      this.attachments = new HashMap<>();
-      handleMessage(msg);
+      subject = msg.getSubject();
+      attachments = new HashMap<>();
+      String disposition = msg.getDisposition();
+      if (disposition != null && disposition.contains("attachment")){
+        //Extract attachment filename from headers
+        String filename = msg.getFileName();
+        //We need not only main header value, but parameters. They are not parsed my MimeMessage, so we do it here manually
+        String[] headers = {"Content-Type", "Content-type", "Content-Disposition", "Content-disposition"};
+        String[] params = {"name", "filename"};
+        for (int i = 0; filename == null && i < headers.length; ++i){
+          String[] headerValues = msg.getHeader(headers[i]);
+          if (headerValues == null || headerValues.length == 0)
+            continue;
+          for (int z = 0; filename == null && z < headerValues.length; ++z) {
+            for (int j = 0; filename == null && j < params.length; ++j) {
+              if (headers[i].toLowerCase().contains("type")){
+                try {
+                  filename = new ContentType(headerValues[z]).getParameter(params[j]);
+                }catch(ParseException e){
+                  log.debug("cannot parse: header='"+headers[i]+"' val='"+headerValues[z]+"'", e);
+                  continue;
+                }
+              } else {
+                try {
+                  filename = new ContentDisposition(headerValues[z]).getParameter(params[j]);
+                }catch(ParseException e){
+                  log.debug("cannot parse: header='"+headers[i]+"' val='"+headerValues[z]+"'", e);
+                  continue;
+                }
+              }
+            }
+          }
+        }
+        filename = MimeUtility.decodeText(filename);
+        if (filename != null) {
+          DataHandler dh = new DataHandler(msg.getContent(), msg.getContentType());
+          attachments.put(filename, dh);
+        }
+      } else {
+        handleMessage(msg);
+      }
     }
 
     public void handleMessage(javax.mail.Message message) throws IOException, MessagingException {
       Object content = message.getContent();
-      if (content instanceof String) {
+      String contentType = message.getContentType();
+      if (content instanceof String ) {
+        throw new RuntimeException("not yet impl");
 //        attachments.put(bp.getFileName(), new DataHandler(content, "text/plain"));
+//        Session ses = Session.getDefaultInstance(new Properties());
+//        MimeMessage msg = new MimeMessage(ses, new StringBufferInputStream((String) content));
+//        this.subject = msg.getSubject();
+//        handleMessage(msg);
       } else if (content instanceof Multipart) {
         Multipart mp = (Multipart) content;
         handleMultipart(mp);
@@ -258,6 +324,19 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     rules.add(r);
     return rules;
   }
+
+  public static List<PricehookIdTaggingRule> loadTagsFile(String filename) {
+    try {
+      String json = new String(Util.readFully(
+          AbstractMailAutomationTest.class.getClassLoader().getResourceAsStream(filename)), "UTF-8");
+      List<PricehookIdTaggingRule> list = MainRouteBuilder.parseTaggingRules(json);
+      return list;
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
+
 
   /**
    * Override this if you use external server

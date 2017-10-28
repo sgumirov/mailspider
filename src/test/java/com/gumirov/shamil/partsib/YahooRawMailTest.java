@@ -21,7 +21,7 @@ public class YahooRawMailTest extends AbstractMailAutomationTest {
 
   @Test
   public void test() throws Exception {
-    super.launch("acceptedmail", "taglogger",
+    launch("acceptedmail", "taglogger",
         Arrays.asList("977.0.msk"),
         null, 1, "direct:emailreceived",
         new RawEmailMessage(getClass().getClassLoader().getResourceAsStream("double_quotes_bad.eml"))
@@ -30,14 +30,6 @@ public class YahooRawMailTest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    try {
-      String json = new String(Util.readFully(
-          getClass().getClassLoader().getResourceAsStream("partsib_tags_config2.json")), "UTF-8");
-      List<PricehookIdTaggingRule> list = MainRouteBuilder.parseTaggingRules(json);
-      return list;
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
+    return loadTagsFile("partsib_tags_config2.json");
   }
 }

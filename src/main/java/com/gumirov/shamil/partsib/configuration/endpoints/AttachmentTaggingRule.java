@@ -20,4 +20,12 @@ public class AttachmentTaggingRule {
   public String getNamecontains() {
     return namecontains;
   }
+
+  @Override
+  public String toString() {
+    return "AttachmentTaggingRule{" +
+        "namecontains='" + namecontains + '\'' +
+        ", pricehookid='" + pricehookid + '\'' +
+        '}';
+  }
 }

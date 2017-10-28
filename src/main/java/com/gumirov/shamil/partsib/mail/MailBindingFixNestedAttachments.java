@@ -32,6 +32,44 @@ public class MailBindingFixNestedAttachments extends MailBinding {
   }
 
   @Override
+  public void extractAttachmentsFromMail(Message message, Map<String, Attachment> attachments)
+      throws MessagingException, IOException {
+    Object content = message.getContent();
+    if (content instanceof Multipart) {
+      extractAttachmentsFromMultipart((Multipart) content, attachments);
+    } else if (content != null) {
+      String disposition = message.getDisposition();
+
+      if (disposition != null && (disposition.contains(Part.ATTACHMENT) || disposition.contains(Part.INLINE))) {
+        LOG.trace("No attachments was extracted using default MailBinding class, extract attachment without body.");
+        String filename = mimeDecodeText(message.getFileName());
+
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("ContentType: {}", message.getContentType());
+          LOG.trace("Disposition: {}", disposition);
+          LOG.trace("Description: {}", message.getDescription());
+          LOG.trace("FileName: {}", (filename == null ? "null" : filename));
+          LOG.trace("Size: {}", message.getSize());
+          LOG.trace("LineCount: {}", message.getLineCount());
+        }
+
+        if (filename != null && !attachments.containsKey(filename)) {
+          LOG.debug("Extracting file attachment: {}", filename);
+          DefaultAttachment camelAttachment = new DefaultAttachment(message.getDataHandler());
+          Enumeration<Header> headers = message.getAllHeaders();
+          while (headers.hasMoreElements()) {
+            Header header = headers.nextElement();
+            camelAttachment.setHeader(header.getName(), header.getValue());
+          }
+          attachments.put(filename, camelAttachment);
+        } else {
+          LOG.warn("Already extracted same filename attachment: {}.", filename);
+        }
+      }
+    }
+  }
+
+  @Override
   protected void extractAttachmentsFromMultipart(Multipart mp, Map<String, Attachment> map) throws MessagingException, IOException {
     for (int i = 0; i < mp.getCount(); i++) {
       Part part = mp.getBodyPart(i);
@@ -88,42 +126,6 @@ public class MailBindingFixNestedAttachments extends MailBinding {
   }
 
   //fix issue with bare attachment
-
-  @Override
-  public void extractAttachmentsFromMail(Message message, Map<String, Attachment> map) throws MessagingException, IOException {
-    super.extractAttachmentsFromMail(message, map);
-
-    if (message.getContent() != null && map == null || map.isEmpty()) {
-      String disposition = message.getDisposition();
-
-      if (disposition != null && (disposition.contains(Part.ATTACHMENT) || disposition.contains(Part.INLINE))){
-        LOG.trace("No attachments was extracted using default MailBinding class, extract attachment without body.");
-        String filename = mimeDecodeText(message.getFileName());
-
-        if (LOG.isTraceEnabled()) {
-          LOG.trace("Disposition: {}", disposition);
-          LOG.trace("Description: {}", message.getDescription());
-          LOG.trace("ContentType: {}", message.getContentType());
-          LOG.trace("FileName: {}", (filename==null?"null":filename) );
-          LOG.trace("Size: {}", message.getSize());
-          LOG.trace("LineCount: {}", message.getLineCount());
-        }
-
-        if (filename != null && !map.containsKey(filename)) {
-          LOG.debug("Extracting file attachment: {}", filename);
-          DefaultAttachment camelAttachment = new DefaultAttachment(message.getDataHandler());
-          Enumeration<Header> headers = message.getAllHeaders();
-          while (headers.hasMoreElements()) {
-            Header header = headers.nextElement();
-            camelAttachment.setHeader(header.getName(), header.getValue());
-          }
-          map.put(filename, camelAttachment);
-        } else {
-          LOG.warn("Already extracted same filename attachment: {}.", filename);
-        }
-      }
-    }
-  }
 
   private String mimeDecodeText(String text) throws UnsupportedEncodingException {
     if (text == null) return null;

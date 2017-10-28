@@ -63,9 +63,9 @@ public class HttpPostFileSender {
         reqEntity.setChunked(true);
         httppost.setEntity(reqEntity);
 
-        log.info("Executing request: " + httppost.getRequestLine());
+        log.info("Executing request (part %d/%d; X-Part = %d): %s", part+1, totalParts, part, httppost.getRequestLine());
         try (CloseableHttpResponse response = httpclient.execute(httppost)) {
-          log.info("Http response: "+ response.getStatusLine().toString());
+          log.info("Http response (part %d/%d): %s", part+1, totalParts, response.getStatusLine().toString());
           log.debug(EntityUtils.toString(response.getEntity()));
           if (response.getStatusLine().getStatusCode() != HTTP_OK) {
             return false;

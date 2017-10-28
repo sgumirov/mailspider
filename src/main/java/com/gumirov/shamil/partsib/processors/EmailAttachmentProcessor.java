@@ -35,7 +35,7 @@ public class EmailAttachmentProcessor implements Processor {
         DataHandler data = a.getDataHandler();
         byte[] s = exchange.getContext().getTypeConverter().convertTo(byte[].class, data.getContent());
         msg.setBody(s);
-        fname = MimeUtility.decodeText(fname);
+        fname = MimeUtility.decodeText(fname); //let it fall! nullpointer will be caught below
         msg.setHeader(Exchange.FILE_NAME, fname);
         log.info("Extracted attachment name: "+fname);
       } catch (Exception e) {
