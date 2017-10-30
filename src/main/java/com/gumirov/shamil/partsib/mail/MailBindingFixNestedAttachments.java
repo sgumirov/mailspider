@@ -34,6 +34,7 @@ public class MailBindingFixNestedAttachments extends MailBinding {
   @Override
   public void extractAttachmentsFromMail(Message message, Map<String, Attachment> attachments)
       throws MessagingException, IOException {
+
     Object content = message.getContent();
     if (content instanceof Multipart) {
       extractAttachmentsFromMultipart((Multipart) content, attachments);
