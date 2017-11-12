@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+
 /**
  * This processor sets 'tag' header for excehange. Applies to single file message.
  * Configures with a list of tagging rules. Uses 2 types of rules: static and dynamic. Static rules are specified via
@@ -44,7 +46,7 @@ public class PricehookTaggerProcessor implements Processor {
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);
         //set rule. This is needed for separate attachment tagging.
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_RULE, rule);
-        log.info("Tagged message with tag: "+rule.pricehookid);
+        log.info("["+exchange.getIn().getHeader(MID)+"]"+" Tagged message with tag: "+rule.pricehookid);
       }
     }
   }

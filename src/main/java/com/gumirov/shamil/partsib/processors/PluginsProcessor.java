@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.util.List;
 
 import static com.gumirov.shamil.partsib.MainRouteBuilder.ENDPOINT_ID_HEADER;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+
 /**
  * NOTE: We write to log and mark as SUCCESS in case of any error (exception) happened and rolling back to original 
  * content. 
@@ -43,21 +45,21 @@ public class PluginsProcessor implements Processor {
         last = plugin;
         InputStream is = plugin.processFile(metadata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
         if (is != null) {
-          log.debug("Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
+          log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
           metadata.is = is;
         } else {
-          log.debug("Plugin "+plugin.getClass().getSimpleName()+" DID NOT file: "+metadata.filename);
+          log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT file: "+metadata.filename);
         }
         if (metadata.headers != null) {
           exchange.getIn().setHeaders(metadata.headers);
         } else {
-          log.warn("Plugin MUST NOT return null headers: "+plugin.getClass().getSimpleName());
+          log.warn("["+exchange.getIn().getHeader(MID)+"]"+" Plugin MUST NOT return null headers: "+plugin.getClass().getSimpleName());
         }
       }
       exchange.getIn().setBody(metadata.is);
       exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.TRUE);
     } catch (Exception e) {
-      log.error("Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);
+      log.error("["+exchange.getIn().getHeader(MID)+"]"+" Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);
       exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.FALSE);
     }
   }

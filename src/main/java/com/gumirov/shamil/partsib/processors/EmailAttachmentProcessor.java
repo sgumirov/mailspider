@@ -1,15 +1,14 @@
 package com.gumirov.shamil.partsib.processors;
 
 import com.gumirov.shamil.partsib.MainRouteBuilder;
-import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
 import javax.mail.internet.MimeUtility;
-import java.io.IOException;
-import java.io.InputStream;
+
+import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
 
 /**
  * Extracts attachment object to body as inputstream. There must be exactly one attachment
@@ -23,12 +22,16 @@ public class EmailAttachmentProcessor implements Processor {
     Message msg = exchange.getIn();
     //must be exactly one attachment (use after SplitAttachmentsExpression)
     int count = 0;
-    for (String fname : msg.getAttachmentObjects().keySet()){
-      if (count > 0)
-        throw new RuntimeException("EmailAttachmentProcessor must be used only after SplitAttachmentsExpression, so that only one attachment per message.");
+    if (msg.getAttachmentObjects().size() == 0) {
+      log.info("["+exchange.getIn().getHeader(MID)+"]"+" Email has no attachments");
+    } else for (String fname : msg.getAttachmentObjects().keySet()){
+      if (count > 0) {
+        log.error("["+exchange.getIn().getHeader(MID)+"]"+" EmailAttachmentProcessor must be used after SplitAttachmentsExpression: only 1 attachment can be decoded.");
+        throw new RuntimeException("[" + exchange.getIn().getHeader(MID) + "]" + " EmailAttachmentProcessor must be used only after SplitAttachmentsExpression, so that only one attachment per message.");
+      }
       try {
         if (fname == null) {
-          log.warn("Message has empty filename for attachment: from="+exchange.getIn().getHeader("From", String.class));
+          log.warn("["+exchange.getIn().getHeader(MID)+"]"+" Message has empty filename for attachment: from="+exchange.getIn().getHeader("From", String.class));
           exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
         }
         Attachment a = msg.getAttachmentObjects().get(fname);
@@ -37,9 +40,9 @@ public class EmailAttachmentProcessor implements Processor {
         msg.setBody(s);
         fname = MimeUtility.decodeText(fname); //let it fall! nullpointer will be caught below
         msg.setHeader(Exchange.FILE_NAME, fname);
-        log.info("Extracted attachment name: "+fname);
+        log.info("["+exchange.getIn().getHeader(MID)+"]"+" Extracted attachment name: "+fname);
       } catch (Exception e) {
-        log.error("Cannot process attachment: "+fname, e);
+        log.error("["+exchange.getIn().getHeader(MID)+"]"+" Cannot process attachment: "+fname, e);
       }
       ++count;
     }

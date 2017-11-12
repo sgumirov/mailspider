@@ -31,7 +31,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
 
   @Override
   public Boolean isTracing() {
-    return false;
+    return true;
   }
 
   @Override
@@ -71,6 +71,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
     Properties p = new Properties();
     try {
       p.load(getClass().getClassLoader().getResourceAsStream("test_mail.properties"));
+//      p.load(getClass().getClassLoader().getResourceAsStream("real_mail.properties"));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

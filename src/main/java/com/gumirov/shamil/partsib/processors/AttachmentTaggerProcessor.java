@@ -8,6 +8,8 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+
 /**
  * <p>Note: this processor could override pricehook ID (tag) for this attachment.
  * <p>Tags attachment using pricehook email rule's 'filerules'.
@@ -27,7 +29,7 @@ public class AttachmentTaggerProcessor implements Processor {
         for (AttachmentTaggingRule r : rule.filerules) {
           if (filename.toUpperCase().contains(r.getNamecontains().toUpperCase())){
             exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, r.pricehookid);
-            log.info("Pricehook ID (Tag) was set for attachment by filename (file="+filename+") to "+r.pricehookid);
+            log.info("["+exchange.getIn().getHeader(MID)+"]"+" Pricehook ID (Tag) was set for attachment by filename (file="+filename+") to "+r.pricehookid);
           }
         }
       }

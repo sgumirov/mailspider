@@ -18,7 +18,7 @@ public class Kumir54Test extends AbstractMailAutomationTest {
   @Test
   public void test() throws Exception {
     launch("acceptedmail", "taglogger",
-        Arrays.asList("10.1.123"),
+        Arrays.asList("11969.0.main"),
         null, 1, "direct:emailreceived",
         new RawEmailMessage(getClass().getClassLoader().getResourceAsStream("kumir54.eml"))
     );
@@ -26,6 +26,6 @@ public class Kumir54Test extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("partsib_tags_config2.json");
+    return loadTagsFile("prod_rules.json");
   }
 }
