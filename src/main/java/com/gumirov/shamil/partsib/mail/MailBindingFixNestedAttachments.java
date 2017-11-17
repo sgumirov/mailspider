@@ -8,9 +8,12 @@ import org.apache.camel.spi.HeaderFilterStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.activation.DataHandler;
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
@@ -39,7 +42,7 @@ public class MailBindingFixNestedAttachments extends MailBinding {
     if (content instanceof Multipart) {
       extractAttachmentsFromMultipart((Multipart) content, attachments);
     } else if (content != null) {
-      String disposition = message.getDisposition();
+      String disposition = message.getDisposition().toLowerCase();
 
       if (disposition != null && (disposition.contains(Part.ATTACHMENT) || disposition.contains(Part.INLINE))) {
         LOG.trace("No attachments was extracted using default MailBinding class, extract attachment without body.");
@@ -56,7 +59,10 @@ public class MailBindingFixNestedAttachments extends MailBinding {
 
         if (filename != null && !attachments.containsKey(filename)) {
           LOG.debug("Extracting file attachment: {}", filename);
-          DefaultAttachment camelAttachment = new DefaultAttachment(message.getDataHandler());
+          ByteArrayOutputStream bos = new ByteArrayOutputStream();
+          message.getDataHandler().writeTo(bos);
+          DefaultAttachment camelAttachment = new DefaultAttachment(new DataHandler(bos.toByteArray(),
+              message.getContentType()));
           Enumeration<Header> headers = message.getAllHeaders();
           while (headers.hasMoreElements()) {
             Header header = headers.nextElement();
