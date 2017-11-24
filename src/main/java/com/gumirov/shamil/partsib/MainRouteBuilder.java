@@ -315,14 +315,12 @@ public class MainRouteBuilder extends RouteBuilder {
             }).id("HeadersMimeDecoder").
             choice().
               when(emailAcceptPredicate).
-                //todo fix logging as $simple does not work
                 log(LoggingLevel.INFO, "Accepted email from: '$simple{in.header.From}' sent at: '$simple{in.header.Date}'").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
               otherwise().
-                //todo fix logging as $simple does not work
-                log("rejected email as not matched any of accepted rules: from=$simple{in.header.From}").
+                log(LoggingLevel.INFO, "Rejected email as not matched any of accepted rules: from=$simple{in.header.From}").
                 to("direct:rejected");
           log.info("Email endpoint is added with id="+email.id);
         }
