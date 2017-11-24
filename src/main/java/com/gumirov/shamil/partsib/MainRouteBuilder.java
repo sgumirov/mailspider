@@ -55,6 +55,10 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String VERSION = "1.3";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final String SOURCE_ID = "server.source";
+  /**
+   * ID for tracking email in logs
+   */
+  public static final String MID = "MID";
   public static int MAX_UPLOAD_SIZE;
   private int cachedStringHash;
 
@@ -315,7 +319,7 @@ public class MainRouteBuilder extends RouteBuilder {
             }).id("HeadersMimeDecoder").
             choice().
               when(emailAcceptPredicate).
-                log(LoggingLevel.INFO, "Accepted email from: '$simple{in.header.From}' sent at: '$simple{in.header.Date}'").
+                log(LoggingLevel.INFO, "Accepted email from: '$simple{in.header.From}' with Subject: '$simple{in.header.Subject}' sent at: '$simple{in.header.Date}'").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
@@ -327,25 +331,26 @@ public class MainRouteBuilder extends RouteBuilder {
 
         //pricehook tagging and attachment extraction
         from("direct:acceptedmail").routeId("acceptedmail").
-            log(LoggingLevel.INFO, "Accepted email sent at ${in.header.Date} from ${in.header.From} with subject '${in.header.Subject}'").
+            process(exchange -> {exchange.getIn().setHeader(MID, Util.getMID(exchange.getIn()));}).
+            log(LoggingLevel.INFO, "[${in.header.MID}] Accepted email sent at ${in.header.Date} from ${in.header.From} with subject '${in.header.Subject}'").
             streamCaching().
             process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
             process(pricehookIdTaggerProcessor).id(PricehookTaggerProcessor.ID).
             choice().
               when(exchange -> null == exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
-                log("rejecting email due to no tag: sent at ${in.header.Date} from ${in.header.From}").
+                log(LoggingLevel.INFO, "[${in.header.MID}] Rejecting email due to no tag: sent at ${in.header.Date} from ${in.header.From}").
                 to("direct:rejected").
               endChoice().
             otherwise().
-            log("Starting to process attachments for email: sent at ${in.header.Date} from ${in.header.From}").
+            log(LoggingLevel.INFO, "[${in.header.MID}] Starting to process attachments for email: sent at ${in.header.Date} from ${in.header.From}").
             split(splitEmailExpr).
             process(emailAttachmentProcessor).
             process(exchange -> {
               //logging only here
               Message in = exchange.getIn();
-              log.info("Attachments size before split: "+in.getAttachments().size());
+              log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachments size before split: "+in.getAttachments().size());
               for (String s : in.getAttachmentNames()) {
-                log.info("Attachment=" + s);
+                log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachment=" + s);
               }
             }).
             process(attachmentTaggerProcessor).id(AttachmentTaggerProcessor.ID).
@@ -354,7 +359,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
         from("direct:rejected").
             routeId("REJECTED_EMAILS").
-            log(LoggingLevel.INFO, "Rejected email sent at ${in.header.Date} from ${in.header.From} with subject: '${in.header.Subject}'").
+            log(LoggingLevel.INFO, "[${in.header.MID}] Rejected email sent at ${in.header.Date} from ${in.header.From} with subject: '${in.header.Subject}'").
             to("log:REJECT_MAILS?level=INFO&showAll=true");
       }
     } catch (Exception e) {

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+
 /**
  * Just a bean with method returning List(Message)
  */
@@ -71,13 +73,13 @@ public class UnpackerSplitter {
         }
       }
     }catch(Exception e){
-      log.error("Cannot unpack archive, see trace", e);
+      log.error(" Cannot unpack archive, see trace", e);
     } finally {
       if (inArchive != null) {
         try {
           inArchive.close();
         } catch (SevenZipException e) {
-          System.err.println("Error closing archive: " + e);
+          log.error("Error closing archive: " + e);
         }
       }
     }

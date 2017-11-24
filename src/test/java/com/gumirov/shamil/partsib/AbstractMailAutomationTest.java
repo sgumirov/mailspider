@@ -155,7 +155,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    */
   public void sendMessages(Map<EmailMessage, String> toSend) {
     for (EmailMessage m : toSend.keySet()) {
-      HashMap h = new HashMap(){{put("Subject", m.subject); put("From", "@");}};
+      HashMap h = new HashMap(){{put("Subject", m.subject); put("From", m.from);}};
       template.send(toSend.get(m), exchange -> {
         exchange.getIn().setHeaders(h);
         for (String fname : m.attachments.keySet()) {
@@ -172,6 +172,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       MimeMessage msg = new MimeMessage(ses, is);
       subject = msg.getSubject();
       attachments = new HashMap<>();
+      from = msg.getFrom()[0].toString();
       String disposition = msg.getDisposition();
       if (disposition != null && disposition.contains("attachment")){
         //Extract attachment filename from headers
@@ -256,6 +257,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   public class EmailMessage {
     String subject;
     Map<String, DataHandler> attachments;
+    public String from;
 
     public EmailMessage(String subject, Map<String, DataHandler> attachments) {
       this.subject = subject;

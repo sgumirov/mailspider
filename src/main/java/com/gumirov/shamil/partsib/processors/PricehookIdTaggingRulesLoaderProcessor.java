@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+
 /**
  *
  */
@@ -34,7 +36,7 @@ public class PricehookIdTaggingRulesLoaderProcessor implements Processor {
         }
         exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER, rules);
       } else {
-        log.warn("Tagging rules were not loaded from url. Aborting exchange.");
+        log.warn("["+exchange.getIn().getHeader(MID)+"]"+" Tagging rules were not loaded from url. Aborting exchange.");
         throw new IllegalStateException("Tagging rules were not loaded from url. Aborting exchange.");
       }
     }

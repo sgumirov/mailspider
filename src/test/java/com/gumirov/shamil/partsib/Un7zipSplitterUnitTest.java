@@ -45,7 +45,7 @@ public class Un7zipSplitterUnitTest extends CamelTestSupport {
         from("direct:start").
             split(beanExpression(new UnpackerSplitter(), "unpack")).
 //            split(new ZipSplitter()).
-            log("Unpacked: $simple{in.header.CamelFileName}").
+            log(LoggingLevel.INFO, "[$simple{in.header.MID}] Unpacked: $simple{in.header.CamelFileName}").
             to("mock:result");
       }
     };

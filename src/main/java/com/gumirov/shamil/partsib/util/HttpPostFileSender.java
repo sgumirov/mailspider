@@ -19,6 +19,7 @@ import java.io.*;
 import java.security.SecureRandom;
 import java.util.*;
 
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
@@ -63,9 +64,9 @@ public class HttpPostFileSender {
         reqEntity.setChunked(true);
         httppost.setEntity(reqEntity);
 
-        log.info("Executing request (part %d/%d; X-Part = %d): %s", part+1, totalParts, part, httppost.getRequestLine());
+        log.info(format("Executing request (part %d/%d; X-Part = %d): %s", part+1, totalParts, part, httppost.getRequestLine()));
         try (CloseableHttpResponse response = httpclient.execute(httppost)) {
-          log.info("Http response (part %d/%d): %s", part+1, totalParts, response.getStatusLine().toString());
+          log.info(format("Http response (part %d/%d): %s", part+1, totalParts, response.getStatusLine().toString()));
           log.debug(EntityUtils.toString(response.getEntity()));
           if (response.getStatusLine().getStatusCode() != HTTP_OK) {
             return false;
@@ -87,7 +88,7 @@ public class HttpPostFileSender {
   /**
    * Default implementation:
    */
-  private SessionIdGenerator sessionIdGenerator = () -> String.format("%09d", r.nextInt(Integer.MAX_VALUE));
+  private SessionIdGenerator sessionIdGenerator = () -> format("%09d", r.nextInt(Integer.MAX_VALUE));
 
   public void setUrl(String url) {
     this.url = url;

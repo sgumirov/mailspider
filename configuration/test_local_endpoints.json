@@ -25,6 +25,12 @@
       "delay": "60000"
     }
   ],
-  "email":[
+  "email":[{
+      "id":"email_inbox_yahoo_01",
+      "url":"imap.mail.yahoo.com",
+      "user":"partsibprice@yahoo.com",
+      "pwd":"y10878y10878",
+      "delay":"60000"
+    }
   ]
 }

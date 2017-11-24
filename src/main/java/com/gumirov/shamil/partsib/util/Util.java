@@ -1,5 +1,7 @@
 package com.gumirov.shamil.partsib.util;
 
+import org.apache.camel.Message;
+
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -45,5 +47,16 @@ public class Util {
       }
     }
     return sb.toString();
+  }
+
+  private static long counter = 0;
+  /**
+   * Calculates Message hash for logs.
+   * @param msg incoming to calc hash for
+   * @return message hash
+   */
+  public static String getMID(Message msg) {
+    ++counter;
+    return String.format("%x", counter + System.currentTimeMillis());
   }
 }

@@ -5,7 +5,7 @@ The processing route has endpoints (ftp, http, email), plugins and output (now i
 HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
-- [Pending: not stabilized yet] pre-1.5: Added support for quotes in rules. Added 'filerules' for tagging separate attachments. 
+- Version 1.5: Added support for quotes in rules. Added 'filerules' for tagging separate attachments. 
 AT refactored, added base class: now AT is easy-to-use framework, see YahooRawMailTest class for example.
 - Version 1.4. Important Camel bug fixed: 'Bare attachment' issue. When mail message has no body but a single attachment on 
 the root level (without multipart), then Camel fails to extract attachment. This release fixes this. 
