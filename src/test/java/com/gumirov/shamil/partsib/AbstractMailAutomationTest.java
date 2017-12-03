@@ -138,6 +138,12 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     context.stop();
   }
 
+  /**
+   * To be overriden for test.
+   * @throws Exception
+   */
+  public abstract void test() throws Exception;
+
   public Boolean isTracing() {
     return true;
   }
@@ -345,11 +351,11 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    */
   public Endpoint getEndpoint(){
     Endpoint email = new Endpoint();
-    email.id=getEndpointName();
-    email.url= "imap.example.com";
-    email.user="email@a.com";
-    email.pwd="pwd";
-    email.delay="5000";
+    email.id = getEndpointName();
+    email.url = "imap.example.com";
+    email.user = "email@a.com";
+    email.pwd = "pwd";
+    email.delay = "5000";
     return email;
   }
 

@@ -1,0 +1,8 @@
+[
+  {
+    "id": "rule_123",
+    "header": "From",
+    "contains": "@",
+    "pricehookid": "977.0.msk.2"
+  }
+]
