@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.*;
@@ -21,6 +22,7 @@ import javax.activation.DataHandler;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -64,6 +66,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   @Produce(uri = "direct:start")
   protected ProducerTemplate template;
+  private AttachmentVerifier attachmentVerifier;
 
   @Override
   public boolean isUseAdviceWith() {
@@ -86,6 +89,11 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     stubFor(post(urlEqualTo(httpendpoint))
         .willReturn(aResponse()
             .withStatus(200)));
+  }
+
+  public AbstractMailAutomationTest setAttachmentVerifier(AttachmentVerifier verifier) {
+    this.attachmentVerifier = verifier;
+    return this;
   }
 
   /**
@@ -135,6 +143,20 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     WireMock.verify(
         WireMock.postRequestedFor(urlPathEqualTo(httpendpoint))
     );
+
+    Map<String, InputStream> atts = new HashMap<>();
+    List<LoggedRequest> reqs = WireMock.findAll(postRequestedFor(urlPathEqualTo(httpendpoint)));
+    for (LoggedRequest req : reqs) {
+      String fname = req.getHeader("X-Filename");
+      atts.put(fname, new ByteArrayInputStream(req.getBody()));
+/*
+      if (atts.containsKey(fname)) //append
+        atts.get(fname).
+      else //put new
+*/
+    }
+    assertTrue(attachmentVerifier.verify(atts));
+
     context.stop();
   }
 
@@ -265,8 +287,9 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     Map<String, DataHandler> attachments;
     public String from;
 
-    public EmailMessage(String subject, Map<String, DataHandler> attachments) {
+    public EmailMessage(String subject, String from, Map<String, DataHandler> attachments) {
       this.subject = subject;
+      this.from = from;
       this.attachments = attachments;
     }
 
@@ -382,4 +405,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   protected boolean useJmx() {
     return true;
   }
+}
+
+interface AttachmentVerifier {
+  boolean verify(Map<String, InputStream> attachments);
 }

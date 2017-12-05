@@ -38,7 +38,8 @@ public class MessageBindingSuiteUnitTest extends AbstractMailAutomationTest {
   private EmailMessage[] createMessages() {
     //todo implement test suite here and test success criteria
     return new EmailMessage[]{
-        new
+        //new
+        //todo
     };
   }
 
@@ -68,7 +69,9 @@ class MessageTestUtil {
       b[i] = new MimeBodyPart(h, getPartContent(i));
     }
     Multipart m = new MimeMultipart();
-    m.
+    //m.
+    //todo
+    return m;
   }
 
   private static byte[] getPartContent(int i) {
