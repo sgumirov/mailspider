@@ -31,9 +31,9 @@ public class EncodingTest extends AbstractMailAutomationTest {
     setAttachmentVerifier(new AttachmentVerifier(){
       @Override
       public boolean verify(Map<String, InputStream> attachments){
-        for (int i = 0; i < d.length; i++) {
+        for (String f : attachment.keySet()) {
           try {
-            System.out.println(new String(Util.readFully(attachments.get(i))));
+            System.out.println(new String(Util.readFully(attachments.get(f))));
           } catch (IOException e) {
             e.printStackTrace();
           }
