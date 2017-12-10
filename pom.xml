@@ -7,7 +7,7 @@
   <groupId>com.gumirov.shamil.partsib</groupId>
   <artifactId>MailSpider</artifactId>
   <packaging>jar</packaging>
-  <version>1.5</version>
+  <version>1.6</version>
 
   <name>MailSpider</name>
   <url>https://github.com/sgumirov/mailspider</url>
