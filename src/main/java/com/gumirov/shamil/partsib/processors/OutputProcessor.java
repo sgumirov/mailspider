@@ -30,7 +30,6 @@ public class OutputProcessor implements Processor {
       pricehookId = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER).toString();
     }
     else {
-      //pricehookId = endpointId;
       log.warn("[%s] Output(): NOT SENDING file %s from route id=%s with no pricehook_id",
           exchange.getIn().getHeader(MID), exchange.getExchangeId(), filename, endpointId);
       return;

@@ -22,7 +22,6 @@ import javax.activation.DataHandler;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -149,11 +148,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     for (LoggedRequest req : reqs) {
       String fname = req.getHeader("X-Filename");
       atts.put(fname, new ByteArrayInputStream(req.getBody()));
-/*
-      if (atts.containsKey(fname)) //append
-        atts.get(fname).
-      else //put new
-*/
     }
     assertTrue(attachmentVerifier.verify(atts));
 
@@ -309,7 +303,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   @Override
   protected RoutesBuilder createRouteBuilder() throws Exception {
-    builder = new MainRouteBuilder(config){
+    builder = new MainRouteBuilder(getConfigurator()){
       @Override
       public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
         return getTagRules();
@@ -327,7 +321,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
       @Override
       public List<Plugin> getPlugins() {
-        return null;
+        return getPluginsList();
       }
 
       @Override
@@ -342,6 +336,18 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       }
     };
     return builder;
+  }
+
+  protected List<Plugin> getPluginsList() {
+    return null;
+  }
+
+  /**
+   * Override this method to change config values.
+   * @return config
+   */
+  protected Configurator getConfigurator() {
+    return config;
   }
 
   /**
@@ -367,7 +373,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       throw new RuntimeException(e);
     }
   }
-
 
   /**
    * Override this if you use external server

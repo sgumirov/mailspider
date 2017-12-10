@@ -1,7 +1,6 @@
 package com.gumirov.shamil.partsib.configuration;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Storage for config key-values
@@ -44,4 +43,10 @@ public class Configurator {
           "true".equalsIgnoreCase(v) ||
           "enabled".equalsIgnoreCase(v) );
   }
+
+  public Configurator set(String key, String val) {
+    storage.put(key, val);
+    return this;
+  }
+
 }
