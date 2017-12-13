@@ -170,6 +170,12 @@
       <version>2.18.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.partsib.mailspider.plugins</groupId>
+      <artifactId>MailspiderPlugins</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
 <!--
     <dependency>
       <groupId>org.apache.camel</groupId>

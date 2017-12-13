@@ -2,6 +2,7 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import org.apache.camel.component.direct.DirectEndpoint;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.mail.BodyPart;
@@ -19,6 +20,7 @@ import java.util.Map;
  * @author: Shamil@Gumirov.com
  * Copyright (c) 2017 by Shamil Gumirov.
  */
+@Ignore
 public class MessageBindingSuiteUnitTest extends AbstractMailAutomationTest {
 
   @Override
