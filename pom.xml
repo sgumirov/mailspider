@@ -31,10 +31,11 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- Mailspider-Base -->
     <dependency>
       <groupId>com.gumirov.shamil.partsib</groupId>
       <artifactId>MailSpider-Base</artifactId>
-      <version>1.0</version>  
+      <version>1.0</version>
     </dependency>
 
     <!-- JavaMail -->

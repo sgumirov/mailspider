@@ -149,7 +149,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       String fname = req.getHeader("X-Filename");
       atts.put(fname, new ByteArrayInputStream(req.getBody()));
     }
-    assertTrue(attachmentVerifier.verify(atts));
+
+    if (attachmentVerifier != null) assertTrue(attachmentVerifier.verify(atts));
 
     context.stop();
   }
