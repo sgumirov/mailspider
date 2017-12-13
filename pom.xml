@@ -24,7 +24,7 @@
       <activation>
         <property>
           <name>skipTests</name>
-          <value>!true</value>>
+          <value>!true</value>
         </property>
       </activation>
       <dependencies>
