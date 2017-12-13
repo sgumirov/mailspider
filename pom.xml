@@ -20,6 +20,10 @@
 
   <profiles>
     <profile>
+      <!-- This profile helps skip circular dependency: EncodingTest test uses plugins, but plugins
+       project has this project as dependency. So in order to build this one without tests we
+       need to cut it. Obviously not an elegant solution, but works for now.
+       TODO: make this more elegant. -->
       <id>test-deps</id>
       <activation>
         <property>
