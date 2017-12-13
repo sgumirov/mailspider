@@ -18,6 +18,26 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>test-deps</id>
+      <activation>
+        <property>
+          <name>skipTests</name>
+          <value>!true</value>>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.partsib.mailspider.plugins</groupId>
+          <artifactId>MailspiderPlugins</artifactId>
+          <version>1.0</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -171,29 +191,6 @@
       <scope>test</scope>
     </dependency>
 
-    <profile>
-      <activation>
-        <property>skipTests</property>
-        <value>!true<property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.partsib.mailspider.plugins</groupId>
-          <artifactId>MailspiderPlugins</artifactId>
-          <version>1.0</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-
-<!--
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-testng</artifactId>
-      <version>2.18.1</version>
-      <scope>test</scope>
-    </dependency>
--->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
