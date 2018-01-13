@@ -1,17 +1,10 @@
 package com.gumirov.shamil.partsib;
 
-import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
-import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import com.gumirov.shamil.partsib.util.Util;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>

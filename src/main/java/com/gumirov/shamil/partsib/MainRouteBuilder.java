@@ -138,7 +138,10 @@ public class MainRouteBuilder extends RouteBuilder {
     log.info("============ MailSpider version: "+VERSION);
     try {
       //debug, will be overriden by config's 'tracing' boolean value
-      getContext().setTracing(config.is("tracing", false));
+      if (config.is("tracing", false)) {
+        log.info("Warning: enabled Camel TRACING");
+        getContext().setTracing(true);
+      }
       FileNameExcluder officeZipFormatsExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
           || filename.endsWith("docx")
@@ -319,7 +322,7 @@ public class MainRouteBuilder extends RouteBuilder {
             }).id("HeadersMimeDecoder").
             choice().
               when(emailAcceptPredicate).
-                log(LoggingLevel.INFO, "Accepted email from: '$simple{in.header.From}' with Subject: '$simple{in.header.Subject}' sent at: '$simple{in.header.Date}'").
+                log(LoggingLevel.INFO, "Accepted (primary) email from: '$simple{in.header.From}' with Subject: '$simple{in.header.Subject}' sent at: '$simple{in.header.Date}'").
                 setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
