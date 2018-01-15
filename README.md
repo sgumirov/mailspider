@@ -5,6 +5,8 @@ The processing route has endpoints (ftp, http, email), plugins and output (now i
 HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
+- Version 1.8: Adding feature: email purge time period
+- Version 1.7: Moved to new maven dependencies (extracted mailspider-base, added test runtime dependency)
 - Version 1.6a: Incompatible changes: extracted plugin-related interfaces into separate project (Mailspider-Base). Added EncodingTest.
 - Version 1.5: Added support for quotes in rules. Added 'filerules' for tagging separate attachments. 
 AT refactored, added base class: now AT is easy-to-use framework, see YahooRawMailTest class for example.
