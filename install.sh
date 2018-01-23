@@ -1,5 +1,16 @@
-sudo mkdir /usr/share/MailSpider
-sudo chown mailspider:mailspider /usr/share/MailSpider
-./jarconfig.sh
-sudo cp MailSpider-1.0-SNAPSHOT-configs.jar /usr/share/MailSpider/
-sudo cp target/MailSpider-1.0-SNAPSHOT-jar-with-dependencies.jar /usr/share/MailSpider/
+set -e
+
+dir="/usr/share/MailSpider"
+version="1.7"
+echo Installing version: $version
+echo To change version edit 'install.sh'
+
+if [ ! -d "$dir" ]; then
+  sudo mkdir $dir
+  sudo chown mailspider:mailspider $dir
+fi
+
+./jarconfig.sh $version
+cp MailSpider-$version-configs.jar $dir
+cp target/MailSpider-$version-jar-with-dependencies.jar $dir
+echo Installed successfully
