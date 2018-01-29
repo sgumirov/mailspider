@@ -46,6 +46,7 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
  * A Camel Java DSL Router
  */
 public class MainRouteBuilder extends RouteBuilder {
+
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";

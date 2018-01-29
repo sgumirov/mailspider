@@ -22,20 +22,9 @@ public class MainApp {
       InputStream is = MainApp.class.getClassLoader().getResourceAsStream("config.properties");
       config.load(is);
       main.addRouteBuilder(new MainRouteBuilder(new PropertiesConfigutatorFactory(config).getConfigurator()));
-//      main.addRouteBuilder(new MainRouteBuilder());
       // add event listener
       main.addMainListener(new EventsListener());
-//      main.enableTrace();
       main.run(args);
-
-/*
-    CamelContext context = new DefaultCamelContext();
-    context.addRoutes(new MainRouteBuilder());
-    context.start();
-
-    Thread.sleep(10000);
-    context.stop();
-*/
   }
 
   private static class EventsListener extends MainListenerSupport {

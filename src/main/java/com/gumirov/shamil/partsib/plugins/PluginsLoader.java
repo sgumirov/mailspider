@@ -26,7 +26,8 @@ public class PluginsLoader {
         Plugin p = (Plugin) Class.forName(c).newInstance();
         plugins.add(p);
       }
-      logger.info(String.format("loaded %d plugins", plugins.size()));
+      if (plugins.size() > 0) logger.info(String.format("Loaded %d plugins", plugins.size()));
+      else logger.warn("Warning: NO PLUGINS LOADED! Config path: "+pluginsConfigFile);
     } catch (Exception e) {
       e.printStackTrace();
     }
