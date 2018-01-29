@@ -5,6 +5,8 @@ version="1.7"
 echo Installing version: $version
 echo To change version edit 'install.sh'
 
+mvn clean compile assembly:single -Dmaven.test.skip=true -DskipTests
+
 if [ ! -d "$dir" ]; then
   sudo mkdir $dir
   sudo chown mailspider:mailspider $dir

@@ -38,6 +38,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import static java.lang.String.format;
 import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
@@ -53,9 +54,12 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PRICEHOOK_RULE = "pricehook.rule";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
-  public static final String VERSION = "1.7";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final String SOURCE_ID = "server.source";
+
+  //default value
+  public static String VERSION = "1.7";
+
   /**
    * ID for tracking email in logs
    */
@@ -84,8 +88,19 @@ public class MainRouteBuilder extends RouteBuilder {
   public MainRouteBuilder(CamelContext context, Configurator config) {
     super(context);
     this.config = config;
+    loadVersion();
   }
-  
+
+  private void loadVersion() {
+    Properties ver = new Properties();
+    try {
+      ver.load(getClass().getClassLoader().getResourceAsStream("version.properties"));
+      VERSION = ver.getProperty("version", VERSION);
+    } catch (IOException e) {
+      log.error("Cannot load version.properties");
+    }
+  }
+
   public Endpoints getEndpoints() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("endpoints.config.filename") ), CHARSET);
