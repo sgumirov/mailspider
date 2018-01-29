@@ -5,3 +5,4 @@ target/test-classes/*
 .idea/workspace.xml
 src/test/resources/test_mail.properties
 configuration/test_local_endpoints.json
+*.iml
