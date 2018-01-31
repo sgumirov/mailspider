@@ -31,6 +31,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
  * Abstract AT.
+ * By default expects at least 1 notification.
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   private static final String ENDPID = "Test-EMAIL-01";
@@ -62,6 +63,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint mockEndpoint;
+  @EndpointInject(uri = "mock:notification")
+  protected MockEndpoint mockNotificationEndpoint;
 
   @Produce(uri = "direct:start")
   protected ProducerTemplate template;
@@ -88,6 +91,17 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     stubFor(post(urlEqualTo(httpendpoint))
         .willReturn(aResponse()
             .withStatus(200)));
+
+    //mock notifications
+    context.getRouteDefinition("notification-"+getEndpointName()).adviceWith(context, new AdviceWithRouteBuilder() {
+      @Override
+      public void configure() {
+        //add mock endpoint
+        weaveById("notification-sender-log").after().to(mockNotificationEndpoint);
+        //prevent real notification from being sent
+        weaveById("notification-sender").remove();
+      }
+    });
   }
 
   public AbstractMailAutomationTest setAttachmentVerifier(AttachmentVerifier verifier) {
@@ -139,6 +153,15 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     log.info("Expecting {} messages", expectNumTotal);
     mockEndpoint.assertIsSatisfied();
 
+    if (getExpectedNotificationCount() > 0) {
+      log.info("Expecting " + getExpectedNotificationCount() + " notification(s)");
+      mockNotificationEndpoint.expectedMessageCount(getExpectedNotificationCount());
+    } else {
+      log.info("Expecting at least one notification");
+      mockNotificationEndpoint.expectedMinimumMessageCount(1);
+    }
+    mockNotificationEndpoint.assertIsSatisfied();
+
     WireMock.verify(
         WireMock.postRequestedFor(urlPathEqualTo(httpendpoint))
     );
@@ -153,6 +176,14 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     if (attachmentVerifier != null) assertTrue(attachmentVerifier.verify(atts));
 
     context.stop();
+  }
+
+  /**
+   * Override to change expected number of notifications. This number is to be exact match.
+   * @return exact number of notification to expect
+   */
+  public int getExpectedNotificationCount() {
+    return 0;
   }
 
   /**

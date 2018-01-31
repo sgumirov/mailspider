@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * NullPointerException in log is expected for this test.
+ *
  * @author: Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
@@ -19,11 +21,6 @@ public class DinamikasvetaATest extends AbstractMailAutomationTest {
         null, 1, "direct:emailreceived",
         new RawEmailMessage(getClass().getClassLoader().getResourceAsStream("13jan0.txt"))
     );
-  }
-
-  //manual real email test
-  public void testRaw() throws Exception {
-
   }
 
   @Override
