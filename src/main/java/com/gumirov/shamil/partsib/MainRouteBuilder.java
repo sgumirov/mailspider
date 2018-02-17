@@ -13,10 +13,7 @@ import com.gumirov.shamil.partsib.routefactories.RouteFactory;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.plugins.PluginsLoader;
 import com.gumirov.shamil.partsib.processors.*;
-import com.gumirov.shamil.partsib.util.FileNameExcluder;
-import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
-import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
-import com.gumirov.shamil.partsib.util.Util;
+import com.gumirov.shamil.partsib.util.*;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
@@ -34,10 +31,10 @@ import org.apache.http.util.EntityUtils;
 import javax.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Properties;
 
 import static java.lang.String.format;
@@ -56,6 +53,8 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final String SOURCE_ID = "server.source";
+  public static final long DAY_MILLIS = 1000 * 60 * 60 * 24; //1 day in millis
+  public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
   //default value
   public static String VERSION = "1.7";
@@ -66,6 +65,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String MID = "MID";
   public static int MAX_UPLOAD_SIZE;
   private int cachedStringHash;
+  private int deletedMailCount;
 
   public enum CompressorType {
     GZIP, ZIP, RAR, _7Z
@@ -74,6 +74,11 @@ public class MainRouteBuilder extends RouteBuilder {
   //@inject
   public ConfiguratorFactory confFactory = new ConfiguratorFactory();
   public Configurator config = confFactory.getConfigurator();
+
+  /**
+   * Used to throw exception for new mail to skip and to pass by old mails in order to delete.
+   */
+  private DeleteOldMailProcessor skipNewMailProcessor;
 
   public MainRouteBuilder() {}
 
@@ -119,6 +124,10 @@ public class MainRouteBuilder extends RouteBuilder {
     return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
   }
 
+  public int getDeletedMailCount() {
+    return skipNewMailProcessor == null ? 0 : skipNewMailProcessor.getPassedBy();
+  }
+
   public List<PricehookIdTaggingRule> loadPricehookConfig(String url) throws IOException {
     CloseableHttpClient httpclient = HttpClients.createDefault();
     HttpGet req = new HttpGet(url);
@@ -157,7 +166,8 @@ public class MainRouteBuilder extends RouteBuilder {
       if (config.is("tracing", false)) {
         log.info("Warning: enabled Camel TRACING");
         getContext().setTracing(true);
-      }
+      } else
+        getContext().setTracing(false);
       FileNameExcluder officeZipFormatsExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
           || filename.endsWith("docx")
@@ -182,7 +192,12 @@ public class MainRouteBuilder extends RouteBuilder {
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
 
-//FTP <production>
+      //define onException on the top
+      onException(SkipMessageException.class).process(new SkipMessageExceptionErrorHandler()).id("myerrorhandler").
+          handled(true).
+          stop();
+
+      //FTP <production>
       if (config.is("ftp.enabled")) {
         log.info(format("[FTP] Setting up %d source endpoints", endpoints.ftp.size()));
         for (Endpoint ftp : endpoints.ftp) {
@@ -201,7 +216,7 @@ public class MainRouteBuilder extends RouteBuilder {
         }
       }
 
-//HTTP <production>
+      //HTTP <production>
       if (config.is("http.enabled")) {
         log.info(format("[HTTP] Setting up %d source endpoints", endpoints.http.size()));
         for (Endpoint http : endpoints.http) {
@@ -235,7 +250,7 @@ public class MainRouteBuilder extends RouteBuilder {
         }
       }
 
-//unzip/unrar
+      //unzip/unrar
       from("direct:packed").
           process(comprDetect).id("CompressorDetector").
           choice().
@@ -246,7 +261,7 @@ public class MainRouteBuilder extends RouteBuilder {
               to("direct:unpacked").endChoice().
           end();
 
-//call plugins
+      //call plugins
       from("direct:unpacked").
           filter(exchange -> {
             String name = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
@@ -264,18 +279,18 @@ public class MainRouteBuilder extends RouteBuilder {
           filter((exchange)-> Boolean.TRUE.equals(exchange.getIn().getHeader(PLUGINS_STATUS_OK, Boolean.class)) ).id("PluginsStatusFilter").
           to("direct:output").end();
 
-//dead letter channel:
+      //log dead letter channel:
       from("direct:deadletter").
           to("log:DeadLetterChannel?level=DEBUG&showAll=true").
           end();
 
-//output send
+      //output send
       from("direct:output").
           routeId("output").
           process(outputProcessorEndpoint).id("outputprocessor").
           end();
 
-//email protocol
+      //email protocol
       if (config.is("email.enabled")) {
 
         // ===== prepare email accept rules
@@ -306,14 +321,17 @@ public class MainRouteBuilder extends RouteBuilder {
         for (Endpoint email : endpoints.email) {
           System.setProperty("mail.mime.decodetext.strict", "false");
           
-          String url = format( "%s?password=%s&username=%s&consumer.delay=%s&consumer.useFixedDelay=true&" +
-//                  "delete=false&" +
-                  //"sortTerm=reverse,date&" + //todo Fill bug to Camel
-                  "unseen=true&" +
-                  "peek=true&" +
-                  "fetchSize=25&" +
-                  "skipFailedMessage=true&" +
-                  "maxMessagesPerPoll=25"+
+          String url = format(
+                  "%s?password=%s" +
+                  "&username=%s" +
+                  "&consumer.delay=%s" +
+                  "&consumer.useFixedDelay=true" +
+                  "&consumer.initialDelay=300" +
+                  "&unseen=true" +
+                  "&peek=true" +
+                  "&fetchSize=25" +
+                  "&skipFailedMessage=true" +
+                  "&maxMessagesPerPoll=25"+
                   "&mail.imap.ignorebodystructuresize=true"+
                   "&mail.imap.partialfetch=false"+
                   "&mail.imaps.partialfetch=false"+
@@ -324,7 +342,9 @@ public class MainRouteBuilder extends RouteBuilder {
           //set ours MailBinding implementation
           MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
           mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
-//          mailEndpoint.setContentTypeResolver();
+
+          if (Boolean.parseBoolean(config.get("delete.old.mail.enabled", "false")))
+            createDeleteOldMailPath(email, Integer.parseInt(config.get("delete.old.mail.period.days", "30")));
 
           from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
 
@@ -378,13 +398,52 @@ public class MainRouteBuilder extends RouteBuilder {
 
         from("direct:rejected").
             routeId("REJECTED_EMAILS").
-            log(LoggingLevel.INFO, "[${in.header.MID}] Rejected email sent at ${in.header.Date} from ${in.header.From} with subject: '${in.header.Subject}'").
-            to("log:REJECT_MAILS?level=INFO&showAll=true");
+            filter(exchange -> false).
+            to("log:REJECTED");
       }
     } catch (Exception e) {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  private void createDeleteOldMailPath(Endpoint email, int daysStore) throws UnsupportedEncodingException {
+    log.info("createDeleteOldMailPath()");
+    long hours = daysStore*24;
+    String url = format(
+            "%s?password=%s&username=%s" +
+            "&consumer.delay=%s" +
+//            "&consumer.useFixedDelay=true" +
+            "&consumer.initialDelay=1" +
+            "&delete=true" +
+//            "&searchTerm.toSentDate=now-%sh" +
+            "&searchTerm.unseen=false"+
+            "&unseen=false" +
+            "&peek=true" +
+            "&fetchSize=250" +
+            "&skipFailedMessage=true" +
+            "&maxMessagesPerPoll=250"+
+            "&mail.imap.ignorebodystructuresize=true"+
+            "&mail.imap.partialfetch=false"+
+            "&mail.imaps.partialfetch=false"+
+            "&mail.debug=true"
+//            +"%s"
+        ,
+        addProtocolPrefix(email.url),
+        URLEncoder.encode(email.pwd, "UTF-8"),
+        URLEncoder.encode(email.user, "UTF-8"),
+        2500/*DAY_MILLIS*/
+//       , hours, Util.formatParameters(email.parameters)
+        );
+
+    log.info("delete mail URL="+url);
+
+    skipNewMailProcessor = new DeleteOldMailProcessor(daysStore);
+    from(url).routeId("delete-old-mail-route").id("delete-mail-source").
+        process(skipNewMailProcessor). //should throw exception to skip mail.
+        id("delete-mail-processor").
+        to("log:DELETE_MAIL");
+
   }
 
   /**

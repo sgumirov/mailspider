@@ -44,23 +44,24 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Automation FTP endpoint test with local FTP daemon
  */
 public class EmailRouteATest extends CamelTestSupport {
-  private static Logger LOG = LoggerFactory.getLogger(EmailRouteATest.class.getSimpleName());
-  private static final String pricehookId = "1.2.0.1";
-  final int httpPort = 8888;
-  public String httpendpoint="/endpoint";
-  final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
-  private int imapport = 3143;
-  final String imapUrl = "imap://127.0.0.1"+":"+imapport;
-  private List<String> filenames = Arrays.asList("примерПрайса.txt", "Прайс лист1.csv", "wrongfile.jpg");
-  private byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
-  final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
+
   { //ssl init
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
   }
 
+  private static Logger LOG = LoggerFactory.getLogger(EmailRouteATest.class.getSimpleName());
+  private final String pricehookId = "1.2.0.1";
+  private final int httpPort = 8888;
+  private final String httpendpoint="/endpoint";
+  private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
+  private final int imapport = 3143;
+  private final String imapUrl = "imap://127.0.0.1"+":"+imapport;
+  private final List<String> filenames = Arrays.asList("примерПрайса.txt", "Прайс лист1.csv", "wrongfile.jpg");
+  private final byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
+  private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
+
   @Rule
   public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.IMAP);
-
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
 
@@ -158,7 +159,6 @@ public class EmailRouteATest extends CamelTestSupport {
   public void sendEml(InputStream emlIs) {
     System.setProperty("mail.debug", "true");
     Session ses = GreenMailUtil.getSession(greenMail.getImap().getServerSetup());
-//    Session ses = GreenMailUtil.getSession(greenMail.getPop3().getServerSetup());
     ses.setDebug(true);
     ses.getProperties().setProperty("mail.imap.partialfetch", "false");
     try {
@@ -166,7 +166,7 @@ public class EmailRouteATest extends CamelTestSupport {
       GreenMailUser user = greenMail.setUser(to, login, pwd);
       user.deliver(msg);
     } catch (MessagingException e) {
-      throw new RuntimeException("Fuck", e);
+      throw new RuntimeException("Error while sending email", e);
     }
   }
 

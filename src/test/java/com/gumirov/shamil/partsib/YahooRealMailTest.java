@@ -40,7 +40,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void beforeLaunch() throws Exception {
+  public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
     //super.beforeLaunch();
   }
 
@@ -65,7 +65,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public Endpoint getEndpoint() {
+  public Endpoint getEmailEndpoint() {
     Endpoint endp = new Endpoint();
     endp.id=getEndpointName();
     Properties p = new Properties();
@@ -83,7 +83,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void waitForCompletion() {
+  public void waitBeforeAssert() {
     try {
       Thread.sleep(60000);
     } catch (InterruptedException e) {

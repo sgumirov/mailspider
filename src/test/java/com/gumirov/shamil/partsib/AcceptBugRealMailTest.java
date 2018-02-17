@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import com.gumirov.shamil.partsib.util.Util;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,7 +40,7 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void beforeLaunch() throws Exception {
+  public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
     //super.beforeLaunch();
   }
 
@@ -67,7 +66,7 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public Endpoint getEndpoint() {
+  public Endpoint getEmailEndpoint() {
     Endpoint endp = new Endpoint();
     endp.id=getEndpointName();
     Properties p = new Properties();
@@ -84,7 +83,7 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void waitForCompletion() {
+  public void waitBeforeAssert() {
     try {
       Thread.sleep(60000);
     } catch (InterruptedException e) {
