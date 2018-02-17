@@ -105,8 +105,8 @@ public class MainRouteBuilder extends RouteBuilder {
     try {
       ver.load(getClass().getClassLoader().getResourceAsStream("version.properties"));
       VERSION = ver.getProperty("version", VERSION);
-    } catch (IOException e) {
-      log.error("Cannot load version.properties");
+    } catch (Exception e) {
+      log.error("Cannot load version.properties", e);
     }
   }
 
@@ -176,6 +176,9 @@ public class MainRouteBuilder extends RouteBuilder {
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
           || filename.endsWith("docx")
       );
+      Properties notificationConfig = loadNotificationConfig(config.get("notification.config"));
+      String notificationUrl = notificationConfig.getProperty("email.uri");
+      NotificationProcessor notificationProcessor = new NotificationProcessor(notificationConfig);
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
       PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
@@ -364,7 +367,19 @@ public class MainRouteBuilder extends RouteBuilder {
 
           from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
 
-          from("direct:emailreceived").routeId(email.id).
+          from("direct:emailreceived").routeId("received-"+email.id).
+            multicast().to("direct:notification", "direct:processemail");
+
+          from("direct:notification").routeId("notification-"+email.id).
+            process(notificationProcessor).id("notification-processor").
+            choice().
+              when(exchange -> ((boolean) exchange.getIn().getHeader(NotificationProcessor.SKIP_NOTIFICATION, false))).
+                stop().endChoice().
+            end().
+            log("Sending notification").id("notification-sender-log").
+            to(notificationUrl).id("notification-sender");
+
+          from("direct:processemail").
             process(exchange -> {
               String s;
               if (null != (s = exchange.getIn().getHeader("Subject", String.class)))
@@ -409,7 +424,11 @@ public class MainRouteBuilder extends RouteBuilder {
               }
             }).
             process(attachmentTaggerProcessor).id(AttachmentTaggerProcessor.ID).
-            process(exchange -> log.info("Attachment: name={} tag={}", exchange.getIn().getHeader(Exchange.FILE_NAME), exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).id("taglogger").
+            process(exchange ->
+                log.info("Attachment: name={} tag={}",
+                exchange.getIn().getHeader(Exchange.FILE_NAME),
+                exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).
+            id("taglogger").
             to("direct:packed");
 
         from("direct:rejected").
@@ -459,6 +478,12 @@ public class MainRouteBuilder extends RouteBuilder {
         id("delete-mail-processor").
         to("log:DELETE_MAIL");
 
+  }
+
+  private Properties loadNotificationConfig(String fname) throws IOException {
+    Properties p = new Properties();
+    p.load(getClass().getClassLoader().getResourceAsStream(fname));
+    return p;
   }
 
   /**

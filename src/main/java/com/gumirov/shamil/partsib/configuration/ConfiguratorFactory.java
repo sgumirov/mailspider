@@ -43,6 +43,8 @@ public class ConfiguratorFactory {
     kv.put("pricehook.tagging.config.filename", "target/classes/emai_pricehook_tagging_rules.json");
     kv.put("max.upload.size", "1024000");
 
+    kv.put("notification.config", "notification.properties");
+
 //    kv.put("", "");
   }
 }
