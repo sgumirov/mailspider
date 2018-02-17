@@ -3,26 +3,14 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import com.gumirov.shamil.partsib.util.Util;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
-import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.activation.DataHandler;
 import javax.mail.Flags;
 import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimeUtility;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -79,12 +67,10 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
 
   @Override
   public void assertConditions() throws Exception {
-    log.info("Assert confitions");
-
     UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
     Message[] messages = unseenRetriever.getMessages(login, pwd);
     log.info("Number of Unseen messages left in mailbox: "+messages.length);
-//    assertEquals(0, messages.length);
+    assertEquals(0, messages.length);
     unseenRetriever.close();
 
     AllMailRetriever allRetriever = new AllMailRetriever(greenMail.getImap());
@@ -104,8 +90,9 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   @Override
   public Map<String, String> getConfig() {
     HashMap<String, String> map = new HashMap<>();
-    map.put("delete.old.mail.enabled", "true");
-    map.put("delete.old.mail.period.days", "5");
+    map.put("delete_old_mail.enabled", "true");
+    map.put("delete_old_mail.keep.days", "5");
+    map.put("delete_old_mail.check_period.hours", "0");
     map.put("email.enabled", "true");
     map.put("tracing", "false");
     return map;

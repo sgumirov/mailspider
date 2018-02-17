@@ -53,7 +53,8 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final String SOURCE_ID = "server.source";
-  public static final long DAY_MILLIS = 1000 * 60 * 60 * 24; //1 day in millis
+  public static final long HOUR_MILLIS = 1000 * 60 * 60; //1 hour in millis
+  public static final long DAY_MILLIS = HOUR_MILLIS * 24; //1 day in millis
   public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
   //default value
@@ -66,6 +67,9 @@ public class MainRouteBuilder extends RouteBuilder {
   public static int MAX_UPLOAD_SIZE;
   private int cachedStringHash;
   private int deletedMailCount;
+  private long deleteOldMailCheckPeriod;
+  private boolean deleteOldMailEnabled;
+  private int deleteOldMailAfterDays;
 
   public enum CompressorType {
     GZIP, ZIP, RAR, _7Z
@@ -182,11 +186,22 @@ public class MainRouteBuilder extends RouteBuilder {
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"),
               getConfigLoaderProvider());
       AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
+      SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
+
       List<String> extensionAcceptList = getExtensionsAcceptList();
       
       MAX_UPLOAD_SIZE = getMaxUploadSize(config.get("max.upload.size", "1024000"));
 
-      SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
+      //delete old mail config read
+      deleteOldMailEnabled = config.is("delete_old_mail.enabled", false);
+      deleteOldMailAfterDays = Integer.parseInt(config.get("delete_old_mail.keep.days", "30"));
+      deleteOldMailCheckPeriod = HOUR_MILLIS * Integer.parseInt(config.get("delete_old_mail.check_period.hours", "24"));
+      if (deleteOldMailCheckPeriod == 0) {
+        log.warn("WARNING: Incorrect value for config property: delete_old_mail.check_period.hours=0, fixing that (1 sec now)");
+        deleteOldMailCheckPeriod = 1000;
+      }
+      if (deleteOldMailEnabled) log.info("Delete old mail is: ENABLED (keep days="+deleteOldMailAfterDays+" check period: "+deleteOldMailCheckPeriod+")");
+      else log.info("Delete old mail is: DISABLED");
 
       FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
@@ -340,11 +355,12 @@ public class MainRouteBuilder extends RouteBuilder {
               addProtocolPrefix(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
               email.delay, Util.formatParameters(email.parameters));
           //set ours MailBinding implementation
+          log.info("Email endpoint URL: "+Util.removeSensitiveData(url, "password"));
           MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
           mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
 
-          if (Boolean.parseBoolean(config.get("delete.old.mail.enabled", "false")))
-            createDeleteOldMailPath(email, Integer.parseInt(config.get("delete.old.mail.period.days", "30")));
+          if (deleteOldMailEnabled)
+            createDeleteOldMailPath(email, deleteOldMailAfterDays);
 
           from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
 
@@ -407,16 +423,15 @@ public class MainRouteBuilder extends RouteBuilder {
     }
   }
 
-  private void createDeleteOldMailPath(Endpoint email, int daysStore) throws UnsupportedEncodingException {
-    log.info("createDeleteOldMailPath()");
-    long hours = daysStore*24;
+  private void createDeleteOldMailPath(Endpoint email, int daysKeep) throws UnsupportedEncodingException {
+    long mailKeepHours = daysKeep*24;
     String url = format(
             "%s?password=%s&username=%s" +
             "&consumer.delay=%s" +
 //            "&consumer.useFixedDelay=true" +
             "&consumer.initialDelay=1" +
             "&delete=true" +
-//            "&searchTerm.toSentDate=now-%sh" +
+            "&searchTerm.toSentDate=now-%sh" +
             "&searchTerm.unseen=false"+
             "&unseen=false" +
             "&peek=true" +
@@ -427,18 +442,18 @@ public class MainRouteBuilder extends RouteBuilder {
             "&mail.imap.partialfetch=false"+
             "&mail.imaps.partialfetch=false"+
             "&mail.debug=true"
-//            +"%s"
+            +"%s"
         ,
         addProtocolPrefix(email.url),
         URLEncoder.encode(email.pwd, "UTF-8"),
         URLEncoder.encode(email.user, "UTF-8"),
-        2500/*DAY_MILLIS*/
-//       , hours, Util.formatParameters(email.parameters)
+        deleteOldMailCheckPeriod,
+        mailKeepHours, Util.formatParameters(email.parameters)
         );
 
-    log.info("delete mail URL="+url);
+    log.info("delete mail URL="+Util.removeSensitiveData(url, "password"));
 
-    skipNewMailProcessor = new DeleteOldMailProcessor(daysStore);
+    skipNewMailProcessor = new DeleteOldMailProcessor(daysKeep);
     from(url).routeId("delete-old-mail-route").id("delete-mail-source").
         process(skipNewMailProcessor). //should throw exception to skip mail.
         id("delete-mail-processor").

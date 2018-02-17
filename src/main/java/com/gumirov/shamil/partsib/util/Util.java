@@ -59,4 +59,12 @@ public class Util {
     ++counter;
     return String.format("%x", counter + System.currentTimeMillis());
   }
+
+  public static String removeSensitiveData(String url, String field) {
+    if (url.contains(field)){
+      return url.substring(0, url.indexOf(field)+field.length()+1)+
+          url.substring(url.indexOf("&", url.indexOf(field)+1));
+    }
+    else return url;
+  }
 }
