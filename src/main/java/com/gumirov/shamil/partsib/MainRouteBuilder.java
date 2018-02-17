@@ -17,7 +17,6 @@ import com.gumirov.shamil.partsib.util.FileNameExcluder;
 import com.gumirov.shamil.partsib.util.FileNameIdempotentRepoManager;
 import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
 import com.gumirov.shamil.partsib.util.Util;
-import com.sun.xml.bind.v2.schemagen.xmlschema.NoFixedFacet;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
