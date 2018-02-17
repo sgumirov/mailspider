@@ -8,14 +8,10 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.SimpleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
 import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
 
-/**
- *
- */
 public class PricehookIdTaggingRulesLoaderProcessor implements Processor {
   private final Logger log = LoggerFactory.getLogger(PricehookIdTaggingRulesLoaderProcessor.class.getSimpleName());
   private String url;

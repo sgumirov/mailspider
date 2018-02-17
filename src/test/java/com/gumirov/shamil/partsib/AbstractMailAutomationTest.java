@@ -52,10 +52,22 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
-      kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
+      kv.put("endpoints.config.filename", "target/classes/test_local_endpoints0.json");
       kv.put("email.accept.rules.config.filename=", "src/main/resources/email_accept_rules.json");
+      Map<String, String> configPairs = getConfig();
+      if (configPairs != null)
+        kv.putAll(configPairs);
     }
   };
+
+  /**
+   * Override this method to override default config values.
+   * @return
+   */
+  public Map<String, String> getConfig() {
+    return null;
+  }
+
   Configurator config = cfactory.getConfigurator();
 
   MainRouteBuilder builder;
@@ -66,24 +78,45 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   @Produce(uri = "direct:start")
   protected ProducerTemplate template;
   private AttachmentVerifier attachmentVerifier;
+  private int expectNumTotal;
 
   @Override
   public boolean isUseAdviceWith() {
     return true;
   }
 
+  public Map<String, DataHandler> makeAttachment(String name) {
+    InputStream is = new ByteArrayInputStream("Hello Email World, yeah!".getBytes());
+    return Collections.singletonMap(name, new DataHandler(is, "text/plain"));
+  }
+
   /**
-   * This impl removes real imap endpoint. Override to change.
+   * This impl removes real imap endpoint. Override to change. When override call setupHttpMock().
+   * @param mockRouteName
+   * @param mockAfterId
    */
-  public void beforeLaunch() throws Exception {
-    //remove imap endpoint
+  public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
+    //remove source imap endpoint
     context.getRouteDefinition("source-"+getEndpointName()).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
       public void configure() throws Exception {
         replaceFromWith("direct:none");
       }
     });
+    setupHttpMock();
+    setupDestinationMock(mockRouteName, mockAfterId);
+  }
 
+  private void setupDestinationMock(final String route, final String id) throws Exception {
+    context.getRouteDefinition(route).adviceWith(context, new AdviceWithRouteBuilder() {
+      @Override
+      public void configure() throws Exception {
+        weaveById(id).after().to(mockEndpoint);
+      }
+    });
+  }
+
+  public void setupHttpMock() {
     //http mock endpoint setup
     stubFor(post(urlEqualTo(httpendpoint))
         .willReturn(aResponse()
@@ -99,7 +132,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    * Call this to start test.
    * More useful args list. Just proxy to another launch().
    */
-  public void launch(String route, String id, List<String> expectTags, List<String> expectNames,
+  public void launch(String mockRouteName, String mockAfterId, List<String> expectTags, List<String> expectNames,
                      int expectNumTotal, String sendToEndpoint, @Nullable EmailMessage...msgs) throws Exception {
     HashMap<EmailMessage, String> map = null;
     if (msgs != null) {
@@ -107,19 +140,13 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       for (EmailMessage m : msgs)
         map.put(m, sendToEndpoint);
     }
-    launch(route, id, expectTags, expectNames, expectNumTotal, map);
+    launch(mockRouteName, mockAfterId, expectTags, expectNames, expectNumTotal, map);
   }
 
-  public void launch(String route, String id, List<String> expectTags, List<String> expectNames,
-              int expectNumTotal, @Nullable Map<EmailMessage, String> toSend) throws Exception {
-    context.getRouteDefinition(route).adviceWith(context, new AdviceWithRouteBuilder() {
-      @Override
-      public void configure() throws Exception {
-        weaveById(id).after().to(mockEndpoint);
-      }
-    });
-
-    beforeLaunch();
+  public void launch(String mockRouteName, String mockAfterId, List<String> expectTags, List<String> expectNames,
+              int expectNumTotal, @Nullable Map<EmailMessage, String> toSend) throws Exception
+  {
+    beforeLaunch(mockRouteName, mockAfterId);
 
     if (expectNames != null && expectNumTotal != expectNames.size() ||
         expectTags != null && expectTags.size() != expectNumTotal)
@@ -127,32 +154,43 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
     if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, expectTags.toArray());
     if (expectNames != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectNames.toArray());
-    mockEndpoint.expectedMessageCount(expectNumTotal);
+    this.expectNumTotal = expectNumTotal;
+    mockEndpoint.expectedMessageCount(this.expectNumTotal);
 
     context.setTracing(isTracing());
     context.start();
 
     if (toSend != null) sendMessages(toSend);
+    waitBeforeAssert();
+    assertConditions();
 
-    waitForCompletion();
+    context.stop();
+  }
 
+  /**
+   * Override to modify assertion
+   * @throws InterruptedException
+   */
+  public void assertConditions() throws InterruptedException, Exception {
     log.info("Expecting {} messages", expectNumTotal);
     mockEndpoint.assertIsSatisfied();
 
+    //verify http mock endpoint
     WireMock.verify(
         WireMock.postRequestedFor(urlPathEqualTo(httpendpoint))
     );
 
-    Map<String, InputStream> atts = new HashMap<>();
-    List<LoggedRequest> reqs = WireMock.findAll(postRequestedFor(urlPathEqualTo(httpendpoint)));
-    for (LoggedRequest req : reqs) {
-      String fname = req.getHeader("X-Filename");
-      atts.put(fname, new ByteArrayInputStream(req.getBody()));
+    //verify attachments' names
+    if (attachmentVerifier != null) {
+      Map<String, InputStream> atts = new HashMap<>();
+      List<LoggedRequest> reqs = WireMock.findAll(postRequestedFor(urlPathEqualTo(httpendpoint)));
+      for (LoggedRequest req : reqs) {
+        String fname = req.getHeader("X-Filename");
+        atts.put(fname, new ByteArrayInputStream(req.getBody()));
+      }
+
+      assertTrue(attachmentVerifier.verify(atts));
     }
-
-    if (attachmentVerifier != null) assertTrue(attachmentVerifier.verify(atts));
-
-    context.stop();
   }
 
   /**
@@ -161,15 +199,19 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    */
   public abstract void test() throws Exception;
 
+  /**
+   * False by default. Override to
+   * @return
+   */
   public Boolean isTracing() {
-    return true;
+    return false;
   }
 
 
   /**
-   * Override to implement sleep before asserting results.
+   * Override to implement sleep or special wait before asserting results.
    */
-  public void waitForCompletion() {
+  public void waitBeforeAssert() {
   }
 
   /**
@@ -277,10 +319,16 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     }
   }
 
-  public class EmailMessage {
+  public static class EmailMessage {
     String subject;
     Map<String, DataHandler> attachments;
     public String from;
+    public Date date;
+
+    public EmailMessage(String subject, String from, Date date, Map<String, DataHandler> attachments) {
+      this(subject, from, attachments);
+      this.date = date;
+    }
 
     public EmailMessage(String subject, String from, Map<String, DataHandler> attachments) {
       this.subject = subject;
@@ -331,7 +379,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
         e.ftp=new ArrayList<>();
         e.http=new ArrayList<>();
         e.email = new ArrayList<>();
-        Endpoint email = getEndpoint();
+        Endpoint email = getEmailEndpoint();
         e.email.add(email);
         return e;
       }
@@ -378,7 +426,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   /**
    * Override this if you use external server
    */
-  public Endpoint getEndpoint(){
+  public Endpoint getEmailEndpoint(){
     Endpoint email = new Endpoint();
     email.id = getEndpointName();
     email.url = "imap.example.com";

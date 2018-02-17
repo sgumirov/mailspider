@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class UnseenRetriever implements AutoCloseable {
+public class AllMailRetriever implements AutoCloseable {
   private AbstractServer server;
   private Store store;
 
-  public UnseenRetriever(AbstractServer server) {
+  public AllMailRetriever(AbstractServer server) {
     this.server = server;
   }
 
@@ -61,10 +61,8 @@ public class UnseenRetriever implements AutoCloseable {
         folder.open(1);
       }
 
-      //Message[] f = folder.getMessages();
-      Message[] f = folder.search(
-          new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-      
+      Message[] f = folder.getMessages();
+
       Collections.addAll(ret, f);
     }
 

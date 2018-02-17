@@ -36,12 +36,8 @@ public class MockMailTest {
     byte[] b = "a,b,c,d,e,1,2,3".getBytes();
     HashMap<String, byte[]> attach = new HashMap<>();
     attach.put("sample.csv", b);
-    user.deliver(createMimeMessage(to, "shamil.gumirov@gmail.com",
+    user.deliver(createMimeMessage(to, to,
         "Прайс-лист компании ASVA", attach));
-/*
-    GreenMailUtil.sendTextEmailTest("to@localhost.com", "from@localhost.com",
-        "subject", "body"); // ...or use the default messages
-*/
 
     assertEquals(1, greenMail.getReceivedMessages().length); // // --- Place your POP3 or IMAP retrieve code here
   }
