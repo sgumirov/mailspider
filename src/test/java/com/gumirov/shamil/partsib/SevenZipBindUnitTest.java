@@ -47,7 +47,7 @@ public class SevenZipBindUnitTest extends TestCase {
     }
   }
 
-  public void testUnRar() throws Exception {
+  public void testUnRar() {
 
   }
 

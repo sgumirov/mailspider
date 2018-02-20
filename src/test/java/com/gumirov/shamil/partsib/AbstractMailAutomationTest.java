@@ -35,9 +35,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   private static final String ENDPID = "Test-EMAIL-01";
-  private final int httpPort = 8888;
+  private final int httpPort = 8080;
   private String httpendpoint="/endpoint";
   private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
+  //for greenmain (not used yet)
+  private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
@@ -102,29 +104,30 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     //remove source imap endpoint
     context.getRouteDefinition("source-"+getEndpointName()).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         replaceFromWith("direct:none");
       }
     });
+    setupNotificationMock();
+    setupHttpMock();
+    setupDestinationMock(mockRouteName, mockAfterId);
+  }
+
+  public void setupNotificationMock() throws Exception {
     //mock notifications
     context.getRouteDefinition("notification-"+getEndpointName()).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
       public void configure() {
-        //add mock endpoint
-        weaveById("notification-sender-log").after().to(mockNotificationEndpoint);
         //prevent real notification from being sent
-        weaveById("notification-sender").remove();
+        weaveById("notification-sender").replace().to(mockNotificationEndpoint);
       }
     });
-    
-    setupHttpMock();
-    setupDestinationMock(mockRouteName, mockAfterId);
   }
 
   private void setupDestinationMock(final String route, final String id) throws Exception {
     context.getRouteDefinition(route).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         weaveById(id).after().to(mockEndpoint);
       }
     });
@@ -185,7 +188,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    * Override to modify assertion
    * @throws InterruptedException
    */
-  public void assertConditions() throws InterruptedException, Exception {
+  public void assertConditions() throws Exception {
     log.info("Expecting {} messages", expectNumTotal);
     mockEndpoint.assertIsSatisfied();
     
@@ -260,6 +263,15 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     }
   }
 
+  public static Properties createNotificationsConfig(String period, String from, String to, String uri) {
+    Properties p = new Properties();
+    p.put("notification.period", period);
+    p.put("email.from", from);
+    p.put("email.to", to);
+    p.put("email.uri", uri);
+    return p;
+  }
+
   public class RawEmailMessage extends EmailMessage {
     public RawEmailMessage(InputStream is) throws MessagingException, IOException {
       super(null);
@@ -314,11 +326,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       String contentType = message.getContentType();
       if (content instanceof String ) {
         throw new RuntimeException("not yet impl");
-//        attachments.put(bp.getFileName(), new DataHandler(content, "text/plain"));
-//        Session ses = Session.getDefaultInstance(new Properties());
-//        MimeMessage msg = new MimeMessage(ses, new StringBufferInputStream((String) content));
-//        this.subject = msg.getSubject();
-//        handleMessage(msg);
       } else if (content instanceof Multipart) {
         Multipart mp = (Multipart) content;
         handleMultipart(mp);
@@ -381,10 +388,10 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   @Override
-  protected RoutesBuilder createRouteBuilder() throws Exception {
+  protected RoutesBuilder createRouteBuilder() {
     builder = new MainRouteBuilder(getConfigurator()){
       @Override
-      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
+      public List<PricehookIdTaggingRule> getPricehookConfig() {
         return getTagRules();
       }
 
@@ -394,7 +401,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
+      public ArrayList<EmailAcceptRule> getEmailAcceptRules() {
         return getAcceptRules();
       }
 
@@ -404,7 +411,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       }
 
       @Override
-      public Endpoints getEndpoints() throws IOException {
+      public Endpoints getEndpoints() {
         Endpoints e = new Endpoints();
         e.ftp=new ArrayList<>();
         e.http=new ArrayList<>();
@@ -412,6 +419,15 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
         Endpoint email = getEmailEndpoint();
         e.email.add(email);
         return e;
+      }
+
+      @Override
+      public Properties loadNotificationConfig(String fname) {
+        return AbstractMailAutomationTest.createNotificationsConfig(
+            "3000", "partsibprice@yahoo.com",
+            login,
+            "smtp://127.0.0.1:3125?username="+login+"&password="+pwd+"&debugMode=true"
+        );
       }
     };
     return builder;
@@ -470,7 +486,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    * Use this method's return value when redefining route or override this method.
    */
   public String getEndpointName() {
-    return ENDPID;
+    return this.getClass().getSimpleName();
   }
 
   public abstract List<PricehookIdTaggingRule> getTagRules();
@@ -491,6 +507,3 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 }
 
-interface AttachmentVerifier {
-  boolean verify(Map<String, InputStream> attachments);
-}

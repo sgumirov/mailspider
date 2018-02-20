@@ -40,7 +40,7 @@ public class UnpackerSplitter {
     return outMsgs;
   }
   
-  private List<NamedByteArray> unpack(byte[] b) throws Exception {
+  private List<NamedByteArray> unpack(byte[] b) {
     IInArchive inArchive = null;
     List<NamedByteArray> list = new ArrayList<>();
     try {
@@ -54,7 +54,7 @@ public class UnpackerSplitter {
           final ByteArrayOutputStream bos = new ByteArrayOutputStream();
           ExtractOperationResult result;
           result = item.extractSlow(new ISequentialOutStream() {
-            public int write(byte[] data) throws SevenZipException {
+            public int write(byte[] data) {
               try {
                 bos.write(data);
               } catch (IOException e) {

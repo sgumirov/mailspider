@@ -70,7 +70,7 @@ public class OptimaRouteFactory implements RouteFactory {
 
   HttpResponseInterceptor contentEncodingFixerInterceptor = new HttpResponseInterceptor()  {
     @Override
-    public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+    public void process(HttpResponse response, HttpContext context) {
       Header contentEncodingHeader = response.getFirstHeader(HTTP.CONTENT_ENCODING);
       if(contentEncodingHeader != null && ! (
           "gzip".equals(contentEncodingHeader.getValue()) ||
@@ -89,7 +89,7 @@ public class OptimaRouteFactory implements RouteFactory {
   public RouteBuilder createRouteBuilder() {
     return new RouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         OptimaAuthProcessor authorizer = new OptimaAuthProcessor(user, pwd, loginUrl);
         errorHandler(deadLetterChannel("direct:deadletter").logExhaustedMessageBody(true));
 //        HttpComponent http4 = getContext().getComponent("https4", HttpComponent.class);
@@ -119,7 +119,7 @@ public class OptimaRouteFactory implements RouteFactory {
             //setHeader(Exchange.FILE_LENGTH, header(Exchange.CONTENT_LENGTH)).
             process(new Processor() {
               @Override
-              public void process(Exchange exchange) throws Exception {
+              public void process(Exchange exchange) {
                 byte[] b = exchange.getContext().getTypeConverter().convertTo(byte[].class, exchange.getIn().getBody(InputStream.class));
                 exchange.getIn().setHeader(Exchange.FILE_LENGTH, b.length);
                 exchange.getIn().setBody(b);

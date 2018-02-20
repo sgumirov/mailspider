@@ -84,7 +84,9 @@ public class MainRouteBuilder extends RouteBuilder {
    */
   private DeleteOldMailProcessor skipNewMailProcessor;
 
-  public MainRouteBuilder() {}
+  public MainRouteBuilder() {
+    int i = 0;
+  }
 
   public MainRouteBuilder(Configurator config) {
     this.config = config;
@@ -178,6 +180,7 @@ public class MainRouteBuilder extends RouteBuilder {
       );
       Properties notificationConfig = loadNotificationConfig(config.get("notification.config"));
       String notificationUrl = notificationConfig.getProperty("email.uri");
+      log.info("Notifications url: "+notificationUrl);
       NotificationProcessor notificationProcessor = new NotificationProcessor(notificationConfig);
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
@@ -186,8 +189,7 @@ public class MainRouteBuilder extends RouteBuilder {
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
-          new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"),
-              getConfigLoaderProvider());
+          new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), getConfigLoaderProvider());
       AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
       SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
 
@@ -335,10 +337,10 @@ public class MainRouteBuilder extends RouteBuilder {
         //===== END prepare accept rules
 
         log.info(format("[EMAIL] Setting up %d source endpoints", endpoints.email.size()));
+        System.setProperty("mail.mime.decodetext.strict", "false");
 
         for (Endpoint email : endpoints.email) {
-          System.setProperty("mail.mime.decodetext.strict", "false");
-          
+
           String url = format(
                   "%s?password=%s" +
                   "&username=%s" +
@@ -368,7 +370,10 @@ public class MainRouteBuilder extends RouteBuilder {
           from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
 
           from("direct:emailreceived").routeId("received-"+email.id).
-            multicast().to("direct:notification", "direct:processemail");
+            multicast().parallelProcessing().
+              to(
+                  "direct:processemail",
+                  "direct:notification");
 
           from("direct:notification").routeId("notification-"+email.id).
             process(notificationProcessor).id("notification-processor").
@@ -480,7 +485,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
   }
 
-  private Properties loadNotificationConfig(String fname) throws IOException {
+  public Properties loadNotificationConfig(String fname) throws IOException {
     Properties p = new Properties();
     p.load(getClass().getClassLoader().getResourceAsStream(fname));
     return p;

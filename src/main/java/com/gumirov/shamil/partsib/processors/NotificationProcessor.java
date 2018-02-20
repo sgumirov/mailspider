@@ -25,7 +25,7 @@ public class NotificationProcessor implements Processor {
   }
 
   @Override
-  public void process(Exchange exchange) throws Exception {
+  public void process(Exchange exchange) {
     if (lastSentNotificationTime == 0) {
       lastSentNotificationTime = System.currentTimeMillis();
     }

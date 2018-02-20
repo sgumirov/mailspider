@@ -11,10 +11,8 @@ import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.plugins.NameChangerPlugin;
-import com.gumirov.shamil.partsib.plugins.NoOpPlugin;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.icegreen.greenmail.junit.GreenMailRule;
-import com.icegreen.greenmail.server.AbstractServer;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.*;
 import org.apache.camel.RoutesBuilder;
@@ -31,7 +29,6 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
-import javax.mail.search.FlagTerm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -63,6 +60,8 @@ public class EmailRouteATest extends CamelTestSupport {
   @Rule
   public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.IMAP);
   @Rule
+  public final GreenMailRule notificationsSmtp = new GreenMailRule(new ServerSetup(3125, "127.0.0.1", "smtp"));
+  @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
 
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
@@ -84,17 +83,25 @@ public class EmailRouteATest extends CamelTestSupport {
   public void setup() throws Exception {
     //disable ssl cert checking for imaps connections
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
-    context.start();
+    //init mock servers
+    notificationsSmtp.reset();
+    notificationsSmtp.setUser(login, pwd);
+    greenMail.reset();
+    greenMail.setUser(login, pwd);
+    //start context manually because setAdvice()==true
     context.setTracing(false);
+    context.start();
   }
 
   public void prepareHttpdOK() {
+    reset();
     stubFor(post(urlEqualTo(httpendpoint))
         .willReturn(aResponse()
             .withStatus(200)));
   }
   
   private void prepareHttpdFailFirstNTimes(int n) {
+    reset();
     stubFor(post(urlEqualTo(httpendpoint)).inScenario("fail")
         .whenScenarioStateIs(Scenario.STARTED)
         .willReturn(aResponse()
@@ -115,10 +122,9 @@ public class EmailRouteATest extends CamelTestSupport {
 
   @Test
   public void test() throws Exception{
-//    WireMock.reset();
     prepareHttpdOK();
     execute(() -> sendMessage(filenames), 
-        40000,
+        30000,
         validate(filenames.get(0)+".csv", 1, pricehookId),
         validate(filenames.get(1)+".csv", 1, pricehookId),
         () -> verify(2, postRequestedFor(urlEqualTo(httpendpoint))),
@@ -126,7 +132,8 @@ public class EmailRouteATest extends CamelTestSupport {
           UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
           Message[] messages = unseenRetriever.getMessages(login, pwd);
           assertEquals(0, messages.length);
-        }
+        },
+        () -> assertTrue(notificationsSmtp.getReceivedMessages().length > 0)
     );
   }
 
@@ -134,7 +141,6 @@ public class EmailRouteATest extends CamelTestSupport {
   public void testRealEmails() throws Exception {
     //does not work under POP3
     LOG.info("Test: testRealEmails");
-    WireMock.reset();
     prepareHttpdOK();
     execute(() -> {
           sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-1.eml"));
@@ -143,16 +149,17 @@ public class EmailRouteATest extends CamelTestSupport {
           sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-4.eml"));
           sendEml(getClass().getClassLoader().getResourceAsStream("nocontent.eml"));
         },
-        20000,
+        30000,
         //check filenames
 //        validate(expectedName, 3, pricehookId),
         () -> {
           //TRANSACTION: deleted processed message
-          Retriever retriever = new Retriever(greenMail.getImap());
+          UnseenRetriever retriever = new UnseenRetriever(greenMail.getImap());
           Message[] messages = retriever.getMessages(login, pwd);
           LOG.info("Messages not processed: "+messages.length);
           assertEquals(0, messages.length);
-        }
+        },
+        () -> assertTrue(notificationsSmtp.getReceivedMessages().length > 0)
     );
   }
 
@@ -172,7 +179,6 @@ public class EmailRouteATest extends CamelTestSupport {
 
   @Test
   public void testWithHttpFailures() throws Exception{
-//    WireMock.reset();
     prepareHttpdFailFirstNTimes(2);
     execute(() -> sendMessage(filenames),
         50000,
@@ -184,7 +190,8 @@ public class EmailRouteATest extends CamelTestSupport {
           UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
           Message[] messages = unseenRetriever.getMessages(login, pwd);
           assertEquals(0, messages.length);
-        }
+        },
+        () -> assertTrue(notificationsSmtp.getReceivedMessages().length > 0)
     );
   }
 
@@ -245,66 +252,80 @@ public class EmailRouteATest extends CamelTestSupport {
   }
 
   @Override
-  protected RoutesBuilder createRouteBuilder() throws Exception {
-    return new MainRouteBuilder(config){
-      @Override
-      public List<Plugin> getPlugins() {
-        return Arrays.asList(new NameChangerPlugin());
-      }
+  protected RoutesBuilder createRouteBuilder() {
+    return new MyMainRouteBuilder(config);
+  }
 
-      @Override
-      public Endpoints getEndpoints() throws IOException {
-        Endpoints e = new Endpoints();
-        e.ftp=new ArrayList<>();
-        e.http=new ArrayList<>();
-        e.email = new ArrayList<>();
-        Endpoint email = new Endpoint();
-        email.id = "Test-EMAIL-01";
+  class MyMainRouteBuilder extends MainRouteBuilder{
+    public MyMainRouteBuilder(Configurator config) {
+      super(config);
+    }
 
-        email.url = imapUrl;
-        email.user = login;
-        email.pwd = pwd;
+    @Override
+    public List<Plugin> getPlugins() {
+      return Arrays.asList(new NameChangerPlugin());
+    }
 
-        email.parameters = new HashMap<>();
-        email.parameters.put("delete", "true");
-        email.delay = "10000";
+    @Override
+    public Endpoints getEndpoints() {
+      Endpoints e = new Endpoints();
+      e.ftp=new ArrayList<>();
+      e.http=new ArrayList<>();
+      e.email = new ArrayList<>();
+      Endpoint email = new Endpoint();
+      email.id = "EmailRouteTest-EMAIL-01";
 
-        e.email.add(email);
-        return e;
-      }
+      email.url = imapUrl;
+      email.user = login;
+      email.pwd = pwd;
 
-      @Override
-      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
-        ArrayList<EmailAcceptRule> rules = new ArrayList<>();
-        EmailAcceptRule r1 = new EmailAcceptRule();
-        r1.header="From";
-        r1.contains="@";
-        rules.add(r1);
-        return rules;
-      }
+      email.parameters = new HashMap<>();
+      email.delay = "10000";
 
-      @Override
-      public List<String> getExtensionsAcceptList() {
-        return Arrays.asList("xls","csv","txt","xlsx");
-      }
+      e.email.add(email);
+      return e;
+    }
 
-      @Override
-      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
-        PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
-        r1.header = "From";
-        r1.contains = "@";
-        r1.pricehookid = pricehookId;
-        PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
-        r2.header = "Subject";
-        r2.contains = "АСВА";
-        r2.pricehookid = pricehookId;
-        PricehookIdTaggingRule r3 = new PricehookIdTaggingRule();
-        r3.header = "Subject";
-        r3.contains = "Прайс";
-        r3.pricehookid = pricehookId;
-        return Arrays.asList(r1, r2, r3);
-      }
-    };
+    @Override
+    public ArrayList<EmailAcceptRule> getEmailAcceptRules() {
+      ArrayList<EmailAcceptRule> rules = new ArrayList<>();
+      EmailAcceptRule r1 = new EmailAcceptRule();
+      r1.header="From";
+      r1.contains="@";
+      rules.add(r1);
+      return rules;
+    }
+
+    @Override
+    public Properties loadNotificationConfig(String fname) {
+      return AbstractMailAutomationTest.createNotificationsConfig(
+          "3000", "partsibprice@yahoo.com",
+          login,
+          "smtp://127.0.0.1:3125?username="+login+"&password="+pwd+"&debugMode=true"
+      );
+    }
+
+    @Override
+    public List<String> getExtensionsAcceptList() {
+      return Arrays.asList("xls","csv","txt","xlsx");
+    }
+
+    @Override
+    public List<PricehookIdTaggingRule> getPricehookConfig() {
+      PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
+      r1.header = "From";
+      r1.contains = "@";
+      r1.pricehookid = pricehookId;
+      PricehookIdTaggingRule r2 = new PricehookIdTaggingRule();
+      r2.header = "Subject";
+      r2.contains = "АСВА";
+      r2.pricehookid = pricehookId;
+      PricehookIdTaggingRule r3 = new PricehookIdTaggingRule();
+      r3.header = "Subject";
+      r3.contains = "Прайс";
+      r3.pricehookid = pricehookId;
+      return Arrays.asList(r1, r2, r3);
+    }
   }
 }
 

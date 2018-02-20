@@ -18,7 +18,7 @@ public class EmailAttachmentProcessor implements Processor {
   protected Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
 
   @Override
-  public void process(Exchange exchange) throws Exception {
+  public void process(Exchange exchange) {
     Message msg = exchange.getIn();
     //must be exactly one attachment (use after SplitAttachmentsExpression)
     int count = 0;

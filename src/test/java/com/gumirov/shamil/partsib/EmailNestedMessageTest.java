@@ -12,10 +12,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
-import com.icegreen.greenmail.util.DummySSLSocketFactory;
-import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.Retriever;
-import com.icegreen.greenmail.util.ServerSetupTest;
+import com.icegreen.greenmail.util.*;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
@@ -49,15 +46,14 @@ public class EmailNestedMessageTest extends CamelTestSupport {
   final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   private int pop3port = 3110;
   final String pop3Url = "pop3://127.0.0.1"+":"+pop3port;
-  private List<String> filenames = Arrays.asList("sample1.csv", "Прайс лист1.csv", "wrongfile.jpg");
-  private byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
   { //ssl init
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
   }
 
   @Rule
   public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP_POP3_IMAP);
-
+  @Rule
+  public final GreenMailRule notificationsSmtp = new GreenMailRule(new ServerSetup(3125, "127.0.0.1", "smtp"));
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
 
@@ -78,13 +74,17 @@ public class EmailNestedMessageTest extends CamelTestSupport {
 
   @Override
   public void setUp() throws Exception {
-    super.setUp(); //todo?
+    super.setUp();
     context.setTracing(false);
     context.setMessageHistory(false);
   }
 
   @Before
-  public void prepareHttpdOK() {
+  public void prepare() {
+    reset();
+    notificationsSmtp.reset();
+    notificationsSmtp.setUser(login, pwd);
+    greenMail.reset();
     stubFor(post(urlEqualTo(httpendpoint))
         .willReturn(aResponse()
             .withStatus(200)));
@@ -92,8 +92,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
 
   @Test
   public void test() throws Exception{
-    WireMock.reset();
-    prepareHttpdOK();
+    log.info("Test: EmailNestedMessageTest::test()");
     execute(() -> {
           sendEml(getClass().getClassLoader().getResourceAsStream("fixed.eml"));
           try{
@@ -116,7 +115,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
           Retriever retriever = new Retriever(greenMail.getPop3());
           Message[] messages = retriever.getMessages(login, pwd);
           assertEquals(0, messages.length);
-        }
+        },
+        () -> assertTrue(notificationsSmtp.getReceivedMessages().length > 0)
     );
   }
 
@@ -124,8 +124,6 @@ public class EmailNestedMessageTest extends CamelTestSupport {
   public void testBareAttachmentIssue() throws Exception{
     //use POP3: this does NOT work under IMAP (due to GreenMail bug)
     log.info("Test: testBareAttachmentIssue");
-    WireMock.reset();
-    prepareHttpdOK();
     final String expectedName = "Прайс-лист за 2017-04-17.xls";
     execute(
       () -> {
@@ -144,15 +142,14 @@ public class EmailNestedMessageTest extends CamelTestSupport {
         assertEquals(0, messages.length);
       },
       //check filenames and tags
-      validate(expectedName, 3, pricehookId)
+      validate(expectedName, 3, pricehookId),
+      () -> assertTrue(notificationsSmtp.getReceivedMessages().length > 0)
     );
   }
 
   @Test
   public void testNewIssue() throws Exception{
     log.info("Test: testBareAttachmentIssue");
-    WireMock.reset();
-    prepareHttpdOK();
     final String expectedName = "NSB-VTRPrice-O4.xls";
     execute(
       () -> {
@@ -166,7 +163,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       20000,
       //check filenames and tags
       () -> assureMailConsumed(),
-      validate(expectedName, 1, pricehookId)
+      validate(expectedName, 1, pricehookId),
+      () -> assertTrue(notificationsSmtp.getReceivedMessages().length > 0)
     );
   }
 
@@ -182,7 +180,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
   }
 
   @Override
-  protected RoutesBuilder createRouteBuilder() throws Exception {
+  protected RoutesBuilder createRouteBuilder() {
     return new MainRouteBuilder(config){
       @Override
       public List<Plugin> getPlugins() {
@@ -190,13 +188,13 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       }
 
       @Override
-      public Endpoints getEndpoints() throws IOException {
+      public Endpoints getEndpoints() {
         Endpoints e = new Endpoints();
         e.ftp=new ArrayList<>();
         e.http=new ArrayList<>();
         e.email = new ArrayList<>();
         Endpoint email = new Endpoint();
-        email.id = "Test-EMAIL-01";
+        email.id = "EmailNestedTest-01";
 
         email.url = pop3Url;
         email.user = login;
@@ -209,12 +207,21 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       }
 
       @Override
+      public Properties loadNotificationConfig(String fname) {
+        return AbstractMailAutomationTest.createNotificationsConfig(
+            "3000", "partsibprice@yahoo.com",
+            login,
+            "smtp://127.0.0.1:3125?username="+login+"&password="+pwd+"&debugMode=true"
+        );
+      }
+
+      @Override
       public List<String> getExtensionsAcceptList() {
         return Arrays.asList("xls","csv","txt","xlsx");
       }
 
       @Override
-      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
+      public ArrayList<EmailAcceptRule> getEmailAcceptRules() {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="From";
@@ -224,7 +231,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       }
 
       @Override
-      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
+      public List<PricehookIdTaggingRule> getPricehookConfig() {
         PricehookIdTaggingRule r1 = new PricehookIdTaggingRule();
         r1.header = "From";
         r1.contains = "@";

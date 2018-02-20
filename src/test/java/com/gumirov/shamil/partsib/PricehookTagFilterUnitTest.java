@@ -6,11 +6,14 @@ import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
+import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.ServerSetup;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.Rule;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
@@ -18,12 +21,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.Properties;
 
 /**
  *
  */
 public class PricehookTagFilterUnitTest extends CamelTestSupport {
-  private static final String ENDPID = "Test-EMAIL-01";
+  private static final String ENDPID = "PricehookTest-EMAIL-01";
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
     @Override
     protected void initDefaultValues(HashMap<String, String> kv) {
@@ -39,8 +43,6 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     }
   };
   Configurator config = cfactory.getConfigurator();
-
-
   MainRouteBuilder builder;
 
   @EndpointInject(uri = "mock:result")
@@ -53,6 +55,10 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   public boolean isUseAdviceWith() {
     return true;
   }
+
+  private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
+  @Rule
+  public final GreenMailRule notificationsSmtp = new GreenMailRule(new ServerSetup(3125, "127.0.0.1", "smtp"));
 
   @Test
   public void test() throws Exception {
@@ -104,10 +110,12 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
    * This impl removed real imap endpoint. Override to change.
    */
   public void beforeLaunch() throws Exception {
+    notificationsSmtp.reset();
+    notificationsSmtp.setUser(login, pwd);
     //remove imap endpoint
     context.getRouteDefinition("source-"+ENDPID).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         replaceFromWith("direct:none");
       }
     });
@@ -117,7 +125,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
               int expectNumTotal, Map<EmailMessage, String> toSend) throws Exception {
     context.getRouteDefinition(route).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         weaveById(id).after().to(mockEndpoint);
       }
     });
@@ -190,13 +198,13 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   public void testSeparateAttachmentTags() throws Exception{
     context.getRouteDefinition("acceptedmail").adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         weaveById("taglogger").after().to(mockEndpoint);
       }
     });
     context.getRouteDefinition("source-"+ENDPID).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         replaceFromWith("direct:none");
       }
     });
@@ -244,10 +252,10 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   }
 
   @Override
-  protected RoutesBuilder createRouteBuilder() throws Exception {
+  protected RoutesBuilder createRouteBuilder() {
     builder = new MainRouteBuilder(config){
       @Override
-      public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
+      public List<PricehookIdTaggingRule> getPricehookConfig() {
         return getTagRules();
       }
 
@@ -257,7 +265,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
+      public ArrayList<EmailAcceptRule> getEmailAcceptRules() {
         ArrayList<EmailAcceptRule> rules = new ArrayList<>();
         EmailAcceptRule r1 = new EmailAcceptRule();
         r1.header="Subject";
@@ -271,12 +279,21 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
 
       @Override
+      public Properties loadNotificationConfig(String fname) {
+        return AbstractMailAutomationTest.createNotificationsConfig(
+            "3000", "partsibprice@yahoo.com",
+            login,
+            "smtp://127.0.0.1:3125?username="+login+"&password="+pwd+"&debugMode=true"
+        );
+      }
+
+      @Override
       public List<Plugin> getPlugins() {
         return null;
       }
 
       @Override
-      public Endpoints getEndpoints() throws IOException {
+      public Endpoints getEndpoints() {
         Endpoints e = new Endpoints();
         e.ftp=new ArrayList<>();
         e.http=new ArrayList<>();

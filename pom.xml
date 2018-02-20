@@ -307,15 +307,10 @@
             <artifactId>surefire-junit47</artifactId>
             <version>2.19.1</version>
           </dependency>
-<!--
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-testng</artifactId>
-            <version>2.19.1</version>
-          </dependency>
--->
         </dependencies>
         <configuration>
+          <perCoreThreadCount>false</perCoreThreadCount>
+          <threadCount>1</threadCount>
           <includes>
             <include>**/*Test.java</include>
           </includes>

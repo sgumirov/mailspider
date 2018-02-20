@@ -40,7 +40,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
+  public void beforeLaunch(String mockRouteName, String mockAfterId) {
     //super.beforeLaunch();
   }
 

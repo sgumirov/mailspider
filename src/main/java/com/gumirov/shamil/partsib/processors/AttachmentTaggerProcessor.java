@@ -21,7 +21,7 @@ public class AttachmentTaggerProcessor implements Processor {
   private final Logger log = LoggerFactory.getLogger(AttachmentTaggerProcessor.class.getSimpleName());
 
   @Override
-  public void process(Exchange exchange) throws Exception {
+  public void process(Exchange exchange) {
     if (null != exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_RULE)){
       PricehookIdTaggingRule rule = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_RULE, PricehookIdTaggingRule.class);
       if (rule.filerules != null) {
