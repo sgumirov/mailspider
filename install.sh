@@ -1,7 +1,7 @@
 set -e
 
 dir="/usr/share/MailSpider"
-version="1.8"
+version="1.9"
 echo Installing version: $version
 echo To change version edit 'install.sh'
 
