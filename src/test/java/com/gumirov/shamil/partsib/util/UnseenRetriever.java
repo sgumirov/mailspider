@@ -1,4 +1,4 @@
-package com.gumirov.shamil.partsib;
+package com.gumirov.shamil.partsib.util;
 
 import com.icegreen.greenmail.server.AbstractServer;
 
@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Retrieves unseen messages from Greenmail. Helper for automated tests.
+ */
 public class UnseenRetriever implements AutoCloseable {
   private AbstractServer server;
   private Store store;
@@ -17,12 +20,12 @@ public class UnseenRetriever implements AutoCloseable {
   }
 
   /**
-   * Use account name as password.
-   * @param account name
+   * Use account name same as password.
+   * @param accountAndPassword name
    * @return messages
    */
-  public Message[] getMessages(String account) {
-    return this.getMessages(account, account);
+  public Message[] getMessages(String accountAndPassword) {
+    return this.getMessages(accountAndPassword, accountAndPassword);
   }
 
   public Message[] getMessages(String account, String password) {
@@ -55,7 +58,7 @@ public class UnseenRetriever implements AutoCloseable {
   }
 
   private List<Message> getMessages(Folder folder) throws MessagingException {
-    ArrayList ret = new ArrayList();
+    ArrayList<Message> ret = new ArrayList<>();
     if((folder.getType() & 1) != 0) {
       if(!folder.isOpen()) {
         folder.open(1);
@@ -68,14 +71,11 @@ public class UnseenRetriever implements AutoCloseable {
       Collections.addAll(ret, f);
     }
 
-    if((folder.getType() & 2) != 0) {
-      Folder[] var8 = folder.list();
-      Folder[] var4 = var8;
-      int var5 = var8.length;
-
-      for(int var6 = 0; var6 < var5; ++var6) {
-        Folder aF = var4[var6];
-        ret.addAll(this.getMessages(aF));
+    if ((folder.getType() & 2) != 0) {
+      Folder[] files = folder.list();
+      int l = files.length;
+      for (Folder f : files) {
+        ret.addAll(this.getMessages(f));
       }
     }
 

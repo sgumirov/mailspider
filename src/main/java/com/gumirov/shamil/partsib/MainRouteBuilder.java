@@ -58,7 +58,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
   //default value
-  public static String VERSION = "1.7";
+  public static String VERSION = "1.9";
 
   /**
    * ID for tracking email in logs
@@ -70,6 +70,10 @@ public class MainRouteBuilder extends RouteBuilder {
   private long deleteOldMailCheckPeriod;
   private boolean deleteOldMailEnabled;
   private int deleteOldMailAfterDays;
+  /**
+   * If true pipeline passes whenever PLUGINS_STATUS_OK is set to false.
+   */
+  private boolean passAnyPluginStatus;
 
   public enum CompressorType {
     GZIP, ZIP, RAR, _7Z
@@ -178,12 +182,15 @@ public class MainRouteBuilder extends RouteBuilder {
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
           || filename.endsWith("docx")
       );
+      //TODO add AT for this:
+      passAnyPluginStatus = config.is("plugin.pass.when.error", false);
       Properties notificationConfig = loadNotificationConfig(config.get("notification.config"));
       String notificationUrl = notificationConfig.getProperty("email.uri");
       log.info("Notifications url: "+notificationUrl);
+      log.info("Output url: "+getOutputUrl());
       NotificationProcessor notificationProcessor = new NotificationProcessor(notificationConfig);
       ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
-      OutputProcessor outputProcessorEndpoint = new OutputProcessor(config.get("output.url"));
+      OutputProcessor outputProcessorEndpoint = new OutputProcessor(getOutputUrl());
       PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
@@ -208,6 +215,7 @@ public class MainRouteBuilder extends RouteBuilder {
       if (deleteOldMailEnabled) log.info("Delete old mail is: ENABLED (keep days="+deleteOldMailAfterDays+" check period: "+deleteOldMailCheckPeriod+")");
       else log.info("Delete old mail is: DISABLED");
 
+      //idempotent repo config
       FileNameIdempotentRepoManager repoMan = new FileNameIdempotentRepoManager(
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
@@ -216,6 +224,9 @@ public class MainRouteBuilder extends RouteBuilder {
       onException(SkipMessageException.class).process(new SkipMessageExceptionErrorHandler()).id("myerrorhandler").
           handled(true).
           stop();
+
+      getContext().getStreamCachingStrategy().setSpoolUsedHeapMemoryThreshold(75);
+      getContext().getStreamCachingStrategy().setSpoolThreshold(1024000); //1M
 
       //FTP <production>
       if (config.is("ftp.enabled")) {
@@ -296,7 +307,7 @@ public class MainRouteBuilder extends RouteBuilder {
             return false;
           }).id("FileExtensionFilter").
           process(pluginsProcessor).id("PluginsProcessor").
-          filter((exchange)-> Boolean.TRUE.equals(exchange.getIn().getHeader(PLUGINS_STATUS_OK, Boolean.class)) ).id("PluginsStatusFilter").
+          filter((exchange) -> Boolean.TRUE.equals(passAnyPluginStatus || exchange.getIn().getHeader(PLUGINS_STATUS_OK, Boolean.class)) ).id("PluginsStatusFilter").
           to("direct:output").end();
 
       //log dead letter channel:
@@ -445,6 +456,10 @@ public class MainRouteBuilder extends RouteBuilder {
       log.error("Cannot build route", e);
       throw new RuntimeException("Cannot continue", e);
     }
+  }
+
+  public String getOutputUrl() {
+    return config.get("output.url");
   }
 
   private void createDeleteOldMailPath(Endpoint email, int daysKeep) throws UnsupportedEncodingException {

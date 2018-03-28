@@ -5,7 +5,8 @@ The processing route has endpoints (ftp, http, email), plugins and output (now i
 HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
-- Version 1.8: Added features: periodic notifications, old mail delete (30 days). Automatic tests improved.
+- Version 1.9: Lots number of small changes related to Plugins API, plugins pipeline and AT. Javadocs added.
+- Version 1.8: Added features: periodic notifications, old mail delete (30 days). Added plugins cleanup. Automatic tests improved.
 - Version 1.7: Moved to new maven dependencies (extracted mailspider-base, added test runtime dependency)
 - Version 1.6a: Incompatible changes: extracted plugin-related interfaces into separate project (Mailspider-Base). Added EncodingTest.
 - Version 1.5: Added support for quotes in rules. Added 'filerules' for tagging separate attachments. 
@@ -22,6 +23,13 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 # Delete old mail
 
 Added in 1.8
+
+Added option of passing on pipeline when plugin throws an exception. Previously when plugin thrown an exception the pipeline
+just ignored that. Now there's an option to stop pipeline message passing on plugin exception. Configured by the following 
+config key, default value false:
+```
+plugin.pass.when.error=false
+```
 
 Purges old mail from email account.
 Configured in main config by properties:
@@ -163,7 +171,7 @@ The file extension list to accept is defined in config parameter 'file.extension
 a list of comma-separated extensions without dots. See example. 
 To disable set empty value. 
 
-# Email filtering syntax
+# Email filtering rules syntax
 
 The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS ACCEPTED. The config file is loaded
  from file with filename specified in main config's key 'email.accept.rules.config.filename'.
@@ -291,7 +299,6 @@ See section 'filerules' in example below. Note that double-quotes could be escap
 
 # Tests
 
-Unit tests are OK to run any time with 'mvn tests' command. They all must pass. Known issue: AT could fail due to 
-high cpu/io load of server. As about AT refer to the source code. Integration tests require external setup are excluded 
-from execution using @Ignore.
+All tests are OK to run any time with 'mvn tests' command. They all MUST pass. Integration tests that require external 
+setup are excluded from execution using @Ignore. Basically they are development ones.
 

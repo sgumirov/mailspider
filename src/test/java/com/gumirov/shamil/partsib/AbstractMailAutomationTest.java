@@ -9,6 +9,7 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.util.AttachmentVerifier;
 import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
 import com.gumirov.shamil.partsib.util.Util;
 import com.sun.istack.Nullable;
@@ -34,17 +35,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * By default expects at least 1 notification.
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
-  private static final String ENDPID = "Test-EMAIL-01";
   private final int httpPort = 8080;
   private String httpendpoint="/endpoint";
   private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
-  //for greenmain (not used yet)
+  //for greenmail
   private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
 
-  ConfiguratorFactory cfactory = new ConfiguratorFactory(){
+  ConfiguratorFactory configFactory = new ConfiguratorFactory(){
     @Override
     protected void initDefaultValues(HashMap<String, String> kv) {
       super.initDefaultValues(kv);
@@ -71,7 +71,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     return null;
   }
 
-  Configurator config = cfactory.getConfigurator();
+  Configurator config = configFactory.getConfigurator();
 
   MainRouteBuilder builder;
 
@@ -180,6 +180,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     if (toSend != null) sendMessages(toSend);
     waitBeforeAssert();
     assertConditions();
+    log.info("Test PASSED: " + getClass().getSimpleName());
 
     context.stop();
   }
@@ -227,6 +228,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   /**
+   * TODO: @shamil do we really need this? Since it's not from the parent class..
    * To be overriden for test.
    * @throws Exception
    */

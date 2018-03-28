@@ -7,7 +7,7 @@
   <groupId>com.gumirov.shamil.partsib</groupId>
   <artifactId>MailSpider</artifactId>
   <packaging>jar</packaging>
-  <version>1.8</version>
+  <version>1.9</version>
 
   <name>MailSpider</name>
   <url>https://github.com/sgumirov/mailspider</url>
@@ -35,7 +35,7 @@
         <dependency>
           <groupId>com.partsib.mailspider.plugins</groupId>
           <artifactId>MailspiderPlugins</artifactId>
-          <version>1.7</version>
+          <version>1.9</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>com.gumirov.shamil.partsib</groupId>
       <artifactId>MailSpider-Base</artifactId>
-      <version>1.1</version>
+      <version>1.9</version>
     </dependency>
 
     <!-- JavaMail -->

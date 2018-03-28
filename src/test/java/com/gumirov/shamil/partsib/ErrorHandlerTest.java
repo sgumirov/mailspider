@@ -1,5 +1,6 @@
 package com.gumirov.shamil.partsib;
 
+import com.gumirov.shamil.partsib.util.AllMailRetriever;
 import com.gumirov.shamil.partsib.util.SkipMessageException;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
