@@ -36,8 +36,8 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
     contents = prepareContents();
 
     resultEndpoint.expectedMessageCount(2);
-    resultEndpoint.expectedBodiesReceivedInAnyOrder(new Object[]{ new String(contents), new String(contents) });
-    resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, new Object[]{"f1.txt", "dir"+File.separatorChar+"f2.txt"});
+    resultEndpoint.expectedBodiesReceivedInAnyOrder(new String(contents), new String(contents));
+    resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "f1.txt", "dir"+File.separatorChar+"f2.txt");
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ZipOutputStream zos = new ZipOutputStream(bos);
@@ -82,13 +82,11 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
   }
 
   @Override
-  protected RoutesBuilder createRouteBuilder() throws Exception
-  {
+  protected RoutesBuilder createRouteBuilder() {
     return new RouteBuilder()
     {
       @Override
-      public void configure() throws Exception
-      {
+      public void configure() {
         from("direct:from").
 //            split(new ZipSplitter()).
             split(beanExpression(new UnpackerSplitter(), "unpack")).

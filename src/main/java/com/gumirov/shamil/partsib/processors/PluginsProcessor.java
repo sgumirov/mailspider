@@ -8,7 +8,11 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.gumirov.shamil.partsib.MainRouteBuilder.ENDPOINT_ID_HEADER;
@@ -27,7 +31,7 @@ public class PluginsProcessor implements Processor {
   }
 
   @Override
-  public void process(Exchange exchange) throws Exception {
+  public void process(Exchange exchange) {
     exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.TRUE);
 //    log.info("PLUGINS: id="+exchange.getExchangeId()+" file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class));
     if (plugins == null || plugins.size() == 0) {
@@ -41,14 +45,19 @@ public class PluginsProcessor implements Processor {
           exchange.getIn().getHeader(Exchange.FILE_NAME).toString(),
           exchange.getIn().getBody(InputStream.class),
           exchange.getIn().getHeaders());
+      ArrayList<File> filesToDelete = new ArrayList<>(); //can contain Files and Strings
       for (Plugin plugin : plugins) {
         last = plugin;
         InputStream is = plugin.processFile(metadata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
         if (is != null) {
           log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
           metadata.is = is;
+          //broken Collections.copy((List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER), filesToDelete);
+          for (File f : (List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER)) {
+            filesToDelete.add(f);
+          }
         } else {
-          log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT file: "+metadata.filename);
+          log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT CHANGE file: "+metadata.filename);
         }
         if (metadata.headers != null) {
           exchange.getIn().setHeaders(metadata.headers);
@@ -58,6 +67,12 @@ public class PluginsProcessor implements Processor {
       }
       exchange.getIn().setBody(metadata.is);
       exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.TRUE);
+      for (File f : filesToDelete) {
+        if (!f.delete()) {
+          log.warn("PluginProcessor: problem while deleting temp plugin files: cannot delete file=%s", f.getAbsolutePath());
+          f.deleteOnExit();
+        } else log.info("PluginProcessor: temp file deleted name=%s", f.getAbsolutePath());
+      }
     } catch (Exception e) {
       log.error("["+exchange.getIn().getHeader(MID)+"]"+" Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);
       exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.FALSE);

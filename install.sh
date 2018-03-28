@@ -1,7 +1,7 @@
 set -e
 
 dir="/usr/share/MailSpider"
-version="1.7"
+version="1.8"
 echo Installing version: $version
 echo To change version edit 'install.sh'
 
@@ -11,6 +11,8 @@ if [ ! -d "$dir" ]; then
   sudo mkdir $dir
   sudo chown mailspider:mailspider $dir
 fi
+
+#todo check for file existed and add flag to override/upgrade
 
 ./jarconfig.sh $version
 cp MailSpider-$version-configs.jar $dir

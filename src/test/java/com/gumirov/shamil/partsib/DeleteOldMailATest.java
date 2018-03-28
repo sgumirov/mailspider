@@ -3,6 +3,8 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.AllMailRetriever;
+import com.gumirov.shamil.partsib.util.UnseenRetriever;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.ServerSetupTest;
@@ -58,7 +60,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   @Override
   public void waitBeforeAssert() {
     try {
-      Thread.sleep(60000);
+      Thread.sleep(30000);
       log.info("Sleeped well. Waking up.");
     } catch (InterruptedException e) {
       log.error("Cannot sleep", e);
@@ -67,10 +69,12 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
 
   @Override
   public void assertConditions() throws Exception {
+    Message[] messages;
+
     UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
-    Message[] messages = unseenRetriever.getMessages(login, pwd);
+    messages = unseenRetriever.getMessages(login, pwd);
     log.info("Number of Unseen messages left in mailbox: "+messages.length);
-    assertEquals(0, messages.length);
+    assertEquals(2, messages.length);
     unseenRetriever.close();
 
     AllMailRetriever allRetriever = new AllMailRetriever(greenMail.getImap());
@@ -101,8 +105,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   @Override
   public Endpoint getEmailEndpoint() {
     Endpoint email = new Endpoint();
-    email.id = "Test-EMAIL-01";
-
+    email.id = getEndpointName();
     email.url = imapUrl;
     email.user = login;
     email.pwd = pwd;
@@ -112,11 +115,6 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
     email.delay = "1000";
 
     return email;
-  }
-
-  @Override
-  public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
-    super.setupHttpMock();
   }
 
   @Override

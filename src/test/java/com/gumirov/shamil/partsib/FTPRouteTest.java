@@ -61,7 +61,7 @@ public class FTPRouteTest extends CamelTestSupport {
     AdviceWithRouteBuilder mockresult = new AdviceWithRouteBuilder() {
 
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         // mock the for testing
         weaveById("outputprocessor").replace().to(mockEndpoint);
       }
@@ -91,10 +91,10 @@ public class FTPRouteTest extends CamelTestSupport {
   }
 
   @Override
-  protected RoutesBuilder createRouteBuilder() throws Exception {
+  protected RoutesBuilder createRouteBuilder() {
     builder = new MainRouteBuilder(config){
       @Override
-      public Endpoints getEndpoints() throws IOException {
+      public Endpoints getEndpoints() {
         Endpoints e = new Endpoints();
         e.ftp = new ArrayList<Endpoint>();
         Endpoint ftp = new Endpoint();

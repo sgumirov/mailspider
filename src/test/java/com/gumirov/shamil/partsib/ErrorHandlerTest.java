@@ -1,5 +1,6 @@
 package com.gumirov.shamil.partsib;
 
+import com.gumirov.shamil.partsib.util.AllMailRetriever;
 import com.gumirov.shamil.partsib.util.SkipMessageException;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
@@ -59,7 +60,7 @@ public class ErrorHandlerTest extends CamelTestSupport {
   }
 
   @Override
-  protected RoutesBuilder createRouteBuilder() throws Exception {
+  protected RoutesBuilder createRouteBuilder() {
     return new RouteBuilder() {
       @Override
       public void configure() throws Exception {
@@ -81,7 +82,7 @@ public class ErrorHandlerTest extends CamelTestSupport {
                 "&mail.debug=true"/*+
                 "%s"*/,
             imapUrl, URLEncoder.encode(pwd, "UTF-8"), URLEncoder.encode(login, "UTF-8"),
-            15000, 30*24 /*hours, Util.formatParameters(email.parameters)*/);
+            1500, 30*24 /*hours, Util.formatParameters(email.parameters)*/);
 
         onException(SkipMessageException.class).process(new MyErrorHandler()).id("myerrorhandler").
             handled(true).

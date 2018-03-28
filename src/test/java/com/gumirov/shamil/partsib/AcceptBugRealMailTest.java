@@ -40,7 +40,7 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
+  public void beforeLaunch(String mockRouteName, String mockAfterId) {
     //super.beforeLaunch();
   }
 
@@ -68,13 +68,13 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   @Override
   public Endpoint getEmailEndpoint() {
     Endpoint endp = new Endpoint();
-    endp.id=getEndpointName();
     Properties p = new Properties();
     try {
       p.load(getClass().getClassLoader().getResourceAsStream("gmail_password.properties"));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+    endp.id = getEndpointName();
     endp.pwd = p.getProperty("pwd");
     endp.user = p.getProperty("user");
     endp.url = p.getProperty("host");

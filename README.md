@@ -5,7 +5,8 @@ The processing route has endpoints (ftp, http, email), plugins and output (now i
 HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
-- Version 1.8: Adding feature: email purge time period
+- Version 1.9: Lots number of small changes related to Plugins API, plugins pipeline and AT. Javadocs added.
+- Version 1.8: Added features: periodic notifications, old mail delete (30 days). Added plugins cleanup. Automatic tests improved.
 - Version 1.7: Moved to new maven dependencies (extracted mailspider-base, added test runtime dependency)
 - Version 1.6a: Incompatible changes: extracted plugin-related interfaces into separate project (Mailspider-Base). Added EncodingTest.
 - Version 1.5: Added support for quotes in rules. Added 'filerules' for tagging separate attachments. 
@@ -19,6 +20,49 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 - Version 1.2. Deployed with pricehook tagging.
 - Version 1.1. An officially deployed at the customer installation.
 
+# Delete old mail
+
+Added in 1.8
+
+Added option of passing on pipeline when plugin throws an exception. Previously when plugin thrown an exception the pipeline
+just ignored that. Now there's an option to stop pipeline message passing on plugin exception. Configured by the following 
+config key, default value false:
+```
+plugin.pass.when.error=false
+```
+
+Purges old mail from email account.
+Configured in main config by properties:
+```
+delete_old_mail.enabled=true
+#how many days to keep
+delete_old_mail.keep.days=30
+#period of check for mail to delete in hours (recommended value: 24
+delete_old_mail.check_period.hours=24
+```
+
+# Notifications
+
+Added in 1.8
+
+MailSpider sends email to specified address once in period when processing is in progress. If no emails are processed
+then notifications are stopped. This could be in case of no incoming email (which is fine) or something is wrong like
+no access to email or MailSpider process is dead for some of the reasons.
+
+New config file notification.properties is required now. Structure is following:
+```
+notification.period=300000
+email.from=partsibprice@yahoo.com
+email.to=partsibprice@yahoo.com
+email.uri=smtps://smtp.mail.yahoo.com:465?username=partsibprice@yahoo.com&password=xxxxxxxxx&debugMode=true
+```
+
+Main config requires location of notification config now:
+```
+#notification config locations
+notification.config=notification.properties
+```
+
 # Messages tracing in log
 
 Camel tracing option is managed by "tracing" boolean config value. Tracing is enabled if not specified (this to be changed in
@@ -26,9 +70,11 @@ Camel tracing option is managed by "tracing" boolean config value. Tracing is en
 
 # Scripts
 
-Added systemd script called mailspider.service (see systemd docs on how to add service).
+Add systemd script called mailspider.service (see systemd docs on how to add service).
 
-Added upgrade.sh which does the following (and if ANY step fails script stops!):
+Run install.sh to install/upgrade (warning: overrides existing).
+
+Added upgrade.sh which does the following (if ANY step fails script stops):
 - git pull, compiles sources and builds single jar (without configs!)
 - jars configs
 - copies service and config jars into /usr/share/mailspider/
@@ -125,7 +171,7 @@ The file extension list to accept is defined in config parameter 'file.extension
 a list of comma-separated extensions without dots. See example. 
 To disable set empty value. 
 
-# Email filtering syntax
+# Email filtering rules syntax
 
 The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS ACCEPTED. The config file is loaded
  from file with filename specified in main config's key 'email.accept.rules.config.filename'.
@@ -253,7 +299,6 @@ See section 'filerules' in example below. Note that double-quotes could be escap
 
 # Tests
 
-Unit tests are OK to run any time with 'mvn tests' command. They all must pass. Known issue: AT could fail due to 
-high cpu/io load of server. As about AT refer to the source code. Integration tests require external setup are excluded 
-from execution using @Ignore.
+All tests are OK to run any time with 'mvn tests' command. They all MUST pass. Integration tests that require external 
+setup are excluded from execution using @Ignore. Basically they are development ones.
 

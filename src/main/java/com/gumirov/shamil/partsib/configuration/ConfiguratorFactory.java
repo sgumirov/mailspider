@@ -32,7 +32,7 @@ public class ConfiguratorFactory {
     //fully qualified, comma separated list of classes to use, in order of execution
     kv.put("plugins.classes", "");
 
-    kv.put("output.url", "http://im.mad.gd/2.php");
+    kv.put("output.url", "http://127.0.0.1:8080/");
 
     kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
     kv.put("email.accept.rules.config.filename", "target/classes/email_accept_rules.json");
