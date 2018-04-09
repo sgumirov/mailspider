@@ -323,7 +323,6 @@ public class MainRouteBuilder extends RouteBuilder {
 
       //email protocol
       if (config.is("email.enabled")) {
-
         // ===== prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
         ArrayList<EmailAcceptRule> rules = getEmailAcceptRules();
@@ -351,7 +350,6 @@ public class MainRouteBuilder extends RouteBuilder {
         System.setProperty("mail.mime.decodetext.strict", "false");
 
         for (Endpoint email : endpoints.email) {
-
           String url = format(
                   "%s?password=%s" +
                   "&username=%s" +
@@ -368,8 +366,11 @@ public class MainRouteBuilder extends RouteBuilder {
                   "&mail.imaps.partialfetch=false"+
                   "&mail.debug=true"+
                   "%s",
-              addProtocolPrefix(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
+              addProtocolPrefix(email.url),
+              URLEncoder.encode(email.pwd, "UTF-8"),
+              URLEncoder.encode(email.user, "UTF-8"),
               email.delay, Util.formatParameters(email.parameters));
+
           //set ours MailBinding implementation
           log.info("Email endpoint URL: "+Util.removeSensitiveData(url, "password"));
           MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
@@ -378,15 +379,19 @@ public class MainRouteBuilder extends RouteBuilder {
           if (deleteOldMailEnabled)
             createDeleteOldMailPath(email, deleteOldMailAfterDays);
 
-          from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
+          EndpointSpecificUrl eurl = new EndpointSpecificUrl(email);
 
-          from("direct:emailreceived").routeId("received-"+email.id).
+          from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).
+              to(eurl.apply("direct:emailreceived"));
+
+          from(eurl.apply("direct:emailreceived")).routeId("received-"+email.id).
             multicast().parallelProcessing().
               to(
-                  "direct:processemail",
-                  "direct:notification");
+                  eurl.apply("direct:processemail"),
+                  eurl.apply("direct:notification")
+              );
 
-          from("direct:notification").routeId("notification-"+email.id).
+          from(eurl.apply("direct:notification")).routeId("notification-"+email.id).
             process(notificationProcessor).id("notification-processor").
             choice().
               when(exchange -> ((boolean) exchange.getIn().getHeader(NotificationProcessor.SKIP_NOTIFICATION, false))).
@@ -395,7 +400,7 @@ public class MainRouteBuilder extends RouteBuilder {
             log("Sending notification").id("notification-sender-log").
             to(notificationUrl).id("notification-sender");
 
-          from("direct:processemail").
+          from(eurl.apply("direct:processemail")).
             process(exchange -> {
               String s;
               if (null != (s = exchange.getIn().getHeader("Subject", String.class)))

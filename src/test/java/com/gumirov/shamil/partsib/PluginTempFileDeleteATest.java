@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.plugins.FileMetaData;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.junit.Test;
 import org.slf4j.Logger;
 
@@ -51,7 +52,8 @@ public class PluginTempFileDeleteATest
     //send 2 messages, expect 1 notification
     launch("acceptedmail", "taglogger",
         Arrays.asList("TAG", "TAG"),
-        null, 2, "direct:emailreceived",
+        null, 2,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         new EmailMessage("Price", "office@dinamikasveta.ru", attachments),
         new EmailMessage("Price", "office@dinamikasveta.ru", attachments)
     );

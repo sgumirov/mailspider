@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.apache.camel.component.direct.DirectEndpoint;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,7 +33,8 @@ public class MessageBindingSuiteUnitTest extends AbstractMailAutomationTest {
   public void test() throws Exception {
     launch("acceptedmail", "taglogger",
         Arrays.asList("977.0.msk.2"),
-        null, 1, "direct:emailreceived",
+        null, 1,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         createMessages()
     );
   }

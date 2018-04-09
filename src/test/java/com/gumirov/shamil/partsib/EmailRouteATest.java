@@ -37,7 +37,8 @@ import java.util.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
- * Automation FTP endpoint test with local FTP daemon
+ * Automation endpoint test with local daemon.
+ * This is first generation test. <br/>TODO @shamilg rewrite it using {@link AbstractMailAutomationTest}
  */
 public class EmailRouteATest extends CamelTestSupport {
 

@@ -2,6 +2,7 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.Util;
 import com.partsib.mailspider.plugins.ExcelToCsvConverterPlugin;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import java.util.*;
  * @author Shamil@Gumirov.com
  * Copyright (c) 2017 by Shamil Gumirov.
  */
-public class EncodingTest extends AbstractMailAutomationTest {
+public class EncodingATest extends AbstractMailAutomationTest {
   @Test
   public void test() throws Exception {
     Map<String, DataHandler> attachment = new HashMap<>();
@@ -42,7 +43,8 @@ public class EncodingTest extends AbstractMailAutomationTest {
 
     launch("acceptedmail", "taglogger",
         Collections.singletonList(tag),
-        null, 1, "direct:emailreceived",
+        null, 1,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         new EmailMessage("subj", "natalia.sh@ivers.ru", attachment)
     );
   }

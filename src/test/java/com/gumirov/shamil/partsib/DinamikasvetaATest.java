@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -18,7 +19,8 @@ public class DinamikasvetaATest extends AbstractMailAutomationTest {
   public void test() throws Exception {
     launch("acceptedmail", "taglogger",
         Collections.singletonList("982.0.lamps"),
-        null, 1, "direct:emailreceived",
+        null, 1,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         new RawEmailMessage(getClass().getClassLoader().getResourceAsStream("13jan0.txt"))
     );
   }

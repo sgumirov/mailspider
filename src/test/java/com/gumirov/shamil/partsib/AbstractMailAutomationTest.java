@@ -31,8 +31,9 @@ import java.util.Properties;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
- * Abstract AT.
- * By default expects at least 1 notification.
+ * Abstract AT.<br/>
+ * By default expects at least 1 notification. <br/>
+ * Does not contain {@link com.icegreen.greenmail.util.GreenMail} mail mock server.
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   private final int httpPort = 8080;
@@ -82,6 +83,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   @Produce(uri = "direct:start")
   protected ProducerTemplate template;
+
   private AttachmentVerifier attachmentVerifier;
   private int expectNumTotal;
 
@@ -101,13 +103,14 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    * @param mockAfterId
    */
   public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
-    //remove source imap endpoint
+    //remove source imap endpoint:
     context.getRouteDefinition("source-"+getEndpointName()).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
       public void configure() {
         replaceFromWith("direct:none");
       }
     });
+
     setupNotificationMock();
     setupHttpMock();
     setupDestinationMock(mockRouteName, mockAfterId);
@@ -177,7 +180,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     context.setTracing(isTracing());
     context.start();
 
-    if (toSend != null) sendMessages(toSend);
+    if (toSend != null)
+      sendMessages(toSend);
     waitBeforeAssert();
     assertConditions();
     log.info("Test PASSED: " + getClass().getSimpleName());
@@ -255,8 +259,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    */
   public void sendMessages(Map<EmailMessage, String> toSend) {
     for (EmailMessage m : toSend.keySet()) {
-      HashMap h = new HashMap(){{put("Subject", m.subject); put("From", m.from);}};
-      template.send(toSend.get(m), exchange -> {
+      HashMap<String, Object> h = new HashMap() {{put("Subject", m.subject); put("From", m.from);}};
+      template.send(/*start endpoint id*/toSend.get(m), exchange -> {
         exchange.getIn().setHeaders(h);
         for (String fname : m.attachments.keySet()) {
           exchange.getIn().addAttachment(fname, m.attachments.get(fname));
@@ -418,8 +422,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
         e.ftp=new ArrayList<>();
         e.http=new ArrayList<>();
         e.email = new ArrayList<>();
-        Endpoint email = getEmailEndpoint();
-        e.email.add(email);
+        e.email.addAll(getEmailEndpoints());
         return e;
       }
 
@@ -471,17 +474,21 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     }
   }
 
+
+
   /**
    * Override this if you use external server
    */
-  public Endpoint getEmailEndpoint(){
+  public ArrayList<Endpoint> getEmailEndpoints(){
     Endpoint email = new Endpoint();
     email.id = getEndpointName();
     email.url = "imap.example.com";
     email.user = "email@a.com";
     email.pwd = "pwd";
     email.delay = "5000";
-    return email;
+    return new ArrayList<Endpoint>(){{
+      add(email);
+    }};
   }
 
   /**

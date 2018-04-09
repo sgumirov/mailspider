@@ -4,6 +4,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.AllMailRetriever;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.UnseenRetriever;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
@@ -16,7 +17,8 @@ import javax.mail.Message;
 import java.util.*;
 
 /**
- * @author: Shamil@Gumirov.com
+ * Automated test for deletion of old messages.
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class DeleteOldMailATest extends AbstractMailAutomationTest {
@@ -31,7 +33,8 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   public void test() throws Exception {
     launch("acceptedmail", "taglogger",
         Collections.nCopies(1, "944.0.main"),
-        null, 1, "direct:emailreceived",
+        null, 1,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         new EmailMessage("subj1", "no@ivers.ru",
             new Date(System.currentTimeMillis() - MainRouteBuilder.DAY_MILLIS),
             makeAttachment("a1.csv")),
@@ -63,7 +66,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
       Thread.sleep(30000);
       log.info("Sleeped well. Waking up.");
     } catch (InterruptedException e) {
-      log.error("Cannot sleep", e);
+      log.error("Cannot sleep. Insomnia?", e);
     }
   }
 
@@ -103,18 +106,18 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public Endpoint getEmailEndpoint() {
+  public ArrayList<Endpoint> getEmailEndpoints() {
     Endpoint email = new Endpoint();
     email.id = getEndpointName();
     email.url = imapUrl;
     email.user = login;
     email.pwd = pwd;
-
     email.parameters = new HashMap<>();
     //email.parameters.put("delete", "true");
     email.delay = "1000";
-
-    return email;
+    return new ArrayList<Endpoint>(){{
+      add(email);
+    }};
   }
 
   @Override
