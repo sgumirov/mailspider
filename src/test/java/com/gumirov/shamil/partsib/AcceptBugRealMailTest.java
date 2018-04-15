@@ -75,7 +75,7 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    endp.id = getEndpointName();
+    endp.id = p.getProperty("id");
     endp.pwd = p.getProperty("pwd");
     endp.user = p.getProperty("user");
     endp.url = p.getProperty("host");

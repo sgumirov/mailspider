@@ -103,26 +103,31 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    * @param mockAfterId
    */
   public void beforeLaunch(String mockRouteName, String mockAfterId) throws Exception {
-    //remove source imap endpoint:
-    context.getRouteDefinition("source-"+getEndpointName()).adviceWith(context, new AdviceWithRouteBuilder() {
-      @Override
-      public void configure() {
-        replaceFromWith("direct:none");
-      }
-    });
-
-    setupNotificationMock();
+    for (Endpoint e : getEmailEndpoints()) {
+      //remove source imap endpoints:
+      removeSourceEndpoints(e.id);
+      setupNotificationMock(e.id);
+    }
     setupHttpMock();
     setupDestinationMock(mockRouteName, mockAfterId);
   }
 
-  public void setupNotificationMock() throws Exception {
+  private void removeSourceEndpoints(String endpointId) throws Exception {
+    context.getRouteDefinition("source-" + endpointId).adviceWith(context, new AdviceWithRouteBuilder() {
+      @Override
+      public void configure() {
+        replaceFromWith("direct:none-"+endpointId);
+      }
+    });
+  }
+
+  public void setupNotificationMock(String endpointId) throws Exception {
     //mock notifications
-    context.getRouteDefinition("notification-"+getEndpointName()).adviceWith(context, new AdviceWithRouteBuilder() {
+    context.getRouteDefinition("notification-"+endpointId).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
       public void configure() {
         //prevent real notification from being sent
-        weaveById("notification-sender").replace().to(mockNotificationEndpoint);
+        weaveById("notification-sender-"+endpointId).replace().to(mockNotificationEndpoint);
       }
     });
   }
@@ -148,6 +153,14 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     return this;
   }
 
+  public void launch(List<String> expectNames, List<String> expectTags, int expectNumTotal,
+                     @Nullable Map<EmailMessage, String> msgEndpoints)
+      throws Exception
+  {
+    launch("acceptedmail", "taglogger", expectTags, expectNames, expectNumTotal,
+        msgEndpoints);
+  }
+
   /**
    * Call this to start test.
    * More useful args list. Just proxy to another launch().
@@ -164,7 +177,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   public void launch(String mockRouteName, String mockAfterId, List<String> expectTags, List<String> expectNames,
-              int expectNumTotal, @Nullable Map<EmailMessage, String> toSend) throws Exception
+              int expectNumTotal, @Nullable Map<EmailMessage, String> msgEndpoints) throws Exception
   {
     beforeLaunch(mockRouteName, mockAfterId);
 
@@ -180,8 +193,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     context.setTracing(isTracing());
     context.start();
 
-    if (toSend != null)
-      sendMessages(toSend);
+    if (msgEndpoints != null)
+      sendMessagesToEndpoints(msgEndpoints);
     waitBeforeAssert();
     assertConditions();
     log.info("Test PASSED: " + getClass().getSimpleName());
@@ -257,10 +270,10 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    * Override this in subclasses to change default sending behaviour.
    * @param toSend messages list to send.
    */
-  public void sendMessages(Map<EmailMessage, String> toSend) {
+  public void sendMessagesToEndpoints(Map<EmailMessage, String> toSend) {
     for (EmailMessage m : toSend.keySet()) {
       HashMap<String, Object> h = new HashMap() {{put("Subject", m.subject); put("From", m.from);}};
-      template.send(/*start endpoint id*/toSend.get(m), exchange -> {
+      template.send(toSend.get(m), exchange -> {
         exchange.getIn().setHeaders(h);
         for (String fname : m.attachments.keySet()) {
           exchange.getIn().addAttachment(fname, m.attachments.get(fname));
@@ -481,7 +494,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    */
   public ArrayList<Endpoint> getEmailEndpoints(){
     Endpoint email = new Endpoint();
-    email.id = getEndpointName();
+    email.id = "MockMailEndpoint";
     email.url = "imap.example.com";
     email.user = "email@a.com";
     email.pwd = "pwd";
@@ -489,13 +502,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     return new ArrayList<Endpoint>(){{
       add(email);
     }};
-  }
-
-  /**
-   * Use this method's return value when redefining route or override this method.
-   */
-  public String getEndpointName() {
-    return this.getClass().getSimpleName();
   }
 
   public abstract List<PricehookIdTaggingRule> getTagRules();

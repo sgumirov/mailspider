@@ -3,7 +3,7 @@ package com.gumirov.shamil.partsib.util;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 
 /**
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class EndpointSpecificUrl {

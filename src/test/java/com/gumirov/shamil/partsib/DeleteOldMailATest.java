@@ -108,7 +108,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   @Override
   public ArrayList<Endpoint> getEmailEndpoints() {
     Endpoint email = new Endpoint();
-    email.id = getEndpointName();
+    email.id = "delete_mail_test_endpoint";
     email.url = imapUrl;
     email.user = login;
     email.pwd = pwd;
@@ -127,7 +127,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
 
   //send mail via greenmail
   @Override
-  public void sendMessages(Map<EmailMessage, String> toSend) {
+  public void sendMessagesToEndpoints(Map<EmailMessage, String> toSend) {
     GreenMailUser user = greenMail.setUser(login, to, pwd);
     //we ignore endpoint name here as we use greenMail
     for (EmailMessage m : toSend.keySet()) {

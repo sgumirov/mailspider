@@ -308,16 +308,16 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
 
   protected Endpoints getEmailEndpoints() {
     Endpoints e = new Endpoints();
-    e.ftp=new ArrayList<>();
-    e.http=new ArrayList<>();
+    e.ftp = new ArrayList<>();
+    e.http = new ArrayList<>();
     e.email = new ArrayList<>();
     //imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
     Endpoint email = new Endpoint();
-    email.id=ENDPID;
-    email.url= "imap.example.com";
-    email.user="email@a.com";
-    email.pwd="pwd";
-    email.delay="5000";
+    email.id = ENDPID;
+    email.url = "imap.example.com";
+    email.user = "email@a.com";
+    email.pwd = "pwd";
+    email.delay = "5000";
     e.email.add(email);
     return e;
   }

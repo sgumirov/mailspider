@@ -11,7 +11,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2017 by Shamil Gumirov.
  */
 public class Kumir54Test extends AbstractMailAutomationTest {
