@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -16,7 +17,8 @@ public class YahooRawMailTest extends AbstractMailAutomationTest {
   public void test() throws Exception {
     launch("acceptedmail", "taglogger",
         Arrays.asList("977.0.msk"),
-        null, 1, "direct:emailreceived",
+        null, 1,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         new RawEmailMessage(getClass().getClassLoader().getResourceAsStream("double_quotes_bad.eml"))
     );
   }

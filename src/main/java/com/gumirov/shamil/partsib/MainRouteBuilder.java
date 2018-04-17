@@ -52,7 +52,6 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
-  public static final String SOURCE_ID = "server.source";
   public static final long HOUR_MILLIS = 1000 * 60 * 60; //1 hour in millis
   public static final long DAY_MILLIS = HOUR_MILLIS * 24; //1 day in millis
   public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
@@ -323,7 +322,6 @@ public class MainRouteBuilder extends RouteBuilder {
 
       //email protocol
       if (config.is("email.enabled")) {
-
         // ===== prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
         ArrayList<EmailAcceptRule> rules = getEmailAcceptRules();
@@ -351,7 +349,6 @@ public class MainRouteBuilder extends RouteBuilder {
         System.setProperty("mail.mime.decodetext.strict", "false");
 
         for (Endpoint email : endpoints.email) {
-
           String url = format(
                   "%s?password=%s" +
                   "&username=%s" +
@@ -368,8 +365,11 @@ public class MainRouteBuilder extends RouteBuilder {
                   "&mail.imaps.partialfetch=false"+
                   "&mail.debug=true"+
                   "%s",
-              addProtocolPrefix(email.url), URLEncoder.encode(email.pwd, "UTF-8"), URLEncoder.encode(email.user, "UTF-8"),
+              addProtocolPrefix(email.url),
+              URLEncoder.encode(email.pwd, "UTF-8"),
+              URLEncoder.encode(email.user, "UTF-8"),
               email.delay, Util.formatParameters(email.parameters));
+
           //set ours MailBinding implementation
           log.info("Email endpoint URL: "+Util.removeSensitiveData(url, "password"));
           MailEndpoint mailEndpoint = getContext().getEndpoint(url, MailEndpoint.class);
@@ -378,31 +378,35 @@ public class MainRouteBuilder extends RouteBuilder {
           if (deleteOldMailEnabled)
             createDeleteOldMailPath(email, deleteOldMailAfterDays);
 
-          from(mailEndpoint).id(SOURCE_ID).routeId("source-"+email.id).to("direct:emailreceived");
+          EndpointSpecificUrl eurl = new EndpointSpecificUrl(email);
 
-          from("direct:emailreceived").routeId("received-"+email.id).
+          from(mailEndpoint).id("server.source-"+email.id).routeId("source-"+email.id).
+              to(eurl.apply("direct:emailreceived"));
+
+          from(eurl.apply("direct:emailreceived")).routeId("received-"+email.id).
             multicast().parallelProcessing().
               to(
-                  "direct:processemail",
-                  "direct:notification");
+                  eurl.apply("direct:processemail"),
+                  eurl.apply("direct:notification")
+              );
 
-          from("direct:notification").routeId("notification-"+email.id).
-            process(notificationProcessor).id("notification-processor").
+          from(eurl.apply("direct:notification")).routeId("notification-"+email.id).
+            process(notificationProcessor).id("notification-processor-"+email.id).
             choice().
               when(exchange -> ((boolean) exchange.getIn().getHeader(NotificationProcessor.SKIP_NOTIFICATION, false))).
                 stop().endChoice().
             end().
-            log("Sending notification").id("notification-sender-log").
-            to(notificationUrl).id("notification-sender");
+            log("Sending notification").id("notification-sender-log-"+email.id).
+            to(notificationUrl).id("notification-sender-"+email.id);
 
-          from("direct:processemail").
+          from(eurl.apply("direct:processemail")).
             process(exchange -> {
               String s;
               if (null != (s = exchange.getIn().getHeader("Subject", String.class)))
                 exchange.getIn().setHeader("Subject", MimeUtility.decodeText(s.trim()).replaceAll(" +", " "));
               if (null != (s = exchange.getIn().getHeader("From", String.class)))
                 exchange.getIn().setHeader("From", MimeUtility.decodeText(s.trim()).replaceAll(" +", " "));
-            }).id("HeadersMimeDecoder").
+            }).id("HeadersMimeDecoder-"+email.id).
             choice().
               when(emailAcceptPredicate).
                 log(LoggingLevel.INFO, "Accepted (primary) email from: '$simple{in.header.From}' with Subject: '$simple{in.header.Subject}' sent at: '$simple{in.header.Date}'").

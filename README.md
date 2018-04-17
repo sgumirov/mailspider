@@ -5,6 +5,7 @@ The processing route has endpoints (ftp, http, email), plugins and output (now i
 HTTP POST with 'application/octet-stream' content type).
 
 # Version status and important changes
+- Version 1.10: Multiple simultaneous email endpoints AT added.
 - Version 1.9: Lots number of small changes related to Plugins API, plugins pipeline and AT. Javadocs added.
 - Version 1.8: Added features: periodic notifications, old mail delete (30 days). Added plugins cleanup. Automatic tests improved.
 - Version 1.7: Moved to new maven dependencies (extracted mailspider-base, added test runtime dependency)

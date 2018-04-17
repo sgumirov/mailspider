@@ -5,20 +5,19 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetup;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.Properties;
@@ -64,7 +63,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
   public void test() throws Exception {
     launch("acceptedmail", "taglogger",
         Arrays.asList("quotedSupplier", "goodSupplier"), null, 2,
-        "direct:emailreceived",
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().email.get(0)), //send through first endpoint
         new EmailMessage("\"quoted\" string", Collections.singletonList("a")),
         new EmailMessage("good", Collections.singletonList("b")),
         new EmailMessage("to be rejected", Collections.singletonList("b")),
@@ -80,7 +79,9 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         new HashMap<EmailMessage, String>(){{
           //right: tests double space
           put(new EmailMessage("Прайс-лист ООО \"Мастер    Сервис\"  наличие Новосибирск",
-              Collections.singletonList("a")), "direct:emailreceived");
+              Collections.singletonList("a")),
+              EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().email.get(0)) //send through first endpoint
+          );
         }}
     );
   }
@@ -93,7 +94,9 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         0,
         new HashMap<EmailMessage, String>(){{
           put(new EmailMessage("Прайс-лист ООО 'Мастер Сервис' наличие Новосибирск",
-              Collections.singletonList("b")), "direct:emailreceived");
+              Collections.singletonList("b")),
+              EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().email.get(0))
+          );
         }}
     );
   }
@@ -225,11 +228,14 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       put("From", "@");
     }};
     InputStream is = new ByteArrayInputStream(new byte[]{'1','2','3','4','5','6','7','8','9','0'});
-    template.send("direct:emailreceived", exchange -> {
+
+    //send through first endpoint
+    String endpointUri = EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().email.get(0));
+    template.send(endpointUri, exchange -> {
       exchange.getIn().setHeaders(headers1);
       exchange.getIn().addAttachment(fnames.get(0), new DataHandler(is, "text/plain"));
     });
-    template.send("direct:emailreceived", exchange -> {
+    template.send(endpointUri, exchange -> {
       exchange.getIn().setHeaders(headers1);
       exchange.getIn().addAttachment(fnames.get(1), new DataHandler(is, "text/plain"));
     });
@@ -238,11 +244,11 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       put("From", "@");
       put("Subject", "good");
     }};
-    template.send("direct:emailreceived", exchange -> {
+    template.send(endpointUri, exchange -> {
       exchange.getIn().setHeaders(headers2);
       exchange.getIn().addAttachment(fnames.get(2), new DataHandler(is, "text/plain"));
     });
-    template.send("direct:emailreceived", exchange -> {
+    template.send(endpointUri, exchange -> {
       exchange.getIn().setHeaders(headers2);
       exchange.getIn().addAttachment(fnames.get(3), new DataHandler(is, "text/plain"));
     });
@@ -294,22 +300,26 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
 
       @Override
       public Endpoints getEndpoints() {
-        Endpoints e = new Endpoints();
-        e.ftp=new ArrayList<>();
-        e.http=new ArrayList<>();
-        e.email = new ArrayList<Endpoint>();
-        //imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
-        Endpoint email = new Endpoint();
-        email.id=ENDPID;
-        email.url= "imap.example.com";
-        email.user="email@a.com";
-        email.pwd="pwd";
-        email.delay="5000";
-        e.email.add(email);
-        return e;
+        return getEmailEndpoints();
       }
     };
     return builder;
+  }
+
+  protected Endpoints getEmailEndpoints() {
+    Endpoints e = new Endpoints();
+    e.ftp = new ArrayList<>();
+    e.http = new ArrayList<>();
+    e.email = new ArrayList<>();
+    //imaps://imap.mail.ru?password=gfhjkm12&username=sh.roller%40mail.ru&consumer.delay=10000&delete=false&fetchSize=1").
+    Endpoint email = new Endpoint();
+    email.id = ENDPID;
+    email.url = "imap.example.com";
+    email.user = "email@a.com";
+    email.pwd = "pwd";
+    email.delay = "5000";
+    e.email.add(email);
+    return e;
   }
 
   public List<PricehookIdTaggingRule> getTagRules() {
@@ -326,7 +336,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     r2.header = "Subject";
     r2.contains = "good";
     r2.pricehookid = "goodSupplier";
-    r2.filerules = Arrays.asList(
+    r2.filerules = Collections.singletonList(
         new AttachmentTaggingRule("2", "filerule_2_2")
     );
     r3.header = "Subject";

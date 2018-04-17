@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
@@ -9,7 +10,7 @@ import java.util.*;
 /**
  * NullPointerException in log is expected for this test.
  *
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class NotificationsATest extends AbstractMailAutomationTest {
@@ -22,7 +23,8 @@ public class NotificationsATest extends AbstractMailAutomationTest {
     //send 2 messages, expect 1 notification
     launch("acceptedmail", "taglogger",
         Arrays.asList("982.0.lamps", "982.0.lamps"),
-        null, 2, "direct:emailreceived",
+        null, 2,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         new EmailMessage("Price", "office@dinamikasveta.ru", attachments),
         new EmailMessage("Price", "office@dinamikasveta.ru", attachments)
     );

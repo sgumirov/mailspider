@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.Util;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,9 +24,9 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   @Test
   public void test() throws Exception {
     super.launch("acceptedmail", "taglogger",
-        Arrays.asList("977.0.msk"),
-        null, 1, "direct:emailreceived",
-        null
+      Arrays.asList("977.0.msk"),
+      null, 1,
+      EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)) //send through first endpoint
     );
   }
 
@@ -65,13 +66,12 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public Endpoint getEmailEndpoint() {
+  public ArrayList<Endpoint> getEmailEndpoints() {
     Endpoint endp = new Endpoint();
-    endp.id=getEndpointName();
+    endp.id="test_mail_endpoint";
     Properties p = new Properties();
     try {
       p.load(getClass().getClassLoader().getResourceAsStream("test_mail.properties"));
-//      p.load(getClass().getClassLoader().getResourceAsStream("real_mail.properties"));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -79,7 +79,9 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
     endp.user = p.getProperty("user");
     endp.url = p.getProperty("host");
     endp.delay = "50000";
-    return endp;
+    return new ArrayList<Endpoint>(){{
+      add(endp);
+    }};
   }
 
   @Override

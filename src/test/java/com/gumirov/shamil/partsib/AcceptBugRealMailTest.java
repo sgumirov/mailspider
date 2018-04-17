@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,8 +25,8 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   public void test() throws Exception {
     super.launch("acceptedmail", "taglogger",
         Collections.singletonList("982.0.lamps"),
-        null, 1, "direct:emailreceived",
-        null
+        null, 1,
+        EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0))//send through first endpoint
     );
   }
 
@@ -66,7 +67,7 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public Endpoint getEmailEndpoint() {
+  public ArrayList<Endpoint> getEmailEndpoints() {
     Endpoint endp = new Endpoint();
     Properties p = new Properties();
     try {
@@ -74,12 +75,14 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    endp.id = getEndpointName();
+    endp.id = p.getProperty("id");
     endp.pwd = p.getProperty("pwd");
     endp.user = p.getProperty("user");
     endp.url = p.getProperty("host");
     endp.delay = "50000";
-    return endp;
+    return new ArrayList<Endpoint>(){{
+      add(endp);
+    }};
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.Util;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,7 +23,8 @@ public class DoubleQuotesRawLetterParseUnitTest extends PricehookTagFilterUnitTe
   public void test() throws Exception {
     super.launch("acceptedmail", "taglogger",
       Arrays.asList("master"),
-      null, 1, "direct:emailreceived",
+      null, 1,
+      EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().email.get(0)), //send through first endpoint
       new RawEmailMessage(getClass().getClassLoader().getResourceAsStream("double_quotes_bad.eml"))
     );
   }
