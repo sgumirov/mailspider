@@ -4,7 +4,8 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
-# Version status and important changes, see below some version-specific details
+# Version status and important changes
+See below some version-specific details
 
 - (AT: special chars) 1.11-pre: Added automation test for special chars in mail filter
 - Version 1.10: Multiple simultaneous email endpoints AT added.
