@@ -47,7 +47,7 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("tagrules.json");
+    return loadTagRules("tagrules.json");
   }
 
   @Override

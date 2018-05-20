@@ -2,6 +2,7 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
+import com.gumirov.shamil.partsib.util.RawEmailMessage;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -25,6 +26,6 @@ public class YahooRawMailTest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("partsib_tags_config2.json");
+    return loadTagRules("partsib_tags_config2.json");
   }
 }

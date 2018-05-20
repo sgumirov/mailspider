@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.AttachmentTaggingRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.GreenMailUtils;
 import com.icegreen.greenmail.junit.GreenMailRule;

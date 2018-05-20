@@ -10,6 +10,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.util.AttachmentVerifier;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
 import com.gumirov.shamil.partsib.util.Util;
 import com.sun.istack.Nullable;
@@ -20,8 +21,6 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Rule;
 
 import javax.activation.DataHandler;
-import javax.mail.*;
-import javax.mail.internet.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -203,8 +202,9 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   /**
-   * Override to modify assertion
-   * @throws InterruptedException
+   * Override to modify assertion.
+   * <br/> Note: it's highly recommended to call super.assertConditions() otherwise know exactly what are
+   * you doing!
    */
   public void assertConditions() throws Exception {
     log.info("Expecting {} messages", expectNumTotal);
@@ -224,15 +224,25 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     );
 
     //verify attachments' names
+    Map<String, InputStream> atts = new HashMap<>();
+    Map<String, String> tags = new HashMap<>();
+    List<LoggedRequest> reqs = WireMock.findAll(postRequestedFor(urlPathEqualTo(httpendpoint)));
+    for (LoggedRequest req : reqs) {
+      byte[] b = Base64.getDecoder().decode(req.getHeader("X-Filename"));
+      String fname = new String(b, "UTf-8");
+      String tag = req.getHeader("X-Pricehook");
+      atts.put(fname, new ByteArrayInputStream(req.getBody()));
+      tags.put(fname, tag);
+    }
+    //verify attachments' bodies
     if (attachmentVerifier != null) {
-      Map<String, InputStream> atts = new HashMap<>();
-      List<LoggedRequest> reqs = WireMock.findAll(postRequestedFor(urlPathEqualTo(httpendpoint)));
-      for (LoggedRequest req : reqs) {
-        String fname = req.getHeader("X-Filename");
-        atts.put(fname, new ByteArrayInputStream(req.getBody()));
-      }
-
-      assertTrue(attachmentVerifier.verify(atts));
+      assertTrue(attachmentVerifier.verifyContents(atts));
+      assertTrue(attachmentVerifier.verifyTags(tags));
+    }
+    //print tags
+    log.info("HTTP mock POSTed file names with tags:");
+    for (String fname : tags.keySet()) {
+      log.info(fname + " : " + tags.get(fname));
     }
   }
 
@@ -289,121 +299,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     p.put("email.to", to);
     p.put("email.uri", uri);
     return p;
-  }
-
-  public class RawEmailMessage extends EmailMessage {
-    public RawEmailMessage(InputStream is) throws MessagingException, IOException {
-      super(null);
-      Session ses = Session.getDefaultInstance(new Properties());
-      MimeMessage msg = new MimeMessage(ses, is);
-      subject = msg.getSubject();
-      attachments = new HashMap<>();
-      from = msg.getFrom()[0].toString();
-      String disposition = msg.getDisposition();
-      if (disposition != null && disposition.contains("attachment")){
-        //Extract attachment filename from headers
-        String filename = msg.getFileName();
-        //We need not only main header value, but parameters. They are not parsed my MimeMessage, so we do it here manually
-        String[] headers = {"Content-Type", "Content-type", "Content-Disposition", "Content-disposition"};
-        String[] params = {"name", "filename"};
-        for (int i = 0; filename == null && i < headers.length; ++i){
-          String[] headerValues = msg.getHeader(headers[i]);
-          if (headerValues == null || headerValues.length == 0)
-            continue;
-          for (int z = 0; filename == null && z < headerValues.length; ++z) {
-            for (int j = 0; filename == null && j < params.length; ++j) {
-              if (headers[i].toLowerCase().contains("type")){
-                try {
-                  filename = new ContentType(headerValues[z]).getParameter(params[j]);
-                }catch(ParseException e){
-                  log.debug("cannot parse: header='"+headers[i]+"' val='"+headerValues[z]+"'", e);
-                  continue;
-                }
-              } else {
-                try {
-                  filename = new ContentDisposition(headerValues[z]).getParameter(params[j]);
-                }catch(ParseException e){
-                  log.debug("cannot parse: header='"+headers[i]+"' val='"+headerValues[z]+"'", e);
-                  continue;
-                }
-              }
-            }
-          }
-        }
-        filename = MimeUtility.decodeText(filename);
-        if (filename != null) {
-          DataHandler dh = new DataHandler(msg.getContent(), msg.getContentType());
-          attachments.put(filename, dh);
-        }
-      } else {
-        handleMessage(msg);
-      }
-    }
-
-    public void handleMessage(javax.mail.Message message) throws IOException, MessagingException {
-      Object content = message.getContent();
-      String contentType = message.getContentType();
-      if (content instanceof String ) {
-        throw new RuntimeException("not yet impl");
-      } else if (content instanceof Multipart) {
-        Multipart mp = (Multipart) content;
-        handleMultipart(mp);
-      } else {
-        throw new RuntimeException("not yet impl");
-      }
-    }
-
-    public void handleMultipart(Multipart mp) throws MessagingException, IOException {
-      int count = mp.getCount();
-      for (int i = 0; i < count; i++) {
-        BodyPart bp = mp.getBodyPart(i);
-        Object content = bp.getContent();
-        if (content instanceof String) {
-          attachments.put(bp.getFileName(), new DataHandler(content, bp.getContentType()));
-        } else if (content instanceof InputStream) {
-          attachments.put(bp.getFileName(), new DataHandler(Util.readFully((InputStream) content),
-              bp.getContentType()));
-        } else if (content instanceof javax.mail.Message) {
-          handleMessage((javax.mail.Message) content);
-        } else if (content instanceof Multipart) {
-          handleMultipart((Multipart) content);
-        } else {
-          log.error("Cannot process message content: class=" + content.getClass());
-          throw new RuntimeException("not yet impl");
-        }
-      }
-    }
-  }
-
-  public static class EmailMessage {
-    String subject;
-    Map<String, DataHandler> attachments;
-    public String from;
-    public Date date;
-
-    public EmailMessage(String subject, String from, Date date, Map<String, DataHandler> attachments) {
-      this(subject, from, attachments);
-      this.date = date;
-    }
-
-    public EmailMessage(String subject, String from, Map<String, DataHandler> attachments) {
-      this.subject = subject;
-      this.from = from;
-      this.attachments = attachments;
-    }
-
-    public EmailMessage(String subject, List<String> attachmentNames) {
-      this.subject = subject;
-      this.attachments = new HashMap<>();
-      InputStream is = new ByteArrayInputStream(new byte[]{'1','2','3','4','5','6','7','8','9','0'});
-      for (String fname : attachmentNames) {
-        attachments.put(fname, new DataHandler(is, "text/plain"));
-      }
-    }
-
-    public EmailMessage(String subject) {
-      this.subject = subject;
-    }
   }
 
   @Override
@@ -475,7 +370,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     return rules;
   }
 
-  public static List<PricehookIdTaggingRule> loadTagsFile(String filename) {
+  public static List<PricehookIdTaggingRule> loadTagRules(String filename) {
     try {
       String json = new String(Util.readFully(
           AbstractMailAutomationTest.class.getClassLoader().getResourceAsStream(filename)), "UTF-8");

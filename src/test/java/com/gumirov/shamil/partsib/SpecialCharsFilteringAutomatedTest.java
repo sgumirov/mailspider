@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.AttachmentTaggingRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.junit.Test;
 
@@ -13,9 +14,7 @@ import java.util.*;
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class SpecialCharsFilteringAutomatedTest extends AbstractMailAutomationTest {
-  //pricehook id
   private static final String TAG = "TAG";
-  //file tags
   private static final String TAG1 = "TAG1";
   private static final String TAG2 = "TAG2";
 
@@ -30,41 +29,58 @@ public class SpecialCharsFilteringAutomatedTest extends AbstractMailAutomationTe
     ArrayList<Endpoint> endpoints = getEmailEndpoints();
     final String ENDP1 = EndpointSpecificUrl.apply("direct:emailreceived", endpoints.get(0));
     Map<EmailMessage, String> sendTo = new HashMap<>();
-    sendTo.put(msgs.get(0), ENDP1);
-    sendTo.put(msgs.get(1), ENDP1);
-    launch(names, getExpectTags(names), names.size(), sendTo);
+    for (EmailMessage m : msgs) sendTo.put(m, ENDP1);
+    launch(names, getExpectTags(names), names.size() , sendTo);
   }
 
   private List<String> getExpectTags(List<String> filenames) {
     ArrayList<String> tags = new ArrayList<>();
-    filenames.forEach(s -> {
-      if (s.contains("1")) tags.add(TAG1);
-      if (s.contains("2")) tags.add(TAG2);
-    });
+    tags.add(TAG1);
+    tags.add(TAG2);
+    tags.add(TAG);
     return tags;
   }
 
   private List<EmailMessage> createMessages() {
     ArrayList<EmailMessage> msgs = new ArrayList<>();
-    msgs.add(new EmailMessage("\"Москва\"", "no@ivers.ru",
+    msgs.add(new EmailMessage("Москва.. \"блабла\"", "no@ivers.ru",
         new Date(), makeAttachment("a1.csv")));
-    msgs.add(new EmailMessage("subj2", "no@ivers.ru",
+    msgs.add(new EmailMessage("Москва.. jkfdshfkjdsh () Москва.. (авиа) skjfdndsf", "no@ivers.ru",
         new Date(), makeAttachment("a2.csv")));
+    msgs.add(new EmailMessage("jkfdshfkjdsh () Москва (новосиб) skjfdndsf", "no@ivers.ru",
+        new Date(), makeAttachment("a3.csv")));
     return msgs;
   }
 
-
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
+    ArrayList<PricehookIdTaggingRule> list = new ArrayList<>();
     PricehookIdTaggingRule rule = new PricehookIdTaggingRule();
-    rule.pricehookid = TAG;
+    rule.pricehookid = TAG1;
     rule.id = "id";
     rule.header = "Subject";
-    rule.contains = "\"Москва";
+    rule.contains = "Москва.. \"";
+    list.add(rule);
+    rule = new PricehookIdTaggingRule();
+    rule.pricehookid = TAG2;
+    rule.id = "id";
+    rule.header = "Subject";
+    rule.contains = "Москва.. (авиа)";
     rule.filerules = new ArrayList<AttachmentTaggingRule>(){{
       add(new AttachmentTaggingRule("1", TAG1));
       add(new AttachmentTaggingRule("2", TAG2));
     }};
-    return Collections.singletonList(rule);
+    list.add(rule);
+    rule = new PricehookIdTaggingRule();
+    rule.pricehookid = TAG;
+    rule.id = "id";
+    rule.header = "Subject";
+    rule.contains = "(новосиб)";
+    rule.filerules = new ArrayList<AttachmentTaggingRule>(){{
+      add(new AttachmentTaggingRule("1", TAG1));
+      add(new AttachmentTaggingRule("2", TAG2));
+    }};
+    list.add(rule);
+    return list;
   }
 }

@@ -1,14 +1,12 @@
 package com.gumirov.shamil.partsib;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
+import com.gumirov.shamil.partsib.util.RawEmailMessage;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
  * @author Shamil@Gumirov.com
@@ -28,6 +26,6 @@ public class Kumir54Test extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("prod_rules.json");
+    return loadTagRules("prod_rules.json");
   }
 }

@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.util.AllMailRetriever;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.SkipMessageException;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
@@ -45,9 +46,9 @@ public class ErrorHandlerTest extends CamelTestSupport {
   @Test
   public void testErrorHandling() throws InterruptedException {
     GreenMailUser user = greenMail.setUser(to, to, pwd);
-    MailUtil.sendMessage(user, to, new AbstractMailAutomationTest.EmailMessage("subj",
+    MailUtil.sendMessage(user, to, new EmailMessage("subj",
         to, makeAttachment("a.csv")), greenMail);
-    MailUtil.sendMessage(user, to, new AbstractMailAutomationTest.EmailMessage("Get Gmail for your mobile device",
+    MailUtil.sendMessage(user, to, new EmailMessage("Get Gmail for your mobile device",
         to, makeAttachment("a.csv")), greenMail);
 
     mockEndpoint.expectedMessageCount(1);

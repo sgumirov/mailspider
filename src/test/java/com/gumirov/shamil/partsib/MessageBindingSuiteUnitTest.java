@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.apache.camel.component.direct.DirectEndpoint;
 import org.junit.Ignore;
@@ -26,7 +27,7 @@ public class MessageBindingSuiteUnitTest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("test_tag_rules.json");
+    return loadTagRules("test_tag_rules.json");
   }
 
   @Test

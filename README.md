@@ -4,7 +4,8 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
-# Version status and important changes
+# Version status and important changes, see below some version-specific details
+
 - (AT: special chars) 1.11-pre: Added automation test for special chars in mail filter
 - Version 1.10: Multiple simultaneous email endpoints AT added.
 - Version 1.9: Lots number of small changes related to Plugins API, plugins pipeline and AT. Javadocs added.
@@ -22,7 +23,18 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 - Version 1.2. Deployed with pricehook tagging.
 - Version 1.1. An officially deployed at the customer installation.
 
-Added in 1.8
+### Changes in 1.11
+
+Automation tests are now able to verify tags used for each attachment. Added 2 new tests for BERG-related tags issues 
+(special chars and raw emails against prod tag rules).
+
+### Known issue (as of 1.10)
+
+Delete old mail date parser can fail on some formats, effectively disabling this route of mailbox cleanup.
+
+Readme polished, details added.
+
+### Changes in 1.9
 
 Added option of passing on pipeline when plugin throws an exception. Previously when plugin thrown an exception the pipeline
 just ignored that. Now there's an option to stop pipeline message passing on plugin exception. Configured by the following 
@@ -45,7 +57,7 @@ delete_old_mail.check_period.hours=24
 
 # Notifications
 
-Added in 1.8
+Added in: 1.8
 
 MailSpider sends email to specified address once in period when processing is in progress. If no emails are processed
 then notifications are stopped. This could be in case of no incoming email (which is fine) or something is wrong like
@@ -188,6 +200,8 @@ Letter!
 
 Pricehook ID is a tag send with each file sent via output. It could be either one per email message or per-attachment 
 ID (see below 'Attachment tagging' section for this).
+
+Output HTTP POST header name for ID is: ```X-Pricehook```
 
 The network loading of this config is done via http every time the email message is processed and the same set of
 rules are applied to all the files attached to this email.
