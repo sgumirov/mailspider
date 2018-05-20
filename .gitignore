@@ -6,3 +6,7 @@ target/test-classes/*
 src/test/resources/test_mail.properties
 configuration/test_local_endpoints.json
 *.iml
+src/main/resources/notification.properties.real
+src/test/resources/gmail_password.properties
+configuration/test_local_endpoints1.json
+src/test/java/com/gumirov/shamil/partsib/SimpleDeleteMailTest.java

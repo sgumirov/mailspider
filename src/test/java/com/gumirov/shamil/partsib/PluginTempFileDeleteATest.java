@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.plugins.FileMetaData;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -4,6 +4,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.AllMailRetriever;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.UnseenRetriever;
 import com.icegreen.greenmail.junit.GreenMailRule;
@@ -122,7 +123,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("prod_rules.json");
+    return loadTagRules("prod_rules.json");
   }
 
   //send mail via greenmail

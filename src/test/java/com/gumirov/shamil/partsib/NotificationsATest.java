@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import org.junit.Test;
 
@@ -37,6 +38,6 @@ public class NotificationsATest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("tagrules.json");
+    return loadTagRules("tagrules.json");
   }
 }

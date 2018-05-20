@@ -2,6 +2,8 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.plugins.Plugin;
+import com.gumirov.shamil.partsib.util.AttachmentVerifier;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.Util;
 import com.partsib.mailspider.plugins.ExcelToCsvConverterPlugin;
@@ -10,6 +12,7 @@ import org.junit.Test;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -28,17 +31,20 @@ public class EncodingATest extends AbstractMailAutomationTest {
     DataSource ds = new ByteArrayDataSource(d, ct);
     attachment.put(name, new DataHandler(ds));
 
-    setAttachmentVerifier(attachments -> {
-      for (String f : attachments.keySet()) {
-        try {
-          String s = new String(Util.readFully(attachments.get(f)), "UTF-8");
-          log.info("Read CSV: '"+s+"'");
-          return contents.trim().equals(s.trim());
-        } catch (Exception e) {
-          log.error("Cannot read data", e);
+    setAttachmentVerifier(new AttachmentVerifier() {
+      @Override
+      public boolean verifyContents(Map<String, InputStream> attachments) {
+        for (String f : attachments.keySet()) {
+          try {
+            String s = new String(Util.readFully(attachments.get(f)), "UTF-8");
+            log.info("Read CSV: '" + s + "'");
+            return contents.trim().equals(s.trim());
+          } catch (Exception e) {
+            log.error("Cannot read data", e);
+          }
         }
+        return false;
       }
-      return false;
     });
 
     launch("acceptedmail", "taglogger",
@@ -56,6 +62,6 @@ public class EncodingATest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("prod_rules.json");
+    return loadTagRules("prod_rules.json");
   }
 }

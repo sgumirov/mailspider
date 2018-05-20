@@ -3,6 +3,7 @@ package com.gumirov.shamil.partsib;
 import com.gumirov.shamil.partsib.configuration.endpoints.AttachmentTaggingRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.GreenMailUtils;
 import com.icegreen.greenmail.junit.GreenMailRule;
@@ -17,10 +18,10 @@ import java.util.*;
  */
 public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
   private static final int MAIL_ENDPOINTS_COUNT = 2;
+  private static final String TAG = "TAG";
   private static final String TAG1 = "TAG1";
   private static final String TAG2 = "TAG2";
   protected GreenMailUtils utils = new GreenMailUtils();
-  private final String TAG = "TAG";
 
   @Rule
   public final GreenMailRule greenMail = utils.getGreenMailRules(MAIL_ENDPOINTS_COUNT);
@@ -28,7 +29,6 @@ public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
   @Test
   @Override
   public void test() throws Exception {
-    //todo assert overall number of output files
     List<EmailMessage> msgs = createMessages(MAIL_ENDPOINTS_COUNT);
     List<String> names = new ArrayList<>();
     for (EmailMessage m : msgs)

@@ -2,6 +2,7 @@ package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
+import com.gumirov.shamil.partsib.util.RawEmailMessage;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -27,6 +28,6 @@ public class DinamikasvetaATest extends AbstractMailAutomationTest {
 
   @Override
   public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagsFile("tagrules.json");
+    return loadTagRules("tagrules.json");
   }
 }

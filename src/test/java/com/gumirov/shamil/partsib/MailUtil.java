@@ -1,14 +1,10 @@
 package com.gumirov.shamil.partsib;
 
+import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.Util;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.user.GreenMailUser;
-import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -21,14 +17,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.gumirov.shamil.partsib.MainRouteBuilder.DAY_MILLIS;
-
 /**
  * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class MailUtil {
-  public static void sendMessage(GreenMailUser user, String to, AbstractMailAutomationTest.EmailMessage msg, GreenMailRule greenMail) {
+  public static void sendMessage(GreenMailUser user, String to, EmailMessage msg, GreenMailRule greenMail) {
     HashMap<String, byte[]> attach = new HashMap<>();
     try{
       for (String fn : msg.attachments.keySet()) {

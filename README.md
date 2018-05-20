@@ -4,7 +4,9 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
-# Version status and important changes
+# Version status and important changes, see below some version-specific details
+
+- (AT: special chars) 1.11-pre: Added automation test for special chars in mail filter
 - Version 1.10: Multiple simultaneous email endpoints AT added.
 - Version 1.9: Lots number of small changes related to Plugins API, plugins pipeline and AT. Javadocs added.
 - Version 1.8: Added features: periodic notifications, old mail delete (30 days). Added plugins cleanup. Automatic tests improved.
@@ -21,9 +23,18 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 - Version 1.2. Deployed with pricehook tagging.
 - Version 1.1. An officially deployed at the customer installation.
 
-# Delete old mail
+### Changes in 1.11
 
-Added in 1.8
+Automation tests are now able to verify tags used for each attachment. Added 2 new tests for BERG-related tags issues 
+(special chars and raw emails against prod tag rules).
+
+### Known issue (as of 1.10)
+
+Delete old mail date parser can fail on some formats, effectively disabling this route of mailbox cleanup.
+
+Readme polished, details added.
+
+### Changes in 1.9
 
 Added option of passing on pipeline when plugin throws an exception. Previously when plugin thrown an exception the pipeline
 just ignored that. Now there's an option to stop pipeline message passing on plugin exception. Configured by the following 
@@ -31,6 +42,8 @@ config key, default value false:
 ```
 plugin.pass.when.error=false
 ```
+
+# Delete old mail
 
 Purges old mail from email account.
 Configured in main config by properties:
@@ -44,7 +57,7 @@ delete_old_mail.check_period.hours=24
 
 # Notifications
 
-Added in 1.8
+Added in: 1.8
 
 MailSpider sends email to specified address once in period when processing is in progress. If no emails are processed
 then notifications are stopped. This could be in case of no incoming email (which is fine) or something is wrong like
@@ -69,28 +82,13 @@ notification.config=notification.properties
 Camel tracing option is managed by "tracing" boolean config value. Tracing is enabled if not specified (this to be changed in
 2.0 assuming will to stabilize and more specific log error reporting).
 
-# Scripts
+# Installation
 
-Add systemd script called mailspider.service (see systemd docs on how to add service).
+1. Make sure user and group called mailspider exists.
 
-Run install.sh to install/upgrade (warning: overrides existing).
+2. Add systemd script called mailspider.service (see systemd docs on how to add service).
 
-Added upgrade.sh which does the following (if ANY step fails script stops):
-- git pull, compiles sources and builds single jar (without configs!)
-- jars configs
-- copies service and config jars into /usr/share/mailspider/
-- restarts service (systemd) and prints status
-
-```
-set -e
-git pull
-mvn clean compile assembly:single
-cp target/MailSpider-1.0-SNAPSHOT-jar-with-dependencies.jar /usr/share/MailSpider/
-./jarconfig.sh
-cp MailSpider-1.0-SNAPSHOT-configs.jar /usr/share/MailSpider/
-systemctl restart mailspider
-systemctl status mailspider
-```
+3. Run install.sh to install/upgrade (warning: overrides existing service JAR and config JAR).
 
 # Logging
 
@@ -98,6 +96,8 @@ Currently logging is done via Log4j2 and logs are set to output to both console 
 configuration/log4j2.properties.
 
 # Plugins
+
+Note: interface is defined in Mailspider-Base-VERSION maven-loaded module. See version in dependencies section of pom.xml.
 
 For plugins developer notes please refer to 'com.gumirov.shamil.partsib.plugins.Plugin' interface 
 for details (see javadoc or source).
@@ -113,7 +113,7 @@ The following file names are configured via config.properties:
 - endpoints.json - endpoints config
 - pricehook.tagging.config.filename - tagging with price hook ids
 
-Example of configuration file config.properties with comments is below:
+Example of configuration file config.properties with comments is below. Please see current version git's config.properties:
 ```
 # tracing is Camel Tracing, by default true if not specified
 tracing=true
@@ -141,10 +141,9 @@ max.upload.size=1024000
 pricehook.config.url=http://localhost/email_tagging_rules.json
 #comma-separated list of extensions to accept (after unpack)
 file.extension.accept.list=xls,xlsx,csv,txt
-
 ```
 
-# Http post size partitioning
+# Output: HTTP post size partitioning
 
 The following headers are used to notice upload part number:
 - X-Part - a zero-based index
@@ -169,105 +168,55 @@ Accept-Encoding: gzip,deflate
 # Extension filtering
 
 The file extension list to accept is defined in config parameter 'file.extension.accept.list' and takes 
-a list of comma-separated extensions without dots. See example. 
-To disable set empty value. 
+a list of comma-separated extensions without dots. See example below. To disable filtering set an empty value.
+Example:
+```
+file.extension.accept.list=xls,xlsx,csv,txt
+```
 
-# Email filtering rules syntax
+# Email filtering ('accept') rules syntax
 
 The set of rules is interpreted in this way: IF ANY OF RULE IS TRUE THEN THE EMAIL IS ACCEPTED. The config file is loaded
  from file with filename specified in main config's key 'email.accept.rules.config.filename'.
 
-
-Rule list example:
+Rule list example (one rule in list here):
 ```json
 [
   {
-    "id":"rule_01",
-    "header":"From",
-    "contains":"@gmail.com",
-    "ignorecase":"true"
+    "id": "rule_01",
+    "header": "From",
+    "contains": "@gmail.com",
+    "ignorecase": "true"
   }
 ]
 ```
-Parameter 'id' is for logging, so it's better to set ids different values.
+Parameter 'id' is for logger, so it's better to set ids different values.
 If parameter 'ignorecase' is set to 'true' or '1' then 'contains' field value is compared ignoring case.
-Parameter 'contains' can have double-quote symbol escaped with '\"'. See section 'Attachment tagging' for example.
-Parameter 'header' is one of the following values: 'From', 'Subject'. Please note: yep, it DOES start From Big Letter header name!
-
-# Plugins config
-
-Array of fully qualified class names, executed in order specified in config:
-```json
-[
-  "com.gumirov.shamil.partsib.plugins.NoOpPlugin",
-  "com.gumirov.shamil.partsib.plugins.NoOpPlugin"
-]
-```
-
-# Endpoints config
-
-- id - is used everywhere in log to track source of message
-- url - address of source, see examples. Please note of url format: PROTOCOL://HOST:PORT. For email protocol by default 
-'imaps://' is used (note 's' for SSL)', could also be imap:// for non-SSL, pop3:// or pop3s://. 
-See also the config's parameter 'default.email.protocol' which could change the default behaviour.  
-- user and pwd - self-explainory
-- delay - period of pull in msec
-- parameters - map of key-value pairs to pass to camel endpoint. Use with care. Notable example is "delete=true" 
-parameter needed for pop3 to work fine.
-- factory - fully qualified class name, used ONLY for http endpoint. MUST BE USED for http. Purpose is maintaining the 
-procedure of logging in to web portals, see code for details. Actually this is needed because there's no universal of 
-logging in to different web sites, so we need to use the specific implementation for every http endpoint.
-
-```json
-{
-  "ftp":[
-    {
-      "id":"ftp_supplier_dir",
-      "url":"ftp://127.0.0.1/test/",
-      "user":"anonymous",
-      "pwd":"a@google.com",
-      "delay":"60000"
-    }
-  ],
-  "http":[
-    {
-      "id": "HTTP_Optima",
-      "factory": "com.gumirov.shamil.partsib.factories.OptimaRouteFactory",
-      "url": "https://optma.ru/index.php?r=site/products",
-      "user": "partsib",
-      "pwd": "partsib5405",
-      "delay": "60000"
-    }
-  ],
-  "email":[
-    {
-      "id":"email_inbox_mailru_01",
-      "url":"imap.mail.ru",
-      "user":"username",
-      "pwd":"password",
-      "delay":"60000"
-    }
-  ]
-}
-```
+Parameter 'contains' can have double-quote symbol escaped with '\"'. See section 'Attachment tagging' below for example.
+Parameter 'header' is one of the following values: 'From', 'Subject'. Please note: YES, it DOES start From Big 
+Letter!
 
 # Pricehook IDs tagging
+
+Pricehook ID is a tag send with each file sent via output. It could be either one per email message or per-attachment 
+ID (see below 'Attachment tagging' section for this).
+
+Output HTTP POST header name for ID is: ```X-Pricehook```
 
 The network loading of this config is done via http every time the email message is processed and the same set of
 rules are applied to all the files attached to this email.
 
-## Pricehook IDs tagging config loading from network
-Network url is specified in main config under parameter named 'pricehook.config.url'. Note that network rules
-replaces local config in sense of 'if at least one tagging rule is load from network, local tagging rules are
-dismissed for exchange'.
-
-To send source pricehook id (one per file) to the output the set of rules is used with the syntax similar to
-email filtering config. See example below in section 'Attachment tagging'.
-
 Note that double-quotes could be escaped with backslash: '\"'.
 
+## Pricehook IDs tagging config loading from network
+
+Network url is specified in main config under parameter named 'pricehook.config.url'. Note that network rules
+replaces local config in sense of 'if at least one tagging rule is load from network, local tagging rules are
+dismissed for camel exchange'.
+
 ## Attachment tagging
-It's possible to add subrules into config for tagging attachments separately (email tag id will be overwritten if filename matches).
+
+To tag attachments separately (email ID will be overwritten if filename matches).
 See section 'filerules' in example below. Note that double-quotes could be escaped with backslash: '\"'.
 
 ```json
@@ -298,8 +247,73 @@ See section 'filerules' in example below. Note that double-quotes could be escap
 ```
 
 
+# Plugins config
+
+Array of fully qualified class names. Plugins are executed in same order as specified in config. Example is below:
+```json
+[
+  "com.gumirov.shamil.partsib.plugins.NoOpPluginFirst",
+  "com.gumirov.shamil.partsib.plugins.NoOpPluginSecond"
+]
+```
+
+# Endpoints config
+
+- id - is used everywhere in log to track source of message
+- url - address of source, see examples. Please note of url format: PROTOCOL://HOST:PORT. For email protocol by default 
+'imaps://' is used (note 's' for SSL)', could also be imap:// for non-SSL, pop3:// or pop3s://. 
+See also the config's parameter 'default.email.protocol' which could change the default behaviour.  
+- user, pwd - self-explainory
+- delay - period of pull in msec
+- parameters - map of key-value pairs to pass to camel endpoint. Use with care. Notable example is "delete=true" 
+parameter needed for pop3 to work fine.
+- factory - fully qualified class name, used ONLY for http endpoint. MUST BE USED for http. Purpose is maintaining the 
+procedure of logging in to web portals, see Factory code for details. Actually this is needed because there's no universal of 
+way to sign in to different web sites, so we need to use the specific implementation for every web site.
+
+```json
+{
+  "ftp":[
+    {
+      "id":"ftp_supplier_dir",
+      "url":"ftp://127.0.0.1/test/",
+      "user":"anonymous",
+      "pwd":"a@google.com",
+      "delay":"60000"
+    }
+  ],
+  "http":[
+    {
+      "id": "HTTP_Optima",
+      "factory": "com.gumirov.shamil.partsib.factories.OptimaRouteFactory",
+      "url": "https://optma.ru/index.php?r=site/products",
+      "user": "partsib",
+      "pwd": "partsibPASSWORD",
+      "delay": "60000"
+    }
+  ],
+  "email":[
+    {
+      "id":"email_inbox_mailru_01",
+      "url":"imap.mail.ru",
+      "user":"username",
+      "pwd":"password",
+      "delay":"60000"
+    }
+  ]
+}
+```
+
+
 # Tests
 
-All tests are OK to run any time with 'mvn tests' command. They all MUST pass. Integration tests that require external 
-setup are excluded from execution using @Ignore. Basically they are development ones.
+All tests are designed to run any time with 'mvn tests' command. They all MUST pass at any time. Do not run them parallel
+same time same computer (as they create local endpoints). 
+Note that if any of ports are bound tests fails, so in case of tests failing check netstat -anl to see if ports needed 
+are taken. See list of ports below.
+Integration tests that require external setup are excluded from execution using @Ignore (basically they are the 
+development ones). 
 
+## Local portsd used for automated tests
+
+8143, 8080, 1993, 1143, 3143, 3993
