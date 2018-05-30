@@ -50,6 +50,10 @@ config key, default value false:
 plugin.pass.when.error=false
 ```
 
+# Docker
+
+Docker support added. In order to build Docker image use ./build.sh . To run in Docker use ./docker-run.sh
+
 # Delete old mail
 
 Purges old mail from email account.
