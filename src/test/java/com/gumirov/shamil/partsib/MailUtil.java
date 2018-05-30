@@ -28,16 +28,20 @@ public class MailUtil {
       for (String fn : msg.attachments.keySet()) {
         attach.put(MimeUtility.encodeText(fn), Util.readFully(msg.attachments.get(fn).getInputStream()));
       }
-      user.deliver(createMimeMessage(to, msg.from, msg.subject, msg.date, attach, greenMail));
+      user.deliver(applyHeaders(msg, createMimeMessage(to, msg.from, msg.subject, msg.date, attach, greenMail)));
     } catch (Exception e){
       throw new RuntimeException(e);
     }
   }
 
-  public static MimeMessage createMimeMessage(String to, String from, String subject, Date date, Map<String, byte[]> attachments, GreenMailRule greenMail)
-      throws MessagingException {
+  public static MimeMessage createMimeMessage(String to, String from, String subject, Date date,
+                                              Map<String, byte[]> attachments, GreenMailRule greenMail)
+    throws MessagingException
+  {
     MimeMessage msg = GreenMailUtil.createTextEmail(to, from, subject, "body", greenMail.getImap().getServerSetup());
-    msg.setSentDate(date);
+    if (date != null) {
+      msg.setSentDate(date); //don't remove if set explicitly via setHeader
+    }
     Multipart multipart = new MimeMultipart();
     for (String fname : attachments.keySet()) {
       MimeBodyPart messageBodyPart = new MimeBodyPart();
@@ -48,6 +52,15 @@ public class MailUtil {
     }
     msg.setContent(multipart);
     return msg;
+  }
+
+  public static MimeMessage applyHeaders(EmailMessage msg, MimeMessage mime)
+    throws MessagingException
+  {
+    for (String k : msg.getHeaders().keySet()) {
+      mime.setHeader(k, msg.getHeader(k));
+    }
+    return mime;
   }
 }
 

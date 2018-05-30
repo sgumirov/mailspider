@@ -194,7 +194,11 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
     if (msgEndpoints != null)
       sendMessagesToEndpoints(msgEndpoints);
-    waitBeforeAssert();
+    if (getMillisecondsWaitBeforeAssert() == 0) {
+      waitBeforeAssert();
+    } else {
+      Thread.sleep(getMillisecondsWaitBeforeAssert());
+    }
     assertConditions();
     log.info("Test PASSED: " + getClass().getSimpleName());
 
@@ -271,9 +275,19 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
 
   /**
+   * This method is deprecated. Use #getMillisecondsWaitBeforeAssert() instead.<p>
    * Override to implement sleep or special wait before asserting results.
    */
+  @Deprecated
   public void waitBeforeAssert() {
+  }
+
+  /**
+   * Return value of how many seconds to wait for test to finish before asserting.
+   * @return number of milliseconds
+   */
+  public long getMillisecondsWaitBeforeAssert(){
+    return 0;
   }
 
   /**

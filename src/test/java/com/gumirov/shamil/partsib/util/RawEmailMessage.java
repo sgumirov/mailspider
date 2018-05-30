@@ -13,7 +13,7 @@ import java.util.Properties;
 
 /**
  * Email message for testing which can parse message saved in RFC 2822 with attachments.
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class RawEmailMessage extends EmailMessage {
