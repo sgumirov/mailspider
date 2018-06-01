@@ -7,7 +7,8 @@ HTTP POST with 'application/octet-stream' content type).
 # Version status and important changes
 See below some version-specific details
 
-- (AT: special chars) 1.11-pre: Added automation test for special chars in mail filter
+- Version 1.12: Fixes date parser for "Delete Old Mail" feature route, changed timezone in logs
+- Version 1.11: Added automation test for special chars in mail filter
 - Version 1.10: Multiple simultaneous email endpoints AT added.
 - Version 1.9: Lots number of small changes related to Plugins API, plugins pipeline and AT. Javadocs added.
 - Version 1.8: Added features: periodic notifications, old mail delete (30 days). Added plugins cleanup. Automatic tests improved.
@@ -23,6 +24,11 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 -- Now loading pricehook config from network, see below in 'Pricehook IDs tagging config loading from network'
 - Version 1.2. Deployed with pricehook tagging.
 - Version 1.1. An officially deployed at the customer installation.
+
+### Changes in 1.12
+
+- Added date parsing tests for "Delete old mail" feature route.
+- Changed timezone in logs to GMT+7 for convenience.
 
 ### Changes in 1.11
 

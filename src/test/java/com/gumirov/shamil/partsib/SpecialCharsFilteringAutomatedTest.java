@@ -10,7 +10,7 @@ import org.junit.Test;
 import java.util.*;
 
 /**
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class SpecialCharsFilteringAutomatedTest extends AbstractMailAutomationTest {

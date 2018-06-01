@@ -13,7 +13,7 @@ import java.util.*;
 
 /**
  * Test for BERG wrong tag issue.
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class BergTagIssueAutomatedTest extends AbstractMailAutomationTest {

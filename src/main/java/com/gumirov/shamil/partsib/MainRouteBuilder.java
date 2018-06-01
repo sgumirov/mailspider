@@ -28,6 +28,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import javax.mail.internet.MailDateFormat;
 import javax.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,8 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final long HOUR_MILLIS = 1000 * 60 * 60; //1 hour in millis
   public static final long DAY_MILLIS = HOUR_MILLIS * 24; //1 day in millis
-  public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+//  public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+  public static final SimpleDateFormat mailDateFormat = new MailDateFormat();
 
   //default value
   public static String VERSION = "1.9";
@@ -376,7 +378,7 @@ public class MainRouteBuilder extends RouteBuilder {
           mailEndpoint.setBinding(new MailBindingFixNestedAttachments());
 
           if (deleteOldMailEnabled)
-            createDeleteOldMailPath(email, deleteOldMailAfterDays);
+            initDeleteOldMailPath(email, deleteOldMailAfterDays);
 
           EndpointSpecificUrl eurl = new EndpointSpecificUrl(email);
 
@@ -466,7 +468,7 @@ public class MainRouteBuilder extends RouteBuilder {
     return config.get("output.url");
   }
 
-  private void createDeleteOldMailPath(Endpoint email, int daysKeep) throws UnsupportedEncodingException {
+  private void initDeleteOldMailPath(Endpoint email, int daysKeep) throws UnsupportedEncodingException {
     long mailKeepHours = daysKeep*24;
     String url = format(
             "%s?password=%s&username=%s" +

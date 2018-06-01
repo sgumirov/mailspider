@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class EmailMessage {
@@ -17,6 +17,7 @@ public class EmailMessage {
   public Map<String, DataHandler> attachments;
   public String from;
   public Date date;
+  protected HashMap<String, String> headers = new HashMap<>();
 
   public EmailMessage(String subject, String from, Date date, Map<String, DataHandler> attachments) {
     this(subject, from, attachments);
@@ -40,5 +41,23 @@ public class EmailMessage {
 
   public EmailMessage(String subject) {
     this.subject = subject;
+  }
+
+  /**
+   * Sets header value, overriding previous value.
+   * @param k header name
+   * @param v value
+   * @return previous set value if any or null if none
+   */
+  public String setHeader(String k, String v) {
+    return headers.put(k, v);
+  }
+
+  public String getHeader(String k) {
+    return headers.get(k);
+  }
+
+  public Map<String, String> getHeaders() {
+    return headers;
   }
 }

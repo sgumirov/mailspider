@@ -28,7 +28,9 @@ public class DeleteOldMailProcessor implements Processor {
     //double-check:
     Date oldestStore = new Date(System.currentTimeMillis() - DAY_MILLIS * daysStore);
     Object dateHeader = exchange.getIn().getHeader("Date");
-    if (dateHeader == null) throw new SkipMessageException("No Date header for mail. Skipping: subj="+subj);
+    if (dateHeader == null) {
+      throw new SkipMessageException("No Date header for mail. Skipping: subj="+subj);
+    }
     Date mailDate = MainRouteBuilder.mailDateFormat.parse((String)dateHeader);
     if (mailDate.before(oldestStore)) {
       log.info(String.format("Delete old: date=%s, subj=%s, from=%s", date, subj, from));

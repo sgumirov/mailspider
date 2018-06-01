@@ -26,9 +26,9 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   @Rule
   public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.IMAP);
 
-  final private int imapport = 3143;
-  final private String imapUrl = "imap://127.0.0.1"+":"+imapport;
-  final private String to = "partsibprice@mail.ru", login = to, pwd = "password";
+  final protected int imapport = 3143;
+  final protected String imapUrl = "imap://127.0.0.1"+":"+imapport;
+  final protected String to = "partsibprice@mail.ru", login = to, pwd = "password";
 
   @Test
   public void test() throws Exception {
@@ -36,19 +36,24 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
         Collections.nCopies(1, "944.0.main"),
         null, 1,
         EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
+        getMessages()
+    );
+  }
+
+  protected EmailMessage[] getMessages() {
+    return new EmailMessage[]{
         new EmailMessage("subj1", "no@ivers.ru",
             new Date(System.currentTimeMillis() - MainRouteBuilder.DAY_MILLIS),
             makeAttachment("a1.csv")),
-        new EmailMessage("subj2", "no@ivers.ru",
-            new Date(System.currentTimeMillis() - 7 * MainRouteBuilder.DAY_MILLIS),
-            makeAttachment("a2.csv")),
         new EmailMessage("no1", "no1@gmail.com",
             new Date(System.currentTimeMillis() - MainRouteBuilder.DAY_MILLIS),
             makeAttachment("a3.csv")),
+        new EmailMessage("subj2", "no@ivers.ru",
+            new Date(System.currentTimeMillis() - 7 * MainRouteBuilder.DAY_MILLIS),
+            makeAttachment("a2.csv")),
         new EmailMessage("no2", "no2@gmail.com",
             new Date(System.currentTimeMillis() - 7 * MainRouteBuilder.DAY_MILLIS),
-            makeAttachment("a4.csv"))
-    );
+            makeAttachment("a4.csv"))};
   }
 
   @Override
@@ -62,13 +67,8 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void waitBeforeAssert() {
-    try {
-      Thread.sleep(30000);
-      log.info("Sleeped well. Waking up.");
-    } catch (InterruptedException e) {
-      log.error("Cannot sleep. Insomnia?", e);
-    }
+  public long getMillisecondsWaitBeforeAssert() {
+    return 30000;
   }
 
   @Override
