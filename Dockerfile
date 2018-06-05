@@ -4,7 +4,7 @@ FROM ubuntu:trusty
 
 MAINTAINER Shamil Gumirov <shamil.gumirov@gmail.com>
 
-WORKDIR /home/mailspider
+WORKDIR /home/mailspider/mailspider
 
 # MailSpider components versions:
 ENV MAILSPIDER_BASE_VER 1.9
@@ -52,31 +52,20 @@ ENV MAVEN_HOME /opt/maven
 # Install mailspider
 #--------------------
 
-ADD ./spiderplugins /home/mailspider/spiderplugins
+COPY ./spiderplugins /home/mailspider/spiderplugins
 COPY . /home/mailspider/mailspider
 
-# Install mailspider-base and spiderplugins from our remote repo
+# Install mailspider-base from github into maven local repo
 
 RUN cd /home/mailspider && git clone -b $MAILSPIDER_BASE_VER https://github.com/sgumirov/mailspider-base.git
 RUN cd /home/mailspider/mailspider-base && mvn clean test install
 
-# Clone private repo spiderPlugins
-# add credentials on build
-#ARG SSH_PRIVATE_KEY
-#RUN mkdir /root/.ssh/
-#RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
+# Install spiderplugins into local maven repo
 
-# make sure your domain is accepted
-#RUN touch /root/.ssh/known_hosts
-#RUN ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
-
-#RUN cd /home/mailspider && git clone https://bitbucket.com/shamilg1/spiderPlugins.git
-#RUN cd /home/mailspider && git clone https://shamilg1@bitbucket.org/partsibteam/spiderplugins.git
-RUN cd /home/mailspider/spiderplugins && mvn clean test install
+RUN cd /home/mailspider/spiderplugins && mvn clean compile test install
 
 #--------------
 # Test image
 #--------------
 
-RUN cd /home/mailspider/mailspider && mvn clean test build
-#mvn clean build install
+RUN cd /home/mailspider/mailspider && mvn clean compile test
