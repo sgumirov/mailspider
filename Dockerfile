@@ -13,6 +13,12 @@ ENV MAILSPIDER_BASE_VER 1.9
 ENV JAVA_VER 8
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
+# Set locales
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
 #---------------------------------
 # Install requirements: git, wget, Oracle Java8
 #---------------------------------
@@ -46,8 +52,8 @@ ENV MAVEN_HOME /opt/maven
 # Install mailspider
 #--------------------
 
+ADD ./spiderplugins /home/mailspider/spiderplugins
 COPY . /home/mailspider/mailspider
-COPY ./spiderplugins /home/mailspider/spiderplugins
 
 # Install mailspider-base and spiderplugins from our remote repo
 
