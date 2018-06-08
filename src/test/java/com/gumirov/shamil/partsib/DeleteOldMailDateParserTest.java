@@ -18,14 +18,13 @@ public class DeleteOldMailDateParserTest extends DeleteOldMailATest {
   public static String[] badDates = {"28 Mar 2018 05:23:32 +0300", "28 Mar 2018 05:23:32 +0300"};
 
   private static SimpleDateFormat badDateParser = new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z");
-  public static Date[] correctDates;
-
+  public static Date[] correctDates = new Date[badDates.length];
   static {
     try {
-      correctDates = new Date[badDates.length];
-      for (String d : badDates) badDateParser.parse(d);
+      for (int i = 0; i < correctDates.length; ++i)
+        correctDates[i] = badDateParser.parse(badDates[i]);
     } catch (ParseException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Cannot parse date", e);
     }
   }
 
