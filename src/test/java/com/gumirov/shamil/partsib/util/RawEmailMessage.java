@@ -21,6 +21,8 @@ public class RawEmailMessage extends EmailMessage {
 
   public RawEmailMessage(InputStream is) throws MessagingException, IOException {
     super(null);
+    if (is == null)
+      throw new IllegalArgumentException("RawEmailMessage arg InputStream must not be null");
     Session ses = Session.getDefaultInstance(new Properties());
     MimeMessage msg = new MimeMessage(ses, is);
     subject = msg.getSubject();
