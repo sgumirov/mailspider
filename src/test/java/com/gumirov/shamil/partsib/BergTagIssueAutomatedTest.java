@@ -8,6 +8,7 @@ import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.RawEmailMessage;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.*;
 
@@ -22,6 +23,7 @@ public class BergTagIssueAutomatedTest extends AbstractMailAutomationTest {
       "original_msg-2.txt",
       "original_msg-3.txt",
   };
+  private final static String folder = "BergTagIssue";
 
   private HashMap<String, String> expectTags = new HashMap<String, String>(){{
     put("BERG_764_20180423_190056.csv", "764.0.main1");
@@ -33,8 +35,15 @@ public class BergTagIssueAutomatedTest extends AbstractMailAutomationTest {
   @Test
   public void test() throws Exception {
     List<EmailMessage> msgs = new ArrayList<>();
-    for (String fileName : rawEmailFiles)
-      msgs.add(new RawEmailMessage(getClass().getClassLoader().getResourceAsStream(fileName)));
+    for (String fileName : rawEmailFiles) {
+      fileName = folder + File.separatorChar + fileName;
+      try {
+        msgs.add(new RawEmailMessage(getClass().getClassLoader().getResource(fileName).openStream()));
+      } catch (Exception e) {
+        log.error("Cannot read file: "+fileName, e);
+        assertTrue("Cannot read "+fileName, false);
+      }
+    }
     List<String> names = new ArrayList<>();
     for (EmailMessage m : msgs)
       for (String name : m.attachments.keySet())
