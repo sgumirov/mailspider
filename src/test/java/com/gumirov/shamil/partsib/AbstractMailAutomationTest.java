@@ -233,7 +233,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     List<LoggedRequest> reqs = WireMock.findAll(postRequestedFor(urlPathEqualTo(httpendpoint)));
     for (LoggedRequest req : reqs) {
       byte[] b = Base64.getDecoder().decode(req.getHeader("X-Filename"));
-      String fname = new String(b, "UTf-8");
+      String fname = new String(b, "UTF-8");
       String tag = req.getHeader("X-Pricehook");
       atts.put(fname, new ByteArrayInputStream(req.getBody()));
       tags.put(fname, tag);
@@ -266,8 +266,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   public abstract void test() throws Exception;
 
   /**
-   * False by default. Override to
-   * @return
+   * False by default. Override and return true to enable tracing.
+   * @return flag to enable/disable tracing
    */
   public Boolean isTracing() {
     return false;
