@@ -35,7 +35,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Does not contain {@link com.icegreen.greenmail.util.GreenMail} mail mock server.
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
-  private final int httpPort = 8080;
+  private final int httpPort = 18080;
   private String httpendpoint="/endpoint";
   private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   //for greenmail
