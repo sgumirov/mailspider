@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -37,12 +38,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   private final int httpPort = 18080;
   private String httpendpoint="/endpoint";
-  private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
+  private final String httpUrl = "http://127.0.0.1:" + httpPort+httpendpoint;
   //for greenmail
   private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
 
   @Rule
-  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
+  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort)
+      .notifier(new Slf4jNotifier(true)));
 
   ConfiguratorFactory configFactory = new ConfiguratorFactory(){
     @Override
