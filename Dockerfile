@@ -54,21 +54,23 @@ ENV MAVEN_HOME /opt/maven
 #--------------------
 # Dir structure: /home/mailspider -> ./mailspider, ./spiderplugins, ./mailspider-base
 
-COPY ./spiderplugins /home/mailspider/spiderplugins
-COPY . /home/mailspider/mailspider
-
 # Clone, build and install mailspider-base from github into maven local repo
-
 RUN cd /home/mailspider && git clone -b $MAILSPIDER_BASE_VER https://github.com/sgumirov/mailspider-base.git \
  && cd mailspider-base \
  && mvn clean test install
 
 # Build and install spiderplugins into local maven repo
+ENV JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
 
+COPY ./spiderplugins /home/mailspider/spiderplugins
+RUN cd /home/mailspider/spiderplugins && java A
 RUN cd /home/mailspider/spiderplugins && mvn clean compile test install
+
+# Build and install Mailspider app
+COPY . /home/mailspider/mailspider
+RUN cd /home/mailspider/mailspider && mvn clean compile test
 
 #--------------
 # Test image
 #--------------
 
-RUN cd /home/mailspider/mailspider && mvn clean compile test
