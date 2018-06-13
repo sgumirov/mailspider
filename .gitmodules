@@ -1,4 +1,4 @@
 [submodule "spiderplugins"]
 	path = spiderplugins
-	url = https://shamilg1@bitbucket.org/partsibteam/spiderplugins.git
+	url = https://shamilg1@bitbucket.org/shamilg1/spiderplugins.git
 	ignore = untracked

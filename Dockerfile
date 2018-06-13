@@ -15,6 +15,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # Set locales
 RUN locale-gen en_US.UTF-8
+ENV JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
@@ -48,6 +49,7 @@ RUN wget --no-verbose -O /tmp/apache-maven-3.5.3-bin.tar.gz \
     rm -f /tmp/apache-maven-3.5.3-bin.tar.gz
 
 ENV MAVEN_HOME /opt/maven
+ENV M2 /home/mailspider/m2
 
 #--------------------
 # Install mailspider
@@ -57,18 +59,15 @@ ENV MAVEN_HOME /opt/maven
 # Clone, build and install mailspider-base from github into maven local repo
 RUN cd /home/mailspider && git clone -b $MAILSPIDER_BASE_VER https://github.com/sgumirov/mailspider-base.git \
  && cd mailspider-base \
- && mvn clean test install
+ && mvn -Dmaven.repo.local=$M2 clean test install
 
 # Build and install spiderplugins into local maven repo
-ENV JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
-
 COPY ./spiderplugins /home/mailspider/spiderplugins
-RUN cd /home/mailspider/spiderplugins && java A
-RUN cd /home/mailspider/spiderplugins && mvn clean compile test install
+RUN cd /home/mailspider/spiderplugins && mvn -Dmaven.repo.local=$M2 install
 
 # Build and install Mailspider app
 COPY . /home/mailspider/mailspider
-RUN cd /home/mailspider/mailspider && mvn clean compile test
+RUN cd /home/mailspider/mailspider && mvn -Dmaven.repo.local=$M2 clean compile test
 
 #--------------
 # Test image
