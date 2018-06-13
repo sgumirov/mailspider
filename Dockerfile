@@ -40,7 +40,8 @@ RUN update-java-alternatives -s java-8-oracle
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> ~/.bashrc
 
 # Install maven 3.5.3
-RUN wget --no-verbose -O /tmp/apache-maven-3.5.3-bin.tar.gz http://mirror.linux-ia64.org/apache/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz && \
+RUN wget --no-verbose -O /tmp/apache-maven-3.5.3-bin.tar.gz \
+         http://www-eu.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz && \
     tar xzf /tmp/apache-maven-3.5.3-bin.tar.gz -C /opt/ && \
     ln -s /opt/apache-maven-3.5.3 /opt/maven && \
     ln -s /opt/maven/bin/mvn /usr/local/bin  && \
@@ -51,16 +52,18 @@ ENV MAVEN_HOME /opt/maven
 #--------------------
 # Install mailspider
 #--------------------
+# Dir structure: /home/mailspider -> ./mailspider, ./spiderplugins, ./mailspider-base
 
 COPY ./spiderplugins /home/mailspider/spiderplugins
 COPY . /home/mailspider/mailspider
 
-# Install mailspider-base from github into maven local repo
+# Clone, build and install mailspider-base from github into maven local repo
 
-RUN cd /home/mailspider && git clone -b $MAILSPIDER_BASE_VER https://github.com/sgumirov/mailspider-base.git
-RUN cd /home/mailspider/mailspider-base && mvn clean test install
+RUN cd /home/mailspider && git clone -b $MAILSPIDER_BASE_VER https://github.com/sgumirov/mailspider-base.git \
+ && cd mailspider-base \
+ && mvn clean test install
 
-# Install spiderplugins into local maven repo
+# Build and install spiderplugins into local maven repo
 
 RUN cd /home/mailspider/spiderplugins && mvn clean compile test install
 
