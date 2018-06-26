@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -48,6 +49,11 @@ public class PluginsProcessor implements Processor {
       ArrayList<File> filesToDelete = new ArrayList<>(); //can contain Files and Strings
       for (Plugin plugin : plugins) {
         last = plugin;
+        if (metadata.is.available() == 0) {
+          java.io.BufferedInputStream bis = new BufferedInputStream(metadata.is);
+          if (!bis.markSupported() || bis.read() == -1)
+            throw new IllegalArgumentException("File to process is empty: " + metadata.filename);
+        }
         InputStream is = plugin.processFile(metadata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
         if (is != null) {
           log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);

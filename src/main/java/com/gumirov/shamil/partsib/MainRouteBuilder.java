@@ -55,10 +55,11 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final long HOUR_MILLIS = 1000 * 60 * 60; //1 hour in millis
   public static final long DAY_MILLIS = HOUR_MILLIS * 24; //1 day in millis
-//  public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
   public static final SimpleDateFormat mailDateFormat = new MailDateFormat();
 
-  //default value
+  /**
+   * Default version value specified here. This is overriden in MainRouteBuilder.loadVersion()
+   */
   public static String VERSION = "1.9";
 
   /**
@@ -199,7 +200,7 @@ public class MainRouteBuilder extends RouteBuilder {
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), getConfigLoaderProvider());
       AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
-      SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
+      SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression(false);
 
       List<String> extensionAcceptList = getExtensionsAcceptList();
       
@@ -221,12 +222,13 @@ public class MainRouteBuilder extends RouteBuilder {
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
 
-      //define onException on the top
+      //define onException - keep this on top!
       onException(SkipMessageException.class).process(new SkipMessageExceptionErrorHandler()).id("myerrorhandler").
           handled(true).
           stop();
 
-      getContext().getStreamCachingStrategy().setSpoolUsedHeapMemoryThreshold(75);
+      //spooling config
+      getContext().getStreamCachingStrategy().setSpoolUsedHeapMemoryThreshold(50);
       getContext().getStreamCachingStrategy().setSpoolThreshold(1024000); //1M
 
       //FTP <production>
@@ -319,7 +321,7 @@ public class MainRouteBuilder extends RouteBuilder {
       //output send
       from("direct:output").
           routeId("output").
-          process(outputProcessorEndpoint).id("outputprocessor").
+          process(outputProcessorEndpoint).id(OutputProcessor.class.getSimpleName()).
           end();
 
       //email protocol
@@ -433,18 +435,18 @@ public class MainRouteBuilder extends RouteBuilder {
                 log(LoggingLevel.INFO, "[${in.header.MID}] Rejecting email due to no tag: sent at ${in.header.Date} from ${in.header.From}").
                 to("direct:rejected").
               endChoice().
-            otherwise().
+            otherwise(). //TODO where the hell is endChoice() here?
             log(LoggingLevel.INFO, "[${in.header.MID}] Starting to process attachments for email: sent at ${in.header.Date} from ${in.header.From}").
             split(splitEmailExpr).
-            process(emailAttachmentProcessor).
+            process(emailAttachmentProcessor).id(EmailAttachmentProcessor.class.getSimpleName()).
             process(exchange -> {
-              //logging only here
+              //here's logging only
               Message in = exchange.getIn();
               log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachments size before split: "+in.getAttachments().size());
               for (String s : in.getAttachmentNames()) {
                 log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachment=" + s);
               }
-            }).
+            }).id("DebugLoggingProcessor").
             process(attachmentTaggerProcessor).id(AttachmentTaggerProcessor.ID).
             process(exchange ->
                 log.info("Attachment: name={} tag={}",

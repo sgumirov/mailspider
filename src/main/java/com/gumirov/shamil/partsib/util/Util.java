@@ -56,8 +56,8 @@ public class Util {
    * @return message hash
    */
   public static String getMID(Message msg) {
-    ++counter;
-    return String.format("%x", counter + System.currentTimeMillis());
+//    ++counter;
+    return msg.getMessageId();
   }
 
   public static String removeSensitiveData(String url, String field) {
@@ -66,5 +66,13 @@ public class Util {
           url.substring(url.indexOf("&", url.indexOf(field)+1));
     }
     else return url;
+  }
+
+  public static void pipe(InputStream is, OutputStream os, int buf) throws IOException {
+    byte[] b = new byte[buf];
+    int i;
+    while ((i = is.read(b)) != -1) {
+      os.write(b, 0, i);
+    }
   }
 }
