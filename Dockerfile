@@ -58,7 +58,7 @@ ENV M2 /home/mailspider/m2
 
 # Clone, build and install mailspider-base from github into maven local repo
 RUN cd /home/mailspider && git clone -b $MAILSPIDER_BASE_VER https://github.com/sgumirov/mailspider-base.git \
- && cd mailspider-base \
+ && cd mailspider-base && git checkout 1.9 \
  && mvn -Dmaven.repo.local=$M2 clean test install
 
 # Build and install spiderplugins into local maven repo
@@ -66,7 +66,9 @@ COPY ./spiderplugins /home/mailspider/spiderplugins
 RUN cd /home/mailspider/spiderplugins && mvn -Dmaven.repo.local=$M2 install
 
 # Build and install Mailspider app
-COPY . /home/mailspider/mailspider
+#COPY . /home/mailspider/mailspider
+RUN cd /home/mailspider && git clone github.com/sgumirov/mailspider.git \
+    && git checkout 1.9
 RUN cd /home/mailspider/mailspider && mvn -Dmaven.repo.local=$M2 clean compile test
 
 #--------------
