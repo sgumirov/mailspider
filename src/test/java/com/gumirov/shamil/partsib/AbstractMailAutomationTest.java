@@ -396,8 +396,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     }
   }
 
-
-
   /**
    * Override this if you use external server
    */

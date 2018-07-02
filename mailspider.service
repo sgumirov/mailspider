@@ -9,7 +9,7 @@ User=mailspider
 Group=mailspider
 #PermissionsStartOnly=true
 WorkingDirectory=/tmp
-ExecStart=/usr/bin/java $JAVA_OPTS -classpath /usr/share/MailSpider/MailSpider-1.8-jar-with-dependencies.jar:/usr/share/MailSpider/MailSpider-1.8-configs.jar:/usr/share/MailSpider/MailspiderPlugins-1.7-jar-with-dependencies.jar:MailSpider-Base-1.1-jar-with-dependencies.jar com.gumirov.shamil.partsib.MainApp
+ExecStart=/usr/bin/java -Xmx1700m -Xms800m -XX:ThreadSafetyMargin=0 -classpath /usr/share/MailSpider/MailSpider-1.8-jar-with-dependencies.jar:/usr/share/MailSpider/MailSpider-1.8-configs.jar:/usr/share/MailSpider/MailspiderPlugins-1.7-jar-with-dependencies.jar:MailSpider-Base-1.1-jar-with-dependencies.jar com.gumirov.shamil.partsib.MainApp
 SuccessExitStatus=143
 
 [Install]
