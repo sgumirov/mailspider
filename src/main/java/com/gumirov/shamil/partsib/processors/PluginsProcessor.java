@@ -62,6 +62,7 @@ public class PluginsProcessor implements Processor {
           for (File f : (List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER)) {
             filesToDelete.add(f);
           }
+          exchange.getIn().setHeader(MainRouteBuilder.LENGTH_HEADER, is.available());
         } else {
           log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT CHANGE file: "+metadata.filename);
         }

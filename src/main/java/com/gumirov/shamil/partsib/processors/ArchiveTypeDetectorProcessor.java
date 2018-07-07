@@ -45,6 +45,7 @@ public class ArchiveTypeDetectorProcessor implements Processor {
 
     byte [] signature = new byte[SIGNATURE_LENGTH];
     Util.readFully(fis, signature);
+    fis.reset();
     //gzip:     1f 8b
     //rar >1.5: 52 61 72 21 1A 07 00
     //rar >5.0: 52 61 72 21 1A 07 01 00

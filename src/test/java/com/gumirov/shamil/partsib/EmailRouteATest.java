@@ -39,6 +39,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 /**
  * Automation endpoint test with local daemon.
  * This is first generation test. <br/>TODO @shamilg rewrite it using {@link AbstractMailAutomationTest}
+ * <p>Please note that this test prints lots of errors, that's OK!</p>
  */
 public class EmailRouteATest extends CamelTestSupport {
 
