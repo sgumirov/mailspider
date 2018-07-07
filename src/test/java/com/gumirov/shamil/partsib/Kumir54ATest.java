@@ -12,7 +12,7 @@ import java.util.List;
  * @author Shamil@Gumirov.com
  * Copyright (c) 2017 by Shamil Gumirov.
  */
-public class Kumir54Test extends AbstractMailAutomationTest {
+public class Kumir54ATest extends AbstractMailAutomationTest {
 
   @Test
   public void test() throws Exception {

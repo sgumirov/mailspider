@@ -16,15 +16,15 @@ import java.util.*;
  * @author: Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
-public class AvtotrialTest extends AbstractMailAutomationTest {
-  @Override
+public class AvtotrialATest extends AbstractMailAutomationTest {
   @Test
   public void test() throws Exception {
     //this email has large attachment (~20mb)
     RawEmailMessage email = new RawEmailMessage(getClass().getClassLoader().getResourceAsStream("avtotrial/original_msg-4.txt"));
     launch("acceptedmail", "taglogger",
         Collections.singletonList("998.0.main"),
-        null, 1,
+        Collections.singletonList("Оптовый прайс + под заказ - Цена опт - Рассылки.xlsx"),
+        1,
         EndpointSpecificUrl.apply("direct:emailreceived", getEmailEndpoints().get(0)), //send through first endpoint
         email
     );

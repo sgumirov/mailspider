@@ -31,7 +31,6 @@ public class BergTagIssueAutomatedTest extends AbstractMailAutomationTest {
     put("BERG_764_20180423_190040.csv", "977.0.nsk.2");
   }};
 
-  @Override
   @Test
   public void test() throws Exception {
     List<EmailMessage> msgs = new ArrayList<>();

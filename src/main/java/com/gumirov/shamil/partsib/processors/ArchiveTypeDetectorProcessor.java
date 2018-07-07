@@ -19,7 +19,7 @@ import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
 public class ArchiveTypeDetectorProcessor implements Processor {
   static Logger logger = LoggerFactory.getLogger(ArchiveTypeDetectorProcessor.class);
   
-  FileNameExcluder excluder = null;
+  FileNameExcluder excluder;
 
   public ArchiveTypeDetectorProcessor(FileNameExcluder excluder) {
     this.excluder = excluder;
@@ -27,6 +27,7 @@ public class ArchiveTypeDetectorProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
+    final int SIGNATURE_LENGTH = 8;
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
     
     boolean b;
@@ -36,8 +37,13 @@ public class ArchiveTypeDetectorProcessor implements Processor {
     } 
     
     InputStream fis = exchange.getIn().getBody(InputStream.class);
+    if (!fis.markSupported()) {
+      logger.warn("WARNING: mark is not supported for attachment stream");
+    } else {
+      fis.mark(SIGNATURE_LENGTH);
+    }
 
-    byte [] signature = new byte[8];
+    byte [] signature = new byte[SIGNATURE_LENGTH];
     Util.readFully(fis, signature);
     //gzip:     1f 8b
     //rar >1.5: 52 61 72 21 1A 07 00

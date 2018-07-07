@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import javax.activation.DataHandler;
 import javax.mail.internet.MimeUtility;
 
+import java.io.InputStream;
+
 import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
 
 /**
@@ -38,7 +40,9 @@ public class EmailAttachmentProcessor implements Processor {
         DataHandler data = a.getDataHandler();
 //        byte[] s = exchange.getContext().getTypeConverter().convertTo(byte[].class, data.getContent());
 //        msg.setBody(s);
-        msg.setBody(data.getContent());
+        InputStream is = (InputStream) data.getContent();
+        exchange.getIn().setHeader(MainRouteBuilder.LENGTH_HEADER, is.available());
+        msg.setBody(is);
         fname = MimeUtility.decodeText(fname); //let it fall! nullpointer will be caught below
         msg.setHeader(Exchange.FILE_NAME, fname);
         log.info("["+exchange.getIn().getHeader(MID)+"]"+" Extracted attachment name: "+fname);

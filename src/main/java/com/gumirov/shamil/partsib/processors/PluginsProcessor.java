@@ -77,7 +77,7 @@ public class PluginsProcessor implements Processor {
         if (!f.delete()) {
           log.warn("PluginProcessor: problem while deleting temp plugin files: cannot delete file=%s", f.getAbsolutePath());
           f.deleteOnExit();
-        } else log.info("PluginProcessor: temp file deleted name=%s", f.getAbsolutePath());
+        } else log.info("PluginProcessor: temp file deleted name=" + f.getAbsolutePath());
       }
     } catch (Exception e) {
       log.error("["+exchange.getIn().getHeader(MID)+"]"+" Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);

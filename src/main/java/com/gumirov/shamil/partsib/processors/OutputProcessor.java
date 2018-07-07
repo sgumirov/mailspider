@@ -7,6 +7,8 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+
 import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
 
 /**
@@ -14,7 +16,7 @@ import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
  * Date: 11/1/2017 Time: 01:52<br/>
  */
 public class OutputProcessor implements Processor {
-  static Logger log = LoggerFactory.getLogger(OutputProcessor.class);
+  private static Logger log = LoggerFactory.getLogger(OutputProcessor.class);
   private String url;
 
   public OutputProcessor(String url) {
@@ -25,7 +27,7 @@ public class OutputProcessor implements Processor {
   public void process(Exchange exchange) throws Exception {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME).toString();
     String endpointId = exchange.getIn().getHeader(MainRouteBuilder.ENDPOINT_ID_HEADER).toString();
-    String pricehookId = null;
+    String pricehookId;
     if (exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER) != null) {
       pricehookId = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER).toString();
     } else {
@@ -36,8 +38,17 @@ public class OutputProcessor implements Processor {
     log.info(String.format("[%s] Output(): file %s from route name=%s with pricehook_id=%s",
         exchange.getIn().getHeader(MID),
         filename, endpointId, pricehookId));
+/*
     byte[] b = exchange.getIn().getBody(byte[].class);
     if (!new HttpPostFileSender(url).onOutput(filename, pricehookId, b, b.length, MainRouteBuilder.MAX_UPLOAD_SIZE))
+      throw new Exception(String.format("[%s] File %s was not sent properly, please refer to HttpClient logs",
+          exchange.getIn().getHeader(MID), filename));
+          */
+
+    InputStream is = exchange.getIn().getBody(InputStream.class);
+    int len = (int) exchange.getIn().getHeader(MainRouteBuilder.LENGTH_HEADER);
+    if (!new HttpPostFileSender(url).send(filename, pricehookId, is, len, MainRouteBuilder.MAX_UPLOAD_SIZE,
+        (String)exchange.getIn().getHeader(MID)))
       throw new Exception(String.format("[%s] File %s was not sent properly, please refer to HttpClient logs",
           exchange.getIn().getHeader(MID), filename));
   }

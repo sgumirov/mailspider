@@ -49,6 +49,7 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
+  public static final String LENGTH_HEADER = "file.length";
   public static final String PRICEHOOK_RULE = "pricehook.rule";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
@@ -183,15 +184,15 @@ public class MainRouteBuilder extends RouteBuilder {
       FileNameExcluder officeZipFormatsExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
           || filename.endsWith("docx")
+          || filename.endsWith("csv") // also do not try csv!
       );
-      //TODO add AT for this:
       passAnyPluginStatus = config.is("plugin.pass.when.error", false);
       Properties notificationConfig = loadNotificationConfig(config.get("notification.config"));
       String notificationUrl = notificationConfig.getProperty("email.uri");
       log.info("Notifications url: "+notificationUrl);
       log.info("Output url: "+getOutputUrl());
       NotificationProcessor notificationProcessor = new NotificationProcessor(notificationConfig);
-      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
+      ArchiveTypeDetectorProcessor compressionDetectorProcessor = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(getOutputUrl());
       PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
       EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
@@ -286,7 +287,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
       //unzip/unrar
       from("direct:packed").
-          process(comprDetect).id("CompressorDetector").
+          process(compressionDetectorProcessor).id("CompressorDetector").
           choice().
             when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
               split(beanExpression(new UnpackerSplitter(), "unpack")).
@@ -450,8 +451,8 @@ public class MainRouteBuilder extends RouteBuilder {
             process(attachmentTaggerProcessor).id(AttachmentTaggerProcessor.ID).
             process(exchange ->
                 log.info("Attachment: name={} tag={}",
-                exchange.getIn().getHeader(Exchange.FILE_NAME),
-                exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).
+                    exchange.getIn().getHeader(Exchange.FILE_NAME),
+                    exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).
             id("taglogger").
             to("direct:packed");
 

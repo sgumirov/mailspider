@@ -10,7 +10,7 @@ import org.junit.Test;
  * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
-public class TestDirectClass extends CamelTestSupport {
+public class DirectTest extends CamelTestSupport {
   @Produce(uri = "direct:start")
   protected ProducerTemplate template;
   @EndpointInject(uri = "mock:to")
