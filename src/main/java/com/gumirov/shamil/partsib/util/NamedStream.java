@@ -3,7 +3,7 @@ package com.gumirov.shamil.partsib.util;
 import java.io.InputStream;
 
 /**
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class NamedStream extends NamedResource {

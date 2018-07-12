@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author: Shamil@Gumirov.com
+ * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class SevenZipUnpacker implements Unpacker {
