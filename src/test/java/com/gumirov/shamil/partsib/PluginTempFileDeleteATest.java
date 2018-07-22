@@ -27,7 +27,7 @@ public class PluginTempFileDeleteATest
 
   class PluginCreatingTempFile implements Plugin {
     @Override
-    public InputStream processFile(FileMetaData fileMetaData, Logger logger) {
+    public Result processFile(FileMetaData fileMetaData, Logger logger) {
       try {
         File f = File.createTempFile("test", "file");
         tempFiles.add(f);
@@ -37,7 +37,7 @@ public class PluginTempFileDeleteATest
         fos.close();
         logger.info("Created TEMP FILE = "+f.getPath());
         fileMetaData.addFileToDelete(f);
-        return fileMetaData.is;
+        return Result.create(f);
       } catch (IOException e) {
         log.error("File creation error", e);
         throw new RuntimeException(e);

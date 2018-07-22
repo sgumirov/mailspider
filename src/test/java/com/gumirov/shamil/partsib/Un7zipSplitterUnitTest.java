@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.processors.UnpackerSplitter;
+import com.gumirov.shamil.partsib.util.SevenZipStreamUnpacker;
 import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
@@ -43,7 +44,7 @@ public class Un7zipSplitterUnitTest extends CamelTestSupport {
       @Override
       public void configure() {
         from("direct:start").
-            split(beanExpression(new UnpackerSplitter(), "unpack")).
+            split(beanExpression(new UnpackerSplitter(new SevenZipStreamUnpacker()), "unpack")).
 //            split(new ZipSplitter()).
             log(LoggingLevel.INFO, "[$simple{in.header.MID}] Unpacked: $simple{in.header.CamelFileName}").
             to("mock:result");
