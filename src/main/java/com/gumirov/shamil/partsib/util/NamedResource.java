@@ -6,9 +6,9 @@ package com.gumirov.shamil.partsib.util;
  */
 public class NamedResource {
   String name;
-  int length;
+  long length;
 
-  NamedResource(String name, int length) {
+  NamedResource(String name, long length) {
     this.name = name;
     this.length = length;
   }
@@ -17,7 +17,7 @@ public class NamedResource {
     return name;
   }
 
-  public int getLength() {
+  public long getLength() {
     return length;
   }
 }

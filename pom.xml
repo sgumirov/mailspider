@@ -35,7 +35,7 @@
         <dependency>
           <groupId>com.partsib.mailspider.plugins</groupId>
           <artifactId>MailspiderPlugins</artifactId>
-          <version>1.9</version>
+          <version>1.13</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>com.gumirov.shamil.partsib</groupId>
       <artifactId>MailSpider-Base</artifactId>
-      <version>1.9</version>
+      <version>1.10</version>
     </dependency>
 
     <!-- JavaMail -->

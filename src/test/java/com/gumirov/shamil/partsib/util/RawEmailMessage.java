@@ -98,7 +98,7 @@ public class RawEmailMessage extends EmailMessage {
         if (bp.getFileName() != null &&
             (bp.getDisposition() == null || bp.getDisposition().toLowerCase().contains(Part.ATTACHMENT))) {
           attachments.put(bp.getFileName(), new DataHandler(content, bp.getContentType()));
-          log.info("Attachment found: "+bp.getFileName()+" with size="+((InputStream) content).available());
+          log.info("Attachment found: "+bp.getFileName());
         } else //this is Body
           log.info("Body parsing not impl yet. TODO add field 'body' to EmailMessage");
       } else if (content instanceof javax.mail.Message) {

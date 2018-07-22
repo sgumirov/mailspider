@@ -8,12 +8,9 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.gumirov.shamil.partsib.MainRouteBuilder.ENDPOINT_ID_HEADER;
@@ -24,7 +21,7 @@ import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
  * content. 
  */
 public class PluginsProcessor implements Processor {
-  static Logger log = LoggerFactory.getLogger(PluginsProcessor.class);
+  private static Logger log = LoggerFactory.getLogger(PluginsProcessor.class);
   private List<Plugin> plugins;
 
   public PluginsProcessor(List<Plugin> plugins) {
@@ -49,20 +46,18 @@ public class PluginsProcessor implements Processor {
       ArrayList<File> filesToDelete = new ArrayList<>(); //can contain Files and Strings
       for (Plugin plugin : plugins) {
         last = plugin;
-        if (metadata.is.available() == 0) {
-          java.io.BufferedInputStream bis = new BufferedInputStream(metadata.is);
-          if (!bis.markSupported() || bis.read() == -1)
-            throw new IllegalArgumentException("File to process is empty: " + metadata.filename);
-        }
-        InputStream is = plugin.processFile(metadata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
-        if (is != null) {
+        Plugin.Result res = plugin.processFile(metadata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
+        if (res != null && res.getResult() != null) {
           log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
-          metadata.is = is;
+          metadata.is = res.getInputStream();
           //broken Collections.copy((List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER), filesToDelete);
           for (File f : (List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER)) {
             filesToDelete.add(f);
           }
-          exchange.getIn().setHeader(MainRouteBuilder.LENGTH_HEADER, is.available());
+          if (res.getResult() instanceof File)
+            exchange.getIn().setHeader(MainRouteBuilder.LENGTH_HEADER, ((File)res.getResult()).length());
+          else
+            log.warn("Cannot set length: Plugin result not a File for plugin="+plugin.getClass().getSimpleName());
         } else {
           log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT CHANGE file: "+metadata.filename);
         }

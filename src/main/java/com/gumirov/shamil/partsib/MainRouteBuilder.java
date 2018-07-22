@@ -195,13 +195,14 @@ public class MainRouteBuilder extends RouteBuilder {
       ArchiveTypeDetectorProcessor compressionDetectorProcessor = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(getOutputUrl());
       PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
-      EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
+      EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor(config.is("tempfiles.deleteonexit", true));
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), getConfigLoaderProvider());
       AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
       SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression(false);
+      UnpackerSplitter unpackerSplitter = new UnpackerSplitter(new SevenZipStreamUnpacker());
 
       List<String> extensionAcceptList = getExtensionsAcceptList();
       
@@ -290,7 +291,7 @@ public class MainRouteBuilder extends RouteBuilder {
           process(compressionDetectorProcessor).id("CompressorDetector").
           choice().
             when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
-              split(beanExpression(new UnpackerSplitter(), "unpack")).
+              split(beanExpression(unpackerSplitter, "unpack")).
               to("direct:unpacked").endChoice().
             otherwise().
               to("direct:unpacked").endChoice().

@@ -46,7 +46,7 @@ public class OutputProcessor implements Processor {
           */
 
     InputStream is = exchange.getIn().getBody(InputStream.class);
-    int len = (int) exchange.getIn().getHeader(MainRouteBuilder.LENGTH_HEADER);
+    int len = ((Number) exchange.getIn().getHeader(MainRouteBuilder.LENGTH_HEADER)).intValue();
     if (!new HttpPostFileSender(url).send(filename, pricehookId, is, len, MainRouteBuilder.MAX_UPLOAD_SIZE,
         (String)exchange.getIn().getHeader(MID)))
       throw new Exception(String.format("[%s] File %s was not sent properly, please refer to HttpClient logs",
