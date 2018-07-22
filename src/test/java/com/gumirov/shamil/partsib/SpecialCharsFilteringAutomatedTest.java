@@ -18,7 +18,6 @@ public class SpecialCharsFilteringAutomatedTest extends AbstractMailAutomationTe
   private static final String TAG1 = "TAG1";
   private static final String TAG2 = "TAG2";
 
-  @Override
   @Test
   public void test() throws Exception {
     List<EmailMessage> msgs = createMessages();

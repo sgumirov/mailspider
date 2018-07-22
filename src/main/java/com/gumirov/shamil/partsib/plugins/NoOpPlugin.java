@@ -14,7 +14,7 @@ import java.io.InputStream;
  */
 public class NoOpPlugin implements Plugin {
   @Override
-  public InputStream processFile(FileMetaData metadata, Logger log) {
+  public Result processFile(FileMetaData metadata, Logger log) {
     log.info("processFile() f = " + metadata.headers.get(Exchange.FILE_NAME));
 //    if (log.isDebugEnabled()) {
       ByteArrayInputStream bas;
@@ -22,7 +22,7 @@ public class NoOpPlugin implements Plugin {
         byte[] b = Util.readFully(metadata.is);
         bas = new ByteArrayInputStream(b);
         log.info("processFile() body = " + new String(b, "UTF-8"));
-        return bas;
+        return Result.create(bas);
       } catch (IOException e) {
         log.error("IOException while dealing with attachment in NoOpPlugin");
       }

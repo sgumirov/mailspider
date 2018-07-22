@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * TODO: make this abstract
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
  * Date: 6/6/2017 Time: 09:47<br/>
  */

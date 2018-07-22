@@ -1,23 +1,20 @@
 package com.gumirov.shamil.partsib;
 
 import com.gumirov.shamil.partsib.processors.UnpackerSplitter;
+import com.gumirov.shamil.partsib.util.SevenZipStreamUnpacker;
+import com.gumirov.shamil.partsib.util.Util;
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.dataformat.zipfile.ZipSplitter;
-import org.apache.camel.processor.idempotent.FileIdempotentRepository;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.*;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import static org.apache.camel.builder.ExpressionBuilder.append;
 import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
 
 public class UnzipSplitterUnitTest extends CamelTestSupport {
@@ -28,21 +25,31 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
   @Produce(uri = "direct:from")
   protected FluentProducerTemplate template;
   
-  private String body = "file text contents";
-  private byte[] contents = body.getBytes();
+  private final byte[] contents = prepareContents();;
 
   @Test
   public void testSendMatchingMessage() throws Exception {
-    contents = prepareContents();
-
     resultEndpoint.expectedMessageCount(2);
-    resultEndpoint.expectedBodiesReceivedInAnyOrder(new String(contents), new String(contents));
+    resultEndpoint.whenAnyExchangeReceived(new Processor() {
+      @Override
+      public void process(Exchange exchange) throws Exception {
+        String fname = (String) exchange.getIn().getHeader(Exchange.FILE_NAME);
+        log.info("Received: "+fname);
+        byte[] b = Util.readFully((InputStream) exchange.getIn().getBody());
+        if (!Arrays.equals(b, contents)) {
+          assertEquals("body length must be same", contents.length, b.length);
+          throw new RuntimeException("Wrong body for name="+
+              fname);
+        }
+      }
+    });
     resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, "f1.txt", "dir"+File.separatorChar+"f2.txt");
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ZipOutputStream zos = new ZipOutputStream(bos);
     zos.putNextEntry(new ZipEntry("f1.txt"));
     zos.write(contents);
+    zos.flush();
     zos.closeEntry();
     zos.putNextEntry(new ZipEntry("dir/f2.txt"));
     zos.write(contents);
@@ -56,10 +63,11 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
 
     ByteArrayInputStream bis = new ByteArrayInputStream(zip);
     
-    template.to("direct:from").withBody(bis).
+    Exchange exchange = template.to("direct:from").withBody(bis).
         withHeader("CamelFileName", "archive.zip").
         withHeader("CamelFileLength", zip.length).
         send();
+    assertTrue("Exchange must not fail", !exchange.isFailed());
 
     resultEndpoint.assertIsSatisfied();
   }
@@ -69,6 +77,7 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
     for (int i = 0; i < b.length; i+=1024){
       b[i] = 1;
     }
+    b[b.length-1] = 1; //Fix for a ZipOutputStream bug forgetting trailing zeroes
     return b;
   }
 
@@ -88,8 +97,7 @@ public class UnzipSplitterUnitTest extends CamelTestSupport {
       @Override
       public void configure() {
         from("direct:from").
-//            split(new ZipSplitter()).
-            split(beanExpression(new UnpackerSplitter(), "unpack")).
+            split(beanExpression(new UnpackerSplitter(new SevenZipStreamUnpacker()), "unpack")).
             to("mock:result");
       }
     };

@@ -12,6 +12,8 @@ import static java.lang.String.format;
  * Created by phoenix on 1/15/17.
  */
 public class Util {
+  private static final String FILE_PREFIX = "mailspider_";
+
   public static int readFully(InputStream is, byte[] arr) throws IOException {
     if (arr == null || arr.length == 0) return 0;
     int i = 0, arrl = arr.length, r = 0;
@@ -56,8 +58,8 @@ public class Util {
    * @return message hash
    */
   public static String getMID(Message msg) {
-    ++counter;
-    return String.format("%x", counter + System.currentTimeMillis());
+//    ++counter;
+    return msg.getMessageId();
   }
 
   public static String removeSensitiveData(String url, String field) {
@@ -66,5 +68,43 @@ public class Util {
           url.substring(url.indexOf("&", url.indexOf(field)+1));
     }
     else return url;
+  }
+
+  public static void pipe(InputStream is, OutputStream os, int buf) throws IOException {
+    byte[] b = new byte[buf];
+    int i;
+    while ((i = is.read(b)) != -1) {
+      os.write(b, 0, i);
+    }
+  }
+
+  /**
+   * Dumps stream bytes into newly created temporary {@link File}.
+   * <p>Note that this method does not call {@link File#deleteOnExit()} on created {@link File}.</p>
+   * @param is {@link InputStream} to read bytes from
+   * @return newly created temporary file
+   * @throws IOException in case of cannot create temporary file or cannot read from InputStream
+   */
+  public static File dumpTemp(InputStream is) throws IOException {
+    File f = File.createTempFile(FILE_PREFIX, null);
+    FileOutputStream fos = new FileOutputStream((f));
+    byte[] buf = new byte[1024000]; //1Mb
+    int i;
+    while ((i=is.read(buf)) != -1) {
+      fos.write(buf, 0, i);
+    }
+    fos.flush();
+    fos.close();
+    return f;
+  }
+
+  // TODO write javadoc
+  public static File dumpTemp(byte[] b) throws IOException {
+    File f = File.createTempFile(FILE_PREFIX, null);
+    FileOutputStream fos = new FileOutputStream((f));
+    fos.write(b);
+    fos.flush();
+    fos.close();
+    return f;
   }
 }

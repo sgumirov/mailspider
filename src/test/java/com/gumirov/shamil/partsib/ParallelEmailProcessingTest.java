@@ -27,7 +27,6 @@ public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
   public final GreenMailRule greenMail = utils.getGreenMailRules(MAIL_ENDPOINTS_COUNT);
 
   @Test
-  @Override
   public void test() throws Exception {
     List<EmailMessage> msgs = createMessages(MAIL_ENDPOINTS_COUNT);
     List<String> names = new ArrayList<>();

@@ -56,7 +56,7 @@ public class OutputEndpointATest {
     byte[] b = new byte[]{'0','0','0','0','1','1','1','1'};
     HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:"+port+"/endpoint");
 
-    assertTrue(sender.onOutput("0.bin", "pricehookId", b, b.length, 10)); //8
+    assertTrue(sender.onOutput("0.bin", "pricehookId", b, b.length, 10, "mid")); //8
     List<LoggedRequest> list = findAll(postRequestedFor(urlEqualTo("/endpoint")));
     try{
       int i = Integer.parseInt(list.get(0).getHeader("X-Session"));
@@ -67,12 +67,12 @@ public class OutputEndpointATest {
 
     sender.setSessionIdGenerator(() -> SESSION_ID);
 
-    assertTrue(sender.onOutput("1.bin", "pricehookId", b, b.length, 1)); //8
-    assertTrue(sender.onOutput("2.bin", "pricehookId", b, b.length, 2)); //4
-    assertTrue(sender.onOutput("3.bin", "pricehookId", b, b.length, 3)); //3
-    assertTrue(sender.onOutput("4.bin", "pricehookId", b, b.length, 7)); //2
-    assertTrue(sender.onOutput("5.bin", "pricehookId", b, b.length, 8)); //1
-    assertTrue(sender.onOutput("6.bin", "pricehookId", b, b.length, 9)); //1
+    assertTrue(sender.onOutput("1.bin", "pricehookId", b, b.length, 1, "mid")); //8
+    assertTrue(sender.onOutput("2.bin", "pricehookId", b, b.length, 2, "mid")); //4
+    assertTrue(sender.onOutput("3.bin", "pricehookId", b, b.length, 3, "mid")); //3
+    assertTrue(sender.onOutput("4.bin", "pricehookId", b, b.length, 7, "mid")); //2
+    assertTrue(sender.onOutput("5.bin", "pricehookId", b, b.length, 8, "mid")); //1
+    assertTrue(sender.onOutput("6.bin", "pricehookId", b, b.length, 9, "mid")); //1
 
     expect("1.bin", 8, SESSION_ID).run();
     expect("2.bin", 4, SESSION_ID).run();
