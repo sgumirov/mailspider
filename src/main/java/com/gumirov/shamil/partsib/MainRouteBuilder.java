@@ -49,16 +49,18 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
   public static final String ENDPOINT_ID_HEADER = "endpoint.id";
   public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
+  public static final String LENGTH_HEADER = "file.length";
   public static final String PRICEHOOK_RULE = "pricehook.rule";
   public static final String CHARSET = "UTF-8";
   public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final long HOUR_MILLIS = 1000 * 60 * 60; //1 hour in millis
   public static final long DAY_MILLIS = HOUR_MILLIS * 24; //1 day in millis
-//  public static final SimpleDateFormat mailDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
   public static final SimpleDateFormat mailDateFormat = new MailDateFormat();
 
-  //default value
+  /**
+   * Default version value specified here. This is overriden in MainRouteBuilder.loadVersion()
+   */
   public static String VERSION = "1.9";
 
   /**
@@ -182,24 +184,25 @@ public class MainRouteBuilder extends RouteBuilder {
       FileNameExcluder officeZipFormatsExcluder = filename -> filename != null && (
           filename.endsWith("xlsx") || filename.endsWith("xls") || filename.endsWith("xlsm") || filename.endsWith("xlsb")
           || filename.endsWith("docx")
+          || filename.endsWith("csv") // also do not try csv!
       );
-      //TODO add AT for this:
       passAnyPluginStatus = config.is("plugin.pass.when.error", false);
       Properties notificationConfig = loadNotificationConfig(config.get("notification.config"));
       String notificationUrl = notificationConfig.getProperty("email.uri");
       log.info("Notifications url: "+notificationUrl);
       log.info("Output url: "+getOutputUrl());
       NotificationProcessor notificationProcessor = new NotificationProcessor(notificationConfig);
-      ArchiveTypeDetectorProcessor comprDetect = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
+      ArchiveTypeDetectorProcessor compressionDetectorProcessor = new ArchiveTypeDetectorProcessor(officeZipFormatsExcluder);
       OutputProcessor outputProcessorEndpoint = new OutputProcessor(getOutputUrl());
       PluginsProcessor pluginsProcessor = new PluginsProcessor(getPlugins());
-      EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor();
+      EmailAttachmentProcessor emailAttachmentProcessor = new EmailAttachmentProcessor(config.is("tempfiles.deleteonexit", true));
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
           new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), getConfigLoaderProvider());
       AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
-      SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression();
+      SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression(false);
+      UnpackerSplitter unpackerSplitter = new UnpackerSplitter(new SevenZipStreamUnpacker());
 
       List<String> extensionAcceptList = getExtensionsAcceptList();
       
@@ -221,12 +224,13 @@ public class MainRouteBuilder extends RouteBuilder {
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
 
-      //define onException on the top
+      //define onException - keep this on top!
       onException(SkipMessageException.class).process(new SkipMessageExceptionErrorHandler()).id("myerrorhandler").
           handled(true).
           stop();
 
-      getContext().getStreamCachingStrategy().setSpoolUsedHeapMemoryThreshold(75);
+      //spooling config
+      getContext().getStreamCachingStrategy().setSpoolUsedHeapMemoryThreshold(50);
       getContext().getStreamCachingStrategy().setSpoolThreshold(1024000); //1M
 
       //FTP <production>
@@ -284,10 +288,10 @@ public class MainRouteBuilder extends RouteBuilder {
 
       //unzip/unrar
       from("direct:packed").
-          process(comprDetect).id("CompressorDetector").
+          process(compressionDetectorProcessor).id("CompressorDetector").
           choice().
             when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
-              split(beanExpression(new UnpackerSplitter(), "unpack")).
+              split(beanExpression(unpackerSplitter, "unpack")).
               to("direct:unpacked").endChoice().
             otherwise().
               to("direct:unpacked").endChoice().
@@ -319,7 +323,7 @@ public class MainRouteBuilder extends RouteBuilder {
       //output send
       from("direct:output").
           routeId("output").
-          process(outputProcessorEndpoint).id("outputprocessor").
+          process(outputProcessorEndpoint).id(OutputProcessor.class.getSimpleName()).
           end();
 
       //email protocol
@@ -433,23 +437,23 @@ public class MainRouteBuilder extends RouteBuilder {
                 log(LoggingLevel.INFO, "[${in.header.MID}] Rejecting email due to no tag: sent at ${in.header.Date} from ${in.header.From}").
                 to("direct:rejected").
               endChoice().
-            otherwise().
+            otherwise(). //TODO where the hell is endChoice() here?
             log(LoggingLevel.INFO, "[${in.header.MID}] Starting to process attachments for email: sent at ${in.header.Date} from ${in.header.From}").
             split(splitEmailExpr).
-            process(emailAttachmentProcessor).
+            process(emailAttachmentProcessor).id(EmailAttachmentProcessor.class.getSimpleName()).
             process(exchange -> {
-              //logging only here
+              //here's logging only
               Message in = exchange.getIn();
               log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachments size before split: "+in.getAttachments().size());
               for (String s : in.getAttachmentNames()) {
                 log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachment=" + s);
               }
-            }).
+            }).id("DebugLoggingProcessor").
             process(attachmentTaggerProcessor).id(AttachmentTaggerProcessor.ID).
             process(exchange ->
                 log.info("Attachment: name={} tag={}",
-                exchange.getIn().getHeader(Exchange.FILE_NAME),
-                exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).
+                    exchange.getIn().getHeader(Exchange.FILE_NAME),
+                    exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).
             id("taglogger").
             to("direct:packed");
 

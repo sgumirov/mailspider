@@ -7,6 +7,7 @@ HTTP POST with 'application/octet-stream' content type).
 # Version status and important changes
 See below some version-specific details
 
+- Version 1.13: Added forced attachments dump to disk, fixes for http sender. Incompatible API changes from base.
 - Version 1.12: Fixes date parser for "Delete Old Mail" feature route, changed timezone in logs
 - Version 1.11: Added automation test for special chars in mail filter
 - Version 1.10: Multiple simultaneous email endpoints AT added.

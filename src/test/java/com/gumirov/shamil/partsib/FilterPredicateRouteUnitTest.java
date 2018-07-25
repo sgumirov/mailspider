@@ -52,7 +52,6 @@ public class FilterPredicateRouteUnitTest extends CamelTestSupport {
 
   @Test
   public void testSendMatchingMessage() throws Exception {
-
     resultEndpoint.expectedMessageCount(4);
     template.sendBodyAndHeader("", "From", "good@mail.ru");
     template.sendBodyAndHeader("", "From", "all@best.ru");

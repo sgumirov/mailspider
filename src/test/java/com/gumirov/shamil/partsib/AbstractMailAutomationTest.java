@@ -18,6 +18,7 @@ import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.Before;
 import org.junit.Rule;
 
 import javax.activation.DataHandler;
@@ -35,14 +36,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Does not contain {@link com.icegreen.greenmail.util.GreenMail} mail mock server.
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
-  private final int httpPort = 8080;
+  private final int httpPort = getHttpMockPort();
   private String httpendpoint="/endpoint";
   private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   //for greenmail
   private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
-
   @Rule
-  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(httpPort));
+  public WireMockRule httpMock = new WireMockRule(WireMockConfiguration.wireMockConfig().port(getHttpMockPort()));
 
   ConfiguratorFactory configFactory = new ConfiguratorFactory(){
     @Override
@@ -62,14 +62,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
         kv.putAll(configPairs);
     }
   };
-
-  /**
-   * Override this method to override default config values.
-   * @return
-   */
-  public Map<String, String> getConfig() {
-    return null;
-  }
 
   Configurator config = configFactory.getConfigurator();
 
@@ -91,9 +83,21 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     return true;
   }
 
+  /**
+   * Override this method to override default config values.
+   * @return
+   */
+  public Map<String, String> getConfig() {
+    return null;
+  }
+
   public Map<String, DataHandler> makeAttachment(String name) {
     InputStream is = new ByteArrayInputStream("Hello Email World, yeah!".getBytes());
     return Collections.singletonMap(name, new DataHandler(is, "text/plain"));
+  }
+
+  public int getHttpMockPort(){
+    return 8080;
   }
 
   /**
@@ -107,7 +111,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       removeSourceEndpoints(e.id);
       setupNotificationMock(e.id);
     }
-    setupHttpMock();
     setupDestinationMock(mockRouteName, mockAfterId);
   }
 
@@ -140,6 +143,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     });
   }
 
+  @Before
   public void setupHttpMock() {
     //http mock endpoint setup
     stubFor(post(urlEqualTo(httpendpoint))
@@ -178,16 +182,14 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   public void launch(String mockRouteName, String mockAfterId, List<String> expectTags, List<String> expectNames,
               int expectNumTotal, @Nullable Map<EmailMessage, String> msgEndpoints) throws Exception
   {
+    this.expectNumTotal = expectNumTotal;
     beforeLaunch(mockRouteName, mockAfterId);
 
     if (expectNames != null && expectNumTotal != expectNames.size() ||
         expectTags != null && expectTags.size() != expectNumTotal)
       throw new IllegalArgumentException("Illegal arguments: must be same size of expected tags/names and number of messages");
 
-    if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, expectTags.toArray());
-    if (expectNames != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectNames.toArray());
-    this.expectNumTotal = expectNumTotal;
-    mockEndpoint.expectedMessageCount(this.expectNumTotal);
+    setupMockAsserts(expectTags, expectNames);
 
     context.setTracing(isTracing());
     context.start();
@@ -203,6 +205,17 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     log.info("Test PASSED: " + getClass().getSimpleName());
 
     context.stop();
+  }
+
+  //todo move expectXXX to getters?
+  protected void setupMockAsserts(List<String> expectTags, List<String> expectNames) {
+    if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, expectTags.toArray());
+    if (expectNames != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectNames.toArray());
+    mockEndpoint.expectedMessageCount(getExpectNumTotal());
+  }
+
+  private int getExpectNumTotal() {
+    return expectNumTotal;
   }
 
   /**
@@ -257,13 +270,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   public int getExpectedNotificationCount() {
     return 0;
   }
-
-  /**
-   * TODO: @shamil do we really need this? Since it's not from the parent class..
-   * To be overriden for test.
-   * @throws Exception
-   */
-  public abstract void test() throws Exception;
 
   /**
    * False by default. Override to
@@ -396,8 +402,6 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     }
   }
 
-
-
   /**
    * Override this if you use external server
    */
@@ -417,7 +421,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   @Override
   protected int getShutdownTimeout() {
-    return 60;
+    return 90;
   }
 
   @Override

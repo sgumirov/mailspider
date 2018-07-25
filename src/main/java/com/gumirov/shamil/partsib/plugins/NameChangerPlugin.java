@@ -12,7 +12,7 @@ import java.io.InputStream;
  */
 public class NameChangerPlugin implements Plugin {
   @Override
-  public InputStream processFile(FileMetaData metadata, Logger log) {
+  public Result processFile(FileMetaData metadata, Logger log) {
     //read filename:
     String filename = (String)metadata.headers.get(Exchange.FILE_NAME);
 
