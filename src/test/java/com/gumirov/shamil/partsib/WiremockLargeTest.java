@@ -25,8 +25,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class WiremockLargeTest {
+  final int port = 18088;
   @Rule
-  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(8080));
+  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(port));
   private Logger log = LoggerFactory.getLogger(WiremockLargeTest.class.getSimpleName());
   private final String endpoint = "/endpoint";
 
@@ -38,7 +39,7 @@ public class WiremockLargeTest {
             .withStatus(200)));
 
     byte[] b = new byte[22000000]; //22M
-    HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:8080"+endpoint);
+    HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:"+port+endpoint);
     sender.onOutput("123.csv", "123", b, b.length, 1000000, "mailid");
 
     //verify http mock endpoint

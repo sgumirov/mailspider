@@ -97,7 +97,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   public int getHttpMockPort(){
-    return 8080;
+    return 18080;
   }
 
   /**
