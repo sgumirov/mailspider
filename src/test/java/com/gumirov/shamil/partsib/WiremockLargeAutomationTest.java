@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.HttpPostFileSender;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
+@Ignore
 public class WiremockLargeAutomationTest extends AbstractMailAutomationTest {
   private Logger log = LoggerFactory.getLogger(WiremockLargeAutomationTest.class.getSimpleName());
   private final String endpoint = "/endpoint";
