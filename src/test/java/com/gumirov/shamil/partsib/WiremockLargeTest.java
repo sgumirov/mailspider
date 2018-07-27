@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.gumirov.shamil.partsib.util.HttpPostFileSender;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * @author Shamil@Gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
+@Ignore
 public class WiremockLargeTest {
   final int port = 18088;
   @Rule
