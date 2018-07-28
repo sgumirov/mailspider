@@ -2,7 +2,7 @@ set -e
 
 dir="/usr/share/MailSpider-staging"
 
-version="1.13"
+version="1.13-staging"
 echo Installing version: $version
 echo To change version edit 'install.sh'
 
