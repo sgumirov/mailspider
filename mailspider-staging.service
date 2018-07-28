@@ -4,7 +4,7 @@ Description=[STAGING] MailSpider is a files fetcher and processor from Email, FT
 After=network.target
 
 [Service]
-EnvironmentFile=/etc/sysconfig/MailSpider-staging
+EnvironmentFile=/usr/share/MailSpider-staging/systemd-env.conf
 User=mailspider
 Group=mailspider
 #PermissionsStartOnly=true
