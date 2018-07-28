@@ -1,0 +1,18 @@
+
+[Unit]
+Description=[STAGING] MailSpider is a files fetcher and processor from Email, FTP, HTTP(S) sources.
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/MailSpider-staging
+User=mailspider
+Group=mailspider
+#PermissionsStartOnly=true
+WorkingDirectory=/tmp
+ExecStart=/usr/bin/java -Xmx1700m -Xms800m -XX:ThreadSafetyMargin=0 -classpath \
+          ${MAILSPIDER-JAR}:${MAILSPIDER-CONFIG}:${MAILSPIDER-PLUGINS}:${MAILSPIDER-BASE} \
+          com.gumirov.shamil.partsib.MainApp
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
