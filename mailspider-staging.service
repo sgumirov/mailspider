@@ -10,8 +10,7 @@ Group=mailspider
 #PermissionsStartOnly=true
 WorkingDirectory=/tmp
 ExecStart=/usr/bin/java -Xmx1700m -Xms800m -XX:ThreadSafetyMargin=0 -classpath \
-          ${MAILSPIDER-JAR}:${MAILSPIDER-CONFIG}:${MAILSPIDER-PLUGINS}:${MAILSPIDER-BASE} \
-          com.gumirov.shamil.partsib.MainApp
+          ${MAILSPIDER-JAR}:${MAILSPIDER-CONFIG}:${MAILSPIDER-PLUGINS} com.gumirov.shamil.partsib.MainApp
 SuccessExitStatus=143
 
 [Install]

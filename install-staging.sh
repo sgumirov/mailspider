@@ -18,4 +18,5 @@ fi
 ./jarconfig.sh $version
 cp MailSpider-$version-configs.jar $dir
 cp target/MailSpider-$version-jar-with-dependencies.jar $dir
+cp systemd-env.conf $dir
 echo Installed successfully
