@@ -1,0 +1,1 @@
+java -classpath configuration:../spiderplugins/target/MailspiderPlugins-1.8-jar-with-dependencies.jar:/Users/shamilg/projects/mailspider/target/MailSpider-1.7-jar-with-dependencies.jar:mailspider-base/target/MailSpider-Base-1.1-jar-with-dependencies.jar com.gumirov.shamil.partsib.MainApp

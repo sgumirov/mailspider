@@ -3,6 +3,11 @@ target/classes/*
 target/maven-status/*
 target/test-classes/*
 .idea/workspace.xml
+.idea/libraries
+.idea/libraries/*
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/tasks.xml
 src/test/resources/test_mail.properties
 configuration/test_local_endpoints.json
 *.iml

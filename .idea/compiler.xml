@@ -19,8 +19,5 @@
         <module name="MailSpider" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="MailSpider" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

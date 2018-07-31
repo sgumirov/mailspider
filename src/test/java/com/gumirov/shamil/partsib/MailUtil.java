@@ -25,10 +25,10 @@ public class MailUtil {
   public static void sendMessage(GreenMailUser user, String to, EmailMessage msg, GreenMailRule greenMail) {
     HashMap<String, byte[]> attach = new HashMap<>();
     try{
-      for (String fn : msg.attachments.keySet()) {
-        attach.put(MimeUtility.encodeText(fn), Util.readFully(msg.attachments.get(fn).getInputStream()));
+      for (String filename : msg.attachments.keySet()) {
+        attach.put(MimeUtility.encodeText(filename), Util.readFully(msg.attachments.get(filename).getInputStream()));
       }
-      user.deliver(applyHeaders(msg, createMimeMessage(to, msg.from, msg.subject, msg.date, attach, greenMail)));
+      user.deliver(overrideHeaders(msg, createMimeMessage(to, msg.from, msg.subject, msg.date, attach, greenMail)));
     } catch (Exception e){
       throw new RuntimeException(e);
     }
@@ -54,7 +54,7 @@ public class MailUtil {
     return msg;
   }
 
-  public static MimeMessage applyHeaders(EmailMessage msg, MimeMessage mime)
+  public static MimeMessage overrideHeaders(EmailMessage msg, MimeMessage mime)
     throws MessagingException
   {
     for (String k : msg.getHeaders().keySet()) {

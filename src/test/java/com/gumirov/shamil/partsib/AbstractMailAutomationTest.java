@@ -34,12 +34,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Abstract AT.<br/>
  * By default expects at least 1 notification. <br/>
  * Does not contain {@link com.icegreen.greenmail.util.GreenMail} mail mock server.
+ * <p>TODO test API proposal:
+ * send(load(rawEmailFile)).plugins(null).expect(tag(tagExpect)).expect(attach(attachName)).assertMsg("Stutzen mail should be accepted with tag: "+tagExpect);
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   private final int httpPort = getHttpMockPort();
   private String httpendpoint="/endpoint";
   private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
-  //for greenmail
+  //for greenmail. TODO check this as we don't have GreenMail here!
   private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
   @Rule
   public WireMockRule httpMock = new WireMockRule(WireMockConfiguration.wireMockConfig().port(getHttpMockPort()));
@@ -114,7 +116,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     setupDestinationMock(mockRouteName, mockAfterId);
   }
 
-  private void removeSourceEndpoints(String endpointId) throws Exception {
+  protected void removeSourceEndpoints(String endpointId) throws Exception {
     context.getRouteDefinition("source-" + endpointId).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
       public void configure() {
