@@ -22,11 +22,15 @@ public class MainApp {
       InputStream is = MainApp.class.getClassLoader().getResourceAsStream("config.properties");
       config.load(is);
       main.addRouteBuilder(new MainRouteBuilder(new PropertiesConfigutatorFactory(config).getConfigurator()));
-      // add event listener
+      //todo remove add event listener
       main.addMainListener(new EventsListener());
       main.run(args);
   }
 
+  //TODO remove EventsListener
+  /**
+   * @deprecated 
+   */
   private static class EventsListener extends MainListenerSupport {
 
     @Override
