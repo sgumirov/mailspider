@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 by Shamil Gumirov <shamil@gumirov.com>. All rights are reserved.
+ */
+
 package com.gumirov.shamil.partsib.processors;
 
 import com.gumirov.shamil.partsib.MainRouteBuilder;
