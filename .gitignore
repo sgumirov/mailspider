@@ -3,6 +3,8 @@ target/classes/*
 target/maven-status/*
 target/test-classes/*
 .idea/workspace.xml
+.idea/uiDesigner.xml
+spider.log
 src/test/resources/test_mail.properties
 configuration/test_local_endpoints.json
 *.iml
