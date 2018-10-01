@@ -19,4 +19,15 @@ fi
 cp MailSpider-$version-configs.jar $dir
 cp target/MailSpider-$version-jar-with-dependencies.jar $dir
 cp systemd-env.conf $dir
-echo Installed successfully
+sudo cp mailspider-staging.service /etc/systemd/system/
+sudo chown root:root /etc/systemd/system/mailspider-staging.service
+sudo chmod 664 /etc/systemd/system/mailspider-staging.service
+sudo systemctl daemon-reload
+echo Installed successfully. Please switch to new service manually:
+echo sudo systemctl enable mailspider-staging
+echo sudo systemctl disable mailspider
+echo sudo systemctl stop mailspider
+echo sudo systemctl start mailspider-staging
+echo 
+echo In order to rollback:
+echo ./rollback-from-staging.sh
