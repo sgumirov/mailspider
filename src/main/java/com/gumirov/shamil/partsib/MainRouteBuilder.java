@@ -223,7 +223,7 @@ public class MainRouteBuilder extends RouteBuilder {
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
 
-      //define onException - keep this on top!
+      //define onException for delete old mail route - keep this on top!
       onException(SkipMessageException.class).process(new SkipMessageExceptionErrorHandler()).id("myerrorhandler").
           handled(true).
           stop();
@@ -472,6 +472,10 @@ public class MainRouteBuilder extends RouteBuilder {
     return config.get("output.url");
   }
 
+  /**
+   * Delete old mail setup.
+   * @param daysKeep days to keep mail
+   */
   private void initDeleteOldMailPath(Endpoint email, int daysKeep) throws UnsupportedEncodingException {
     long mailKeepHours = daysKeep*24;
     String url = format(
@@ -531,6 +535,11 @@ public class MainRouteBuilder extends RouteBuilder {
     return Arrays.asList(config.get("file.extension.accept.list", "xls,txt,csv,xlsx").toLowerCase().split(","));
   }
 
+  /**
+   * Adds default protocol handler to URL from config (key default.email.protocol)
+   * @param url to add handler to, SHOULD NOT contain handler otherwise this call returns same url
+   * @return full url with added default handler or original value if already has handler
+   */
   private String addProtocolPrefix(String url) {
     if (!url.contains("://")) {
       return config.get("default.email.protocol", "imaps")+"://"+url;
