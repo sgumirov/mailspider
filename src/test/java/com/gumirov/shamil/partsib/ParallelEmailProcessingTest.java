@@ -13,7 +13,7 @@ import org.junit.Test;
 import java.util.*;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
@@ -21,7 +21,7 @@ public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
   private static final String TAG = "TAG";
   private static final String TAG1 = "TAG1";
   private static final String TAG2 = "TAG2";
-  protected GreenMailUtils utils = new GreenMailUtils();
+  private GreenMailUtils utils = new GreenMailUtils();
 
   @Rule
   public final GreenMailRule greenMail = utils.getGreenMailRules(MAIL_ENDPOINTS_COUNT);
@@ -31,8 +31,7 @@ public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
     List<EmailMessage> msgs = createMessages(MAIL_ENDPOINTS_COUNT);
     List<String> names = new ArrayList<>();
     for (EmailMessage m : msgs)
-      for (String name : m.attachments.keySet())
-        names.add(name);
+      names.addAll(m.attachments.keySet());
     ArrayList<Endpoint> endpoints = getEmailEndpoints();
     final String ENDP1 = EndpointSpecificUrl.apply("direct:emailreceived", endpoints.get(0));
     final String ENDP2 = EndpointSpecificUrl.apply("direct:emailreceived", endpoints.get(1));
@@ -67,6 +66,7 @@ public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
 
   @Override
   public ArrayList<Endpoint> getEmailEndpoints() {
+    //TODO enchance getGreenmailEndpoints() in case MAIL_ENDPOINTS_COUNT needs to be != 2
     return utils.getGreenmailEndpoints(MAIL_ENDPOINTS_COUNT);
   }
 

@@ -10,7 +10,7 @@ import org.junit.Test;
 import java.util.*;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 //disabled test as mock httpd crashes (returns 500 for internal status url) - need to replace it at least for this test.

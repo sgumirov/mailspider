@@ -21,7 +21,7 @@ import java.util.*;
 
 /**
  * Issue 2061: Stutzen email not accepted.
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class StutzenATest extends AbstractMailAutomationTest {
@@ -58,7 +58,7 @@ public class StutzenATest extends AbstractMailAutomationTest {
 
   @Override
   protected void removeSourceEndpoints(String endpointId) throws Exception {
-    //none
+    //none to remove
   }
 
   @Override

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2017 by Shamil Gumirov.
  */
 public class Kumir54ATest extends AbstractMailAutomationTest {

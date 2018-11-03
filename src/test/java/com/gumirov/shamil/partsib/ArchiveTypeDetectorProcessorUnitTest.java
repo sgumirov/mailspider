@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.Arrays;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class ArchiveTypeDetectorProcessorUnitTest extends CamelTestSupport {

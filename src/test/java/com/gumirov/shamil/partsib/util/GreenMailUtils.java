@@ -7,24 +7,30 @@ import com.icegreen.greenmail.util.ServerSetup;
 import java.util.ArrayList;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class GreenMailUtils {
+
+  private static final int IMAP_BASE_PORT = 1143;
+  private static final int IMAPS_BASE_PORT = 1993;
+
   public String getHost(){
     return "127.0.0.1";
   }
+
   public GreenMailRule getGreenMailRules(int count){
     ServerSetup[] configs = new ServerSetup[count];
-    configs[0] = new ServerSetup(1143, getHost(), ServerSetup.PROTOCOL_IMAP);
-    configs[1] = new ServerSetup(1993, getHost(), ServerSetup.PROTOCOL_IMAPS);
+    configs[0] = new ServerSetup(IMAP_BASE_PORT, getHost(), ServerSetup.PROTOCOL_IMAP);
+    configs[1] = new ServerSetup(IMAPS_BASE_PORT, getHost(), ServerSetup.PROTOCOL_IMAPS);
     return new GreenMailRule(configs);
   }
 
   public ArrayList<Endpoint> getGreenmailEndpoints(int count) {
+    //todo create any number of endpoints
     ArrayList<Endpoint> e = new ArrayList<>();
-    e.add(createGreenmailEndpoint("imap", 1143)); //greenmail 1
-    e.add(createGreenmailEndpoint("imaps", 1993)); //greenmail 2
+    e.add(createGreenmailEndpoint("imap", IMAP_BASE_PORT)); //greenmail 1
+    e.add(createGreenmailEndpoint("imaps", IMAPS_BASE_PORT)); //greenmail 2
     return e;
   }
 

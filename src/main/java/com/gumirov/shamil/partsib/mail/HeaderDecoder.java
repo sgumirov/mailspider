@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * Helps to correctly decode RFC 2047 non compliant headers.
  *
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class HeaderDecoder {

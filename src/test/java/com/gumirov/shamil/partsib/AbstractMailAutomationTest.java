@@ -116,6 +116,9 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     setupDestinationMock(mockRouteName, mockAfterId);
   }
 
+  /**
+   * Disables imap(s):// endpoints.
+   */
   protected void removeSourceEndpoints(String endpointId) throws Exception {
     context.getRouteDefinition("source-" + endpointId).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
@@ -184,13 +187,13 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   public void launch(String mockRouteName, String mockAfterId, List<String> expectTags, List<String> expectNames,
               int expectNumTotal, @Nullable Map<EmailMessage, String> msgEndpoints) throws Exception
   {
-    this.expectNumTotal = expectNumTotal;
-    beforeLaunch(mockRouteName, mockAfterId);
-
     if (expectNames != null && expectNumTotal != expectNames.size() ||
         expectTags != null && expectTags.size() != expectNumTotal)
       throw new IllegalArgumentException("Illegal arguments: must be same size of expected tags/names and number of messages");
 
+    this.expectNumTotal = expectNumTotal;
+
+    beforeLaunch(mockRouteName, mockAfterId);
     setupMockAsserts(expectTags, expectNames);
 
     context.setTracing(isTracing());
@@ -198,11 +201,14 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
     if (msgEndpoints != null)
       sendMessagesToEndpoints(msgEndpoints);
+
     if (getMillisecondsWaitBeforeAssert() == 0) {
+      //noinspection deprecation I know what'm I doing!
       waitBeforeAssert();
     } else {
       Thread.sleep(getMillisecondsWaitBeforeAssert());
     }
+
     assertConditions();
     log.info("Test PASSED: " + getClass().getSimpleName());
 
@@ -283,7 +289,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
 
   /**
-   * This method is deprecated. Use #getMillisecondsWaitBeforeAssert() instead.<p>
+   * This method is deprecated. Use {@link #getMillisecondsWaitBeforeAssert()} instead.<p>
    * Override to implement sleep or special wait before asserting results.
    */
   @Deprecated

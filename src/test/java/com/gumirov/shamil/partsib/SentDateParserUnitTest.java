@@ -6,7 +6,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class SentDateParserUnitTest {

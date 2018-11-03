@@ -15,7 +15,7 @@ import java.util.*;
 
 /**
  * Test for BERG wrong tag issue.
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 @Ignore

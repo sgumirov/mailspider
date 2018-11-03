@@ -88,9 +88,9 @@ public class MailBindingFixNestedAttachments extends MailBindingFixSubjectDecode
       } else if (part.isMimeType("MESSAGE/*")){
         LOG.trace("Part #" + i + ": is mimetype: MESSAGE/*");
         try {
-          extractAttachmentsFromMail(/*new MimeMessage*/((MimeMessage) part.getContent()), map);
+          extractAttachmentsFromMail((MimeMessage) part.getContent(), map);
         } catch (Exception e) {
-          e.printStackTrace();
+          LOG.error("Error extracting attachments from part #"+i+": attachment name="+part.getFileName(), e);
         }
       } else {
         String disposition = part.getDisposition();

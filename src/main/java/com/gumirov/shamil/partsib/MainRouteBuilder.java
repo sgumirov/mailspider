@@ -427,7 +427,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
         //pricehook tagging and attachment extraction
         from("direct:acceptedmail").routeId("acceptedmail").
-            process(exchange -> exchange.getIn().setHeader(MID, Util.getMID(exchange.getIn()))).
+            process(exchange -> exchange.getIn().setHeader(MID, Util.getMID(exchange.getIn()))).id("MessageIdSetter").
             log(LoggingLevel.INFO, "[${in.header.MID}] Accepted email sent at ${in.header.Date} from ${in.header.From} with subject '${in.header.Subject}'").
             streamCaching().
             process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
@@ -501,7 +501,8 @@ public class MainRouteBuilder extends RouteBuilder {
         URLEncoder.encode(email.pwd, "UTF-8"),
         URLEncoder.encode(email.user, "UTF-8"),
         deleteOldMailCheckPeriod,
-        mailKeepHours, Util.formatParameters(email.parameters)
+        mailKeepHours,
+        Util.formatParameters(email.parameters)
         );
 
     log.info("delete mail URL="+Util.removeSensitiveData(url, "password"));
