@@ -2,7 +2,6 @@ package com.gumirov.shamil.partsib.mail;
 
 import org.apache.camel.Attachment;
 import org.apache.camel.component.mail.ContentTypeResolver;
-import org.apache.camel.component.mail.MailBinding;
 import org.apache.camel.impl.DefaultAttachment;
 import org.apache.camel.spi.HeaderFilterStrategy;
 import org.slf4j.Logger;
@@ -12,7 +11,6 @@ import javax.activation.DataHandler;
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -21,9 +19,10 @@ import java.util.Map;
 
 /**
  * Fix for parsing nested message attachments.
+ *
  * <p>Copyright (c) 2017 by Shamil Gumirov.
  */
-public class MailBindingFixNestedAttachments extends MailBinding {
+public class MailBindingFixNestedAttachments extends MailBindingFixSubjectDecode {
 
   private static final Logger LOG = LoggerFactory.getLogger(MailBindingFixNestedAttachments.class);
 
@@ -34,10 +33,11 @@ public class MailBindingFixNestedAttachments extends MailBinding {
     super(headerFilterStrategy, contentTypeResolver);
   }
 
+  //fix issue with bare attachment
+
   @Override
   public void extractAttachmentsFromMail(Message message, Map<String, Attachment> attachments)
       throws MessagingException, IOException {
-
     Object content = message.getContent();
     if (content instanceof Multipart) {
       extractAttachmentsFromMultipart((Multipart) content, attachments);
@@ -88,9 +88,9 @@ public class MailBindingFixNestedAttachments extends MailBinding {
       } else if (part.isMimeType("MESSAGE/*")){
         LOG.trace("Part #" + i + ": is mimetype: MESSAGE/*");
         try {
-          extractAttachmentsFromMail(/*new MimeMessage*/((MimeMessage) part.getContent()), map);
+          extractAttachmentsFromMail((MimeMessage) part.getContent(), map);
         } catch (Exception e) {
-          e.printStackTrace();
+          LOG.error("Error extracting attachments from part #"+i+": attachment name="+part.getFileName(), e);
         }
       } else {
         String disposition = part.getDisposition();
@@ -110,7 +110,6 @@ public class MailBindingFixNestedAttachments extends MailBinding {
           if (!map.containsKey(fileName)) {
             // Parts marked with a disposition of Part.ATTACHMENT are clearly attachments
             DefaultAttachment camelAttachment = new DefaultAttachment(part.getDataHandler());
-            @SuppressWarnings("unchecked")
             Enumeration<Header> headers = part.getAllHeaders();
             while (headers.hasMoreElements()) {
               Header header = headers.nextElement();
@@ -131,8 +130,6 @@ public class MailBindingFixNestedAttachments extends MailBinding {
         && fileName != null
         && (disposition.equalsIgnoreCase(Part.ATTACHMENT) || disposition.equalsIgnoreCase(Part.INLINE));
   }
-
-  //fix issue with bare attachment
 
   private String mimeDecodeText(String text) throws UnsupportedEncodingException {
     if (text == null) return null;

@@ -7,6 +7,7 @@ HTTP POST with 'application/octet-stream' content type).
 # Version status and important changes
 See below some version-specific details
 
+- Version XX-staging: staging deployment-related patch (initially on top of 1.13) in order to deploy separately from prod (master)
 - Version 1.13: Added forced attachments dump to disk, fixes for http sender. Incompatible API changes from base.
 - Version 1.12: Fixes date parser for "Delete Old Mail" feature route, changed timezone in logs
 - Version 1.11: Added automation test for special chars in mail filter
@@ -25,6 +26,10 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 -- Now loading pricehook config from network, see below in 'Pricehook IDs tagging config loading from network'
 - Version 1.2. Deployed with pricehook tagging.
 - Version 1.1. An officially deployed at the customer installation.
+
+### Staging branch
+
+- Added mailspider-staging.service, to be easily differentiated from prod version in systemd management scripts
 
 ### Changes in 1.12
 

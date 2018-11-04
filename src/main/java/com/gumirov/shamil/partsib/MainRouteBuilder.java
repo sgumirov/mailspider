@@ -69,7 +69,6 @@ public class MainRouteBuilder extends RouteBuilder {
   public static final String MID = "MID";
   public static int MAX_UPLOAD_SIZE;
   private int cachedStringHash;
-  private int deletedMailCount;
   private long deleteOldMailCheckPeriod;
   private boolean deleteOldMailEnabled;
   private int deleteOldMailAfterDays;
@@ -188,7 +187,7 @@ public class MainRouteBuilder extends RouteBuilder {
       );
       passAnyPluginStatus = config.is("plugin.pass.when.error", false);
       Properties notificationConfig = loadNotificationConfig(config.get("notification.config"));
-      String notificationUrl = notificationConfig.getProperty("email.uri");
+      String notificationUrl = notificationConfig.getProperty("email.uri", "");
       log.info("Notifications url: "+notificationUrl);
       log.info("Output url: "+getOutputUrl());
       NotificationProcessor notificationProcessor = new NotificationProcessor(notificationConfig);
@@ -224,7 +223,7 @@ public class MainRouteBuilder extends RouteBuilder {
           config.get("work.dir", "/tmp")+ File.separatorChar+config.get("idempotent.repo", "idempotent_repo.dat"));
       Endpoints endpoints = getEndpoints();
 
-      //define onException - keep this on top!
+      //define onException for delete old mail route - keep this on top!
       onException(SkipMessageException.class).process(new SkipMessageExceptionErrorHandler()).id("myerrorhandler").
           handled(true).
           stop();
@@ -370,6 +369,7 @@ public class MainRouteBuilder extends RouteBuilder {
                   "&mail.imap.partialfetch=false"+
                   "&mail.imaps.partialfetch=false"+
                   "&mail.debug=true"+
+                  "&mimeDecodeHeaders=true"+
                   "%s",
               addProtocolPrefix(email.url),
               URLEncoder.encode(email.pwd, "UTF-8"),
@@ -427,7 +427,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
         //pricehook tagging and attachment extraction
         from("direct:acceptedmail").routeId("acceptedmail").
-            process(exchange -> {exchange.getIn().setHeader(MID, Util.getMID(exchange.getIn()));}).
+            process(exchange -> exchange.getIn().setHeader(MID, Util.getMID(exchange.getIn()))).id("MessageIdSetter").
             log(LoggingLevel.INFO, "[${in.header.MID}] Accepted email sent at ${in.header.Date} from ${in.header.From} with subject '${in.header.Subject}'").
             streamCaching().
             process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
@@ -472,12 +472,15 @@ public class MainRouteBuilder extends RouteBuilder {
     return config.get("output.url");
   }
 
+  /**
+   * Delete old mail setup.
+   * @param daysKeep days to keep mail
+   */
   private void initDeleteOldMailPath(Endpoint email, int daysKeep) throws UnsupportedEncodingException {
     long mailKeepHours = daysKeep*24;
     String url = format(
             "%s?password=%s&username=%s" +
             "&consumer.delay=%s" +
-//            "&consumer.useFixedDelay=true" +
             "&consumer.initialDelay=1" +
             "&delete=true" +
             "&searchTerm.toSentDate=now-%sh" +
@@ -490,14 +493,16 @@ public class MainRouteBuilder extends RouteBuilder {
             "&mail.imap.ignorebodystructuresize=true"+
             "&mail.imap.partialfetch=false"+
             "&mail.imaps.partialfetch=false"+
-            "&mail.debug=true"
-            +"%s"
+            "&mail.debug=true"+
+            "&mimeDecodeHeaders=true"+
+            "%s"
         ,
         addProtocolPrefix(email.url),
         URLEncoder.encode(email.pwd, "UTF-8"),
         URLEncoder.encode(email.user, "UTF-8"),
         deleteOldMailCheckPeriod,
-        mailKeepHours, Util.formatParameters(email.parameters)
+        mailKeepHours,
+        Util.formatParameters(email.parameters)
         );
 
     log.info("delete mail URL="+Util.removeSensitiveData(url, "password"));
@@ -518,7 +523,7 @@ public class MainRouteBuilder extends RouteBuilder {
 
   /**
    * Override to use own configloader (for unit-tests).
-   * @return
+   * @return config loader
    */
   public PricehookIdTaggingRulesConfigLoaderProvider getConfigLoaderProvider() {
     return url -> MainRouteBuilder.this.loadPricehookConfig(url);
@@ -531,6 +536,11 @@ public class MainRouteBuilder extends RouteBuilder {
     return Arrays.asList(config.get("file.extension.accept.list", "xls,txt,csv,xlsx").toLowerCase().split(","));
   }
 
+  /**
+   * Adds default protocol handler to URL from config (key default.email.protocol)
+   * @param url to add handler to, SHOULD NOT contain handler otherwise this call returns same url
+   * @return full url with added default handler or original value if already has handler
+   */
   private String addProtocolPrefix(String url) {
     if (!url.contains("://")) {
       return config.get("default.email.protocol", "imaps")+"://"+url;

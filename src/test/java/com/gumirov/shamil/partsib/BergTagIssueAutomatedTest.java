@@ -6,6 +6,7 @@ import com.gumirov.shamil.partsib.util.AttachmentVerifier;
 import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.RawEmailMessage;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,9 +15,10 @@ import java.util.*;
 
 /**
  * Test for BERG wrong tag issue.
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
+@Ignore
 public class BergTagIssueAutomatedTest extends AbstractMailAutomationTest {
   private String[] rawEmailFiles = new String[]{
       "original_msg.txt",

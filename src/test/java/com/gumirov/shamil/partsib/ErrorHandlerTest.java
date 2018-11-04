@@ -27,7 +27,7 @@ import java.util.Map;
 import static java.lang.String.format;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class ErrorHandlerTest extends CamelTestSupport {

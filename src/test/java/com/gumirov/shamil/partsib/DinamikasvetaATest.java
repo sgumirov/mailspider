@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * NullPointerException in log is expected for this test.
  *
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 public class DinamikasvetaATest extends AbstractMailAutomationTest {

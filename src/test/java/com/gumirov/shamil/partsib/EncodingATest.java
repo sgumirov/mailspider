@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2017 by Shamil Gumirov.
  */
 public class EncodingATest extends AbstractMailAutomationTest {

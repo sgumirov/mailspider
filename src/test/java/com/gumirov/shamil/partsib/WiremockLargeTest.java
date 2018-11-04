@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.gumirov.shamil.partsib.util.HttpPostFileSender;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -21,12 +22,14 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
- * @author Shamil@Gumirov.com
+ * @author shamil@gumirov.com
  * Copyright (c) 2018 by Shamil Gumirov.
  */
+@Ignore
 public class WiremockLargeTest {
+  final int port = 18088;
   @Rule
-  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(8080));
+  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(port));
   private Logger log = LoggerFactory.getLogger(WiremockLargeTest.class.getSimpleName());
   private final String endpoint = "/endpoint";
 
@@ -38,7 +41,7 @@ public class WiremockLargeTest {
             .withStatus(200)));
 
     byte[] b = new byte[22000000]; //22M
-    HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:8080"+endpoint);
+    HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:"+port+endpoint);
     sender.onOutput("123.csv", "123", b, b.length, 1000000, "mailid");
 
     //verify http mock endpoint

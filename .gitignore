@@ -3,10 +3,14 @@ target/classes/*
 target/maven-status/*
 target/test-classes/*
 .idea/workspace.xml
+.idea/libraries
+.idea/libraries/*
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/tasks.xml
 .idea/uiDesigner.xml
 spider.log
 src/test/resources/test_mail.properties
-configuration/test_local_endpoints.json
 *.iml
 src/main/resources/notification.properties.real
 src/test/resources/gmail_password.properties
