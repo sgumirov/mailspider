@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
 
-import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.MESSAGE_ID_HEADER;
 
 public class PricehookIdTaggingRulesLoaderProcessor implements Processor {
   private final Logger log = LoggerFactory.getLogger(PricehookIdTaggingRulesLoaderProcessor.class.getSimpleName());
@@ -30,9 +30,9 @@ public class PricehookIdTaggingRulesLoaderProcessor implements Processor {
         for (PricehookIdTaggingRule rule : rules) {
           rule.predicate = SimpleBuilder.simple("${in.header." + rule.header + "} contains '" + rule.contains + "'");
         }
-        exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER, rules);
+        exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.PRICEHOOK_TAGGING_RULES_HEADER, rules);
       } else {
-        log.warn("["+exchange.getIn().getHeader(MID)+"]"+" Tagging rules were not loaded from url. Aborting exchange.");
+        log.warn("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Tagging rules were not loaded from url. Aborting exchange.");
         throw new IllegalStateException("Tagging rules were not loaded from url. Aborting exchange.");
       }
     }

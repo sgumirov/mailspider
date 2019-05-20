@@ -47,8 +47,8 @@ public class DeleteOldMailDateParserTest extends DeleteOldMailATest {
   }
 
   @Override
-  public void assertConditions() throws Exception {
-    super.assertConditions();
+  public void assertPostConditions() throws Exception {
+    super.assertPostConditions();
     Message[] messages;
     AllMailRetriever allRetriever = new AllMailRetriever(greenMail.getImap());
     messages = allRetriever.getMessages(login, pwd);

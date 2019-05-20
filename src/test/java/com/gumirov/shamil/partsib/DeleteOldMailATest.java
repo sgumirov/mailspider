@@ -72,7 +72,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public void assertConditions() throws Exception {
+  public void assertPostConditions() throws Exception {
     Message[] messages;
 
     UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
@@ -101,6 +101,7 @@ public class DeleteOldMailATest extends AbstractMailAutomationTest {
     map.put("delete_old_mail.enabled", "true");
     map.put("delete_old_mail.keep.days", "5");
     map.put("delete_old_mail.check_period.hours", "0");
+    map.put("instance.id", "instance.test");
     map.put("email.enabled", "true");
     map.put("tracing", "false");
     return map;

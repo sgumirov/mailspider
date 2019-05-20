@@ -26,7 +26,6 @@ public class ConfiguratorFactory {
     kv.put("local.enabled", "0");
     kv.put("ftp.enabled", "0");
     kv.put("http.enabled", "0");
-    
     kv.put("work.dir", "tmp");
     
     //fully qualified, comma separated list of classes to use, in order of execution

@@ -33,9 +33,6 @@ import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-/**
- *
- */
 public class EmailNestedMessageTest extends CamelTestSupport {
   private static Logger log = LoggerFactory.getLogger(EmailNestedMessageTest.class.getSimpleName());
   //properties
@@ -46,6 +43,9 @@ public class EmailNestedMessageTest extends CamelTestSupport {
   final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   private int pop3port = 3110;
   final String pop3Url = "pop3://127.0.0.1"+":"+pop3port;
+  final String INSTANCE_ID = "instance_at";
+  final String SOURCE_ID = "EmailNestedTest-01";
+
   { //ssl init
     Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
   }
@@ -65,6 +65,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
+      kv.put("instance.id", INSTANCE_ID);
       kv.put("output.url", httpUrl);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
       kv.put("email.accept.rules.config.filename=", "src/main/resources/email_accept_rules.json");
@@ -108,7 +109,10 @@ public class EmailNestedMessageTest extends CamelTestSupport {
         validate("LONG_SHITTY_NAME.xlsx", 1, pricehookId),
         () -> {
           //total 4 POSTs
-          verify(4, postRequestedFor(urlEqualTo(httpendpoint)));
+          verify(4, postRequestedFor(urlEqualTo(httpendpoint))
+              .withHeader("X-Instance-Id", equalTo(INSTANCE_ID))
+              .withHeader("X-Source-Endpoint-Id", equalTo(SOURCE_ID))
+          );
         },
         () -> {
           //TRANSACTION: deleted processed message
@@ -194,7 +198,7 @@ public class EmailNestedMessageTest extends CamelTestSupport {
         e.http=new ArrayList<>();
         e.email = new ArrayList<>();
         Endpoint email = new Endpoint();
-        email.id = "EmailNestedTest-01";
+        email.id = SOURCE_ID;
 
         email.url = pop3Url;
         email.user = login;
@@ -276,6 +280,8 @@ public class EmailNestedMessageTest extends CamelTestSupport {
                   .withHeader("X-Pricehook", equalTo(pricehookId))
                   .withHeader("X-Part", equalTo(""+i))
                   .withHeader("X-Parts-Total", equalTo(""+parts))
+                  .withHeader("X-Instance-Id", equalTo(INSTANCE_ID))
+                  .withHeader("X-Source-Endpoint-Id", equalTo(SOURCE_ID))
           );
         }
       } catch (UnsupportedEncodingException e) {

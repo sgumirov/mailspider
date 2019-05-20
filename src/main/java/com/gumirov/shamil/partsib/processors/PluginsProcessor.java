@@ -17,8 +17,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gumirov.shamil.partsib.MainRouteBuilder.ENDPOINT_ID_HEADER;
-import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.ENDPOINT_ID_HEADER;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.MESSAGE_ID_HEADER;
 
 /**
  * NOTE: We write to log and mark as SUCCESS in case of any error (exception) happened and rolling back to original 
@@ -52,23 +52,23 @@ public class PluginsProcessor implements Processor {
         last = plugin;
         Plugin.Result res = plugin.processFile(metadata, LoggerFactory.getLogger(plugin.getClass().getSimpleName()));
         if (res != null && res.getResult() != null) {
-          log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
+          log.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
           metadata.is = res.getInputStream();
           //broken Collections.copy((List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER), filesToDelete);
           for (File f : (List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER)) {
             filesToDelete.add(f);
           }
           if (res.getResult() instanceof File)
-            exchange.getIn().setHeader(MainRouteBuilder.LENGTH_HEADER, ((File)res.getResult()).length());
+            exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.LENGTH_HEADER, ((File)res.getResult()).length());
           else
             log.warn("Cannot set length: Plugin result not a File for plugin="+plugin.getClass().getSimpleName());
         } else {
-          log.debug("["+exchange.getIn().getHeader(MID)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT CHANGE file: "+metadata.filename);
+          log.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT CHANGE file: "+metadata.filename);
         }
         if (metadata.headers != null) {
           exchange.getIn().setHeaders(metadata.headers);
         } else {
-          log.warn("["+exchange.getIn().getHeader(MID)+"]"+" Plugin MUST NOT return null headers: "+plugin.getClass().getSimpleName());
+          log.warn("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Plugin MUST NOT return null headers: "+plugin.getClass().getSimpleName());
         }
       }
       exchange.getIn().setBody(metadata.is);
@@ -80,7 +80,7 @@ public class PluginsProcessor implements Processor {
         } else log.info("PluginProcessor: temp file deleted name=" + f.getAbsolutePath());
       }
     } catch (Exception e) {
-      log.error("["+exchange.getIn().getHeader(MID)+"]"+" Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);
+      log.error("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Error for file="+exchange.getIn().getHeader(Exchange.FILE_NAME, String.class)+" in plugin="+last.getClass().getSimpleName()+". ABORTING transaction marking it as SUCCESS (we will NOT process same incoming again). Please manual process this. Exception = "+e.getMessage(), e);
       exchange.getIn().setHeader(MainRouteBuilder.PLUGINS_STATUS_OK, Boolean.FALSE);
     }
   }

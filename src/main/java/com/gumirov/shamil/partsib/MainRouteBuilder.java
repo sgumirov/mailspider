@@ -46,13 +46,7 @@ import static org.apache.camel.builder.ExpressionBuilder.beanExpression;
  */
 public class MainRouteBuilder extends RouteBuilder {
 
-  public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
-  public static final String ENDPOINT_ID_HEADER = "endpoint.id";
-  public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
-  public static final String LENGTH_HEADER = "file.length";
-  public static final String PRICEHOOK_RULE = "pricehook.rule";
   public static final String CHARSET = "UTF-8";
-  public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
   public static final String PLUGINS_STATUS_OK = "MAILSPIDER_PLUGINS_STATUS";
   public static final long HOUR_MILLIS = 1000 * 60 * 60; //1 hour in millis
   public static final long DAY_MILLIS = HOUR_MILLIS * 24; //1 day in millis
@@ -61,17 +55,43 @@ public class MainRouteBuilder extends RouteBuilder {
   /**
    * Default version value specified here. This is overriden in MainRouteBuilder.loadVersion()
    */
-  public static String VERSION = "1.9";
+  public static String VERSION = "1.14";
 
   /**
-   * ID for tracking email in logs
+   * Camel header keys with javadoc descriptions.
    */
-  public static final String MID = "MID";
+  public class HeaderKeys {
+    /**
+     * ID for tracking email in logs.
+     */
+    public static final String MESSAGE_ID_HEADER = "MID";
+
+    /**
+     * Identifies MailSpider instance for output node.
+     */
+    public static final String INSTANCE_ID = "INSTANCE_ID";
+
+    public static final String SOURCE_ENDPOINT_ID = "SOURCE_ENDPOINT_ID";
+    public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
+    /**
+     * Represents on output endpoint which source endpoint was used to gather message.
+     */
+    public static final String ENDPOINT_ID_HEADER = "endpoint.id";
+    public static final String PRICEHOOK_ID_HEADER = "pricehook.id";
+    public static final String LENGTH_HEADER = "file.length";
+    public static final String PRICEHOOK_TAGGING_RULES_HEADER = "com.gumirov.shamil.partsib.PRICEHOOK_TAGGING_HEADER";
+    public static final String PRICEHOOK_RULE = "pricehook.rule";
+  }
+
   public static int MAX_UPLOAD_SIZE;
   private int cachedStringHash;
   private long deleteOldMailCheckPeriod;
   private boolean deleteOldMailEnabled;
   private int deleteOldMailAfterDays;
+  /**
+   * Instance ID used to identify this node from output endpoint side. <p><br/><b>Note: </b>if not sent in config the value is <b>null</b>.
+   */
+  private String instanceId;
   /**
    * If true pipeline passes whenever PLUGINS_STATUS_OK is set to false.
    */
@@ -174,6 +194,10 @@ public class MainRouteBuilder extends RouteBuilder {
   public void configure() {
     log.info("============ MailSpider version: "+VERSION);
     try {
+      //instance id
+      instanceId = config.get("instance.id");
+      if (instanceId == null) throw new RuntimeException("No instance.id is specified in config. Since ver. 1.14 instance id is required.");
+
       //debug, will be overriden by config's 'tracing' boolean value
       if (config.is("tracing", false)) {
         log.info("Warning: enabled Camel TRACING");
@@ -241,7 +265,7 @@ public class MainRouteBuilder extends RouteBuilder {
           String producerId = ftp.id;
 
           from(ftpUrl).
-              setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
+              setHeader(HeaderKeys.ENDPOINT_ID_HEADER, constant(producerId)).
               idempotentConsumer(
                   repoMan.createExpression(),
                   FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
@@ -260,7 +284,7 @@ public class MainRouteBuilder extends RouteBuilder {
           String producerId = http.id;
 
           from("timer://http?fixedRate=true&period="+http.delay).
-                  setHeader(ENDPOINT_ID_HEADER, constant(producerId)).
+                  setHeader(HeaderKeys.ENDPOINT_ID_HEADER, constant(producerId)).
               to(startEndpoint).
               end();
 
@@ -287,9 +311,10 @@ public class MainRouteBuilder extends RouteBuilder {
 
       //unzip/unrar
       from("direct:packed").
+          process(exchange -> exchange.getIn().setHeader(HeaderKeys.INSTANCE_ID, instanceId)).id("SetInstanceId").
           process(compressionDetectorProcessor).id("CompressorDetector").
           choice().
-            when(header(COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
+            when(header(HeaderKeys.COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
               split(beanExpression(unpackerSplitter, "unpack")).
               to("direct:unpacked").endChoice().
             otherwise().
@@ -416,7 +441,7 @@ public class MainRouteBuilder extends RouteBuilder {
             choice().
               when(emailAcceptPredicate).
                 log(LoggingLevel.INFO, "Accepted (primary) email from: '$simple{in.header.From}' with Subject: '$simple{in.header.Subject}' sent at: '$simple{in.header.Date}'").
-                setHeader(ENDPOINT_ID_HEADER, constant(email.id)).
+                setHeader(HeaderKeys.ENDPOINT_ID_HEADER, constant(email.id)).
                 to("direct:acceptedmail").
                 endChoice().
               otherwise().
@@ -427,13 +452,13 @@ public class MainRouteBuilder extends RouteBuilder {
 
         //pricehook tagging and attachment extraction
         from("direct:acceptedmail").routeId("acceptedmail").
-            process(exchange -> exchange.getIn().setHeader(MID, Util.getMID(exchange.getIn()))).id("MessageIdSetter").
+            process(exchange -> exchange.getIn().setHeader(HeaderKeys.MESSAGE_ID_HEADER, Util.getMID(exchange.getIn()))).id("MessageIdSetter").
             log(LoggingLevel.INFO, "[${in.header.MID}] Accepted email sent at ${in.header.Date} from ${in.header.From} with subject '${in.header.Subject}'").
             streamCaching().
             process(pricehookRulesConfigLoaderProcessor).id("pricehookConfigLoader").
             process(pricehookIdTaggerProcessor).id(PricehookTaggerProcessor.ID).
             choice().
-              when(exchange -> null == exchange.getIn().getHeader(PRICEHOOK_ID_HEADER)).
+              when(exchange -> null == exchange.getIn().getHeader(HeaderKeys.PRICEHOOK_ID_HEADER)).
                 log(LoggingLevel.INFO, "[${in.header.MID}] Rejecting email due to no tag: sent at ${in.header.Date} from ${in.header.From}").
                 to("direct:rejected").
               endChoice().
@@ -444,16 +469,16 @@ public class MainRouteBuilder extends RouteBuilder {
             process(exchange -> {
               //here's logging only
               Message in = exchange.getIn();
-              log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachments size before split: "+in.getAttachments().size());
+              log.info("["+exchange.getIn().getHeader(HeaderKeys.MESSAGE_ID_HEADER)+"]"+" Attachments size before split: "+in.getAttachments().size());
               for (String s : in.getAttachmentNames()) {
-                log.info("["+exchange.getIn().getHeader(MID)+"]"+" Attachment=" + s);
+                log.info("["+exchange.getIn().getHeader(HeaderKeys.MESSAGE_ID_HEADER)+"]"+" Attachment=" + s);
               }
             }).id("DebugLoggingProcessor").
             process(attachmentTaggerProcessor).id(AttachmentTaggerProcessor.ID).
             process(exchange ->
                 log.info("Attachment: name={} tag={}",
                     exchange.getIn().getHeader(Exchange.FILE_NAME),
-                    exchange.getIn().getHeader(PRICEHOOK_ID_HEADER))).
+                    exchange.getIn().getHeader(HeaderKeys.PRICEHOOK_ID_HEADER))).
             id("taglogger").
             to("direct:packed");
 

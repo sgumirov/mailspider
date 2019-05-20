@@ -34,6 +34,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       //next line is to enter condition PricehookIdTaggingRulesLoaderProcessor:27
       kv.put("pricehook.config.url", "http://ANYTHING");
       kv.put("email.enabled", "true");
+      kv.put("instance.id", "instance_id");
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
@@ -139,7 +140,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
         expectTags != null && expectTags.size() != expectNumTotal)
       throw new IllegalArgumentException("Illegal arguments: must be same size of expected tags/names and number of messages");
 
-    if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, expectTags.toArray());
+    if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.HeaderKeys.PRICEHOOK_ID_HEADER, expectTags.toArray());
     if (expectNames != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectNames.toArray());
     mockEndpoint.expectedMessageCount(expectNumTotal);
 
@@ -214,7 +215,7 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
     List<String> tags = Arrays.asList("filerule_1_1", "filerule_1_2", "filerule_2_2", "goodSupplier");
     List<String> fnames = Arrays.asList("filerule_1.csv", "filerule_2.csv", "filerule_2.csv", "goodSupplier.csv");
 
-    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, tags.toArray());
+    mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.HeaderKeys.PRICEHOOK_ID_HEADER, tags.toArray());
     mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, fnames.toArray());
     mockEndpoint.expectedMessageCount(4);
 

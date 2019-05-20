@@ -71,7 +71,7 @@ public class ArchiveTypeDetectorProcessorUnitTest extends CamelTestSupport {
       }
     };
     resultEndpoint.expectedMessageCount(1);
-    resultEndpoint.expectedHeaderReceived(MainRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.GZIP);
+    resultEndpoint.expectedHeaderReceived(MainRouteBuilder.HeaderKeys.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.GZIP);
     resultEndpoint.expectedMessagesMatches(exchange -> {
       InputStream in = (InputStream) exchange.getIn().getBody();
       try {
@@ -91,7 +91,7 @@ public class ArchiveTypeDetectorProcessorUnitTest extends CamelTestSupport {
   public void test(Object body, MainRouteBuilder.CompressorType expectedType) throws InterruptedException {
     resultEndpoint.expectedMessageCount(1);
     template.sendBodyAndHeader(body, Exchange.FILE_NAME, expectedType.toString());
-    resultEndpoint.expectedHeaderReceived(MainRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, expectedType);
+    resultEndpoint.expectedHeaderReceived(MainRouteBuilder.HeaderKeys.COMPRESSED_TYPE_HEADER_NAME, expectedType);
     resultEndpoint.assertIsSatisfied();
     resultEndpoint.reset();
   }

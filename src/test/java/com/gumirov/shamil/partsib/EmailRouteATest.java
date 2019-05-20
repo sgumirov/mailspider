@@ -57,6 +57,7 @@ public class EmailRouteATest extends CamelTestSupport {
   private final List<String> filenames = Arrays.asList("примерПрайса.txt", "Прайс лист1.csv", "wrongfile.jpg");
   private final byte[] contents = "a,b,c,d,e,1,2,3".getBytes();
   private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
+  private final String INSTANCE_ID = "instance_at";
 
   @Rule
   public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.IMAP);
@@ -73,6 +74,7 @@ public class EmailRouteATest extends CamelTestSupport {
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
       kv.put("http.enabled",  "0");
+      kv.put("instance.id", INSTANCE_ID);
       kv.put("output.url", httpUrl);
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints.json");
       kv.put("email.accept.rules.config.filename=", "src/main/resources/email_accept_rules.json");
@@ -128,7 +130,10 @@ public class EmailRouteATest extends CamelTestSupport {
         30000,
         validate(filenames.get(0)+".csv", 1, pricehookId),
         validate(filenames.get(1)+".csv", 1, pricehookId),
-        () -> verify(2, postRequestedFor(urlEqualTo(httpendpoint))),
+        () -> verify(2, postRequestedFor(
+            urlEqualTo(httpendpoint))
+            .withHeader("X-Instance-Id", equalTo(INSTANCE_ID))
+        ),
         () -> {
           UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
           Message[] messages = unseenRetriever.getMessages(login, pwd);
@@ -185,7 +190,10 @@ public class EmailRouteATest extends CamelTestSupport {
         50000,
         validate(filenames.get(0)+".csv", 1, pricehookId),
         validate(filenames.get(1)+".csv", 1, pricehookId),
-        () -> verify(4, postRequestedFor(urlEqualTo(httpendpoint))),
+        () -> verify(4, postRequestedFor(
+            urlEqualTo(httpendpoint))
+            .withHeader("X-Instance-Id", equalTo(INSTANCE_ID))
+        ),
         () -> {
           //TRANSACTION: deleted processed message
           UnseenRetriever unseenRetriever = new UnseenRetriever(greenMail.getImap());
@@ -212,6 +220,7 @@ public class EmailRouteATest extends CamelTestSupport {
               postRequestedFor(urlEqualTo(httpendpoint))
                   .withHeader("X-Filename", equalTo(Base64.getEncoder().encodeToString(filename.getBytes("UTF-8"))))
                   .withHeader("X-Pricehook", equalTo(pricehookId))
+                  .withHeader("X-Instance-Id", equalTo(INSTANCE_ID))
                   .withHeader("X-Part", equalTo(""+i))
                   .withHeader("X-Parts-Total", equalTo(""+parts))
           );

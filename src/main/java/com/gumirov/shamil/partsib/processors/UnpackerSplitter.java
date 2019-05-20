@@ -46,7 +46,7 @@ public class UnpackerSplitter {
         else
           throw new RuntimeException("Unexpected body type: "+nr.getClass().getSimpleName());
         copy.setHeader(Exchange.FILE_NAME, nr.getName());
-        copy.setHeader(MainRouteBuilder.LENGTH_HEADER, nr.getLength());
+        copy.setHeader(MainRouteBuilder.HeaderKeys.LENGTH_HEADER, nr.getLength());
         outMsgs.add(copy);
       }
     }catch (Exception e){

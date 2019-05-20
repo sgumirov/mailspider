@@ -12,7 +12,6 @@ import javax.activation.DataHandler;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -61,8 +60,8 @@ public class PluginTempFileDeleteATest
   }
 
   @Override
-  public void assertConditions() throws Exception {
-    super.assertConditions();
+  public void assertPostConditions() throws Exception {
+    super.assertPostConditions();
     assertTrue(tempFiles.size() == 2);
     for (File f : tempFiles) {
       assert (!f.exists());

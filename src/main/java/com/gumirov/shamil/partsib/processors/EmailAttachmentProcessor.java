@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.MESSAGE_ID_HEADER;
 
 /**
  * Extracts attachment object to body as inputstream. There must be exactly one attachment
@@ -34,15 +34,15 @@ public class EmailAttachmentProcessor implements Processor {
     //must be exactly one attachment (use after SplitAttachmentsExpression)
     int count = 0;
     if (msg.getAttachmentObjects().size() == 0) {
-      log.info("["+exchange.getIn().getHeader(MID)+"]"+" Email has no attachments");
+      log.info("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Email has no attachments");
     } else for (String fname : msg.getAttachmentObjects().keySet()){
       if (count > 0) {
-        log.error("["+exchange.getIn().getHeader(MID)+"]"+" EmailAttachmentProcessor must be used after SplitAttachmentsExpression: only 1 attachment can be decoded.");
-        throw new RuntimeException("[" + exchange.getIn().getHeader(MID) + "]" + " EmailAttachmentProcessor must be used only after SplitAttachmentsExpression, so that only one attachment per message.");
+        log.error("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" EmailAttachmentProcessor must be used after SplitAttachmentsExpression: only 1 attachment can be decoded.");
+        throw new RuntimeException("[" + exchange.getIn().getHeader(MESSAGE_ID_HEADER) + "]" + " EmailAttachmentProcessor must be used only after SplitAttachmentsExpression, so that only one attachment per message.");
       }
       try {
         if (fname == null) {
-          log.warn("["+exchange.getIn().getHeader(MID)+"]"+" Message has empty filename for attachment: from="+exchange.getIn().getHeader("From", String.class));
+          log.warn("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Message has empty filename for attachment: from="+exchange.getIn().getHeader("From", String.class));
           exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
         }
         Attachment a = msg.getAttachmentObjects().get(fname);
@@ -70,12 +70,12 @@ public class EmailAttachmentProcessor implements Processor {
         } else {
           throw new IllegalArgumentException("Cannot process attachment with type: "+content.getClass().getSimpleName());
         }
-        exchange.getIn().setHeader(MainRouteBuilder.LENGTH_HEADER, len);
+        exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.LENGTH_HEADER, len);
         fname = MimeUtility.decodeText(fname); //let it fall! nullpointer will be caught below
         msg.setHeader(Exchange.FILE_NAME, fname);
-        log.info("["+exchange.getIn().getHeader(MID)+"]"+" Extracted attachment name: "+fname);
+        log.info("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Extracted attachment name: "+fname);
       } catch (Exception e) {
-        log.error("["+exchange.getIn().getHeader(MID)+"]"+" Cannot process attachment: "+fname, e);
+        log.error("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Cannot process attachment: "+fname, e);
       }
       ++count;
     }

@@ -8,10 +8,9 @@ import org.apache.camel.builder.SimpleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 
-import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.MESSAGE_ID_HEADER;
 
 /**
  * This processor sets 'tag' header for excehange. Applies to single file message.
@@ -38,15 +37,15 @@ public class PricehookTaggerProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    List<PricehookIdTaggingRule> rulesDynamic = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_TAGGING_RULES_HEADER, List.class);
+    List<PricehookIdTaggingRule> rulesDynamic = exchange.getIn().getHeader(MainRouteBuilder.HeaderKeys.PRICEHOOK_TAGGING_RULES_HEADER, List.class);
     if (rulesDynamic != null) rules  = rulesDynamic;
     if (rules == null) throw new Exception("FATAL: No pricehook id tagging rules");
     for (PricehookIdTaggingRule rule : rules){
       if (rule.predicate.matches(exchange)) {
-        exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER, rule.pricehookid);
+        exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.PRICEHOOK_ID_HEADER, rule.pricehookid);
         //set rule. This is needed for separate attachment tagging.
-        exchange.getIn().setHeader(MainRouteBuilder.PRICEHOOK_RULE, rule);
-        log.info("["+exchange.getIn().getHeader(MID)+"]"+" Tagged message with tag: "+rule.pricehookid);
+        exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.PRICEHOOK_RULE, rule);
+        log.info("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Tagged message with tag: "+rule.pricehookid);
       }
     }
   }

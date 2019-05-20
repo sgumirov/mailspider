@@ -1,6 +1,7 @@
 package com.gumirov.shamil.partsib;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -44,7 +45,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   //for greenmail. TODO check this as we don't have GreenMail here!
   private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
   @Rule
-  public WireMockRule httpMock = new WireMockRule(WireMockConfiguration.wireMockConfig().port(getHttpMockPort()));
+  public WireMockRule httpMock = new WireMockRule(WireMockConfiguration.wireMockConfig().port(getHttpMockPort()).notifier(new ConsoleNotifier(true)));
+  private static final String INSTANCE_ID = "instance.id.mailspider.test";
 
   ConfiguratorFactory configFactory = new ConfiguratorFactory(){
     @Override
@@ -56,6 +58,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       kv.put("email.enabled", "true");
       kv.put("local.enabled", "0");
       kv.put("ftp.enabled",   "0");
+      kv.put("instance.id", INSTANCE_ID);
       kv.put("http.enabled",  "0");
       kv.put("endpoints.config.filename", "target/classes/test_local_endpoints0.json");
       kv.put("email.accept.rules.config.filename=", "src/main/resources/email_accept_rules.json");
@@ -209,7 +212,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       Thread.sleep(getMillisecondsWaitBeforeAssert());
     }
 
-    assertConditions();
+    assertPostConditions();
     log.info("Test PASSED: " + getClass().getSimpleName());
 
     context.stop();
@@ -217,7 +220,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   //todo move expectXXX to getters?
   protected void setupMockAsserts(List<String> expectTags, List<String> expectNames) {
-    if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.PRICEHOOK_ID_HEADER, expectTags.toArray());
+    if (expectTags != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(MainRouteBuilder.HeaderKeys.PRICEHOOK_ID_HEADER, expectTags.toArray());
     if (expectNames != null) mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(Exchange.FILE_NAME, expectNames.toArray());
     mockEndpoint.expectedMessageCount(getExpectNumTotal());
   }
@@ -228,10 +231,10 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   /**
    * Override to modify assertion.
-   * <br/> Note: it's highly recommended to call super.assertConditions() otherwise know exactly what are
+   * <br/> Note: it's highly recommended to call super.assertPostConditions() otherwise know exactly what are
    * you doing!
    */
-  public void assertConditions() throws Exception {
+  public void assertPostConditions() throws Exception {
     log.info("Expecting {} messages", expectNumTotal);
     mockEndpoint.assertIsSatisfied();
     
@@ -246,6 +249,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     //verify http mock endpoint
     WireMock.verify(
         WireMock.postRequestedFor(urlPathEqualTo(httpendpoint))
+            .withHeader("X-Instance-Id", equalTo(config.get("instance.id")))
     );
 
     //verify attachments' names

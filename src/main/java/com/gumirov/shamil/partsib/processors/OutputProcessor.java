@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.*;
 
 /**
  * (c) 2017 by Shamil Gumirov (shamil@gumirov.com).<br/>
@@ -26,30 +26,25 @@ public class OutputProcessor implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     String filename = exchange.getIn().getHeader(Exchange.FILE_NAME).toString();
-    String endpointId = exchange.getIn().getHeader(MainRouteBuilder.ENDPOINT_ID_HEADER).toString();
+    String endpointId = exchange.getIn().getHeader(ENDPOINT_ID_HEADER).toString();
     String pricehookId;
-    if (exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER) != null) {
-      pricehookId = exchange.getIn().getHeader(MainRouteBuilder.PRICEHOOK_ID_HEADER).toString();
+    if (exchange.getIn().getHeader(PRICEHOOK_ID_HEADER) != null) {
+      pricehookId = exchange.getIn().getHeader(PRICEHOOK_ID_HEADER).toString();
     } else {
       log.warn("[%s] Output(): NOT SENDING file %s from route id=%s with no pricehook_id",
-          exchange.getIn().getHeader(MID), exchange.getExchangeId(), filename, endpointId);
+          exchange.getIn().getHeader(MESSAGE_ID_HEADER), exchange.getExchangeId(), filename, endpointId);
       return;
     }
     log.info(String.format("[%s] Output(): file %s from route name=%s with pricehook_id=%s",
-        exchange.getIn().getHeader(MID),
+        exchange.getIn().getHeader(MESSAGE_ID_HEADER),
         filename, endpointId, pricehookId));
-/*
-    byte[] b = exchange.getIn().getBody(byte[].class);
-    if (!new HttpPostFileSender(url).onOutput(filename, pricehookId, b, b.length, MainRouteBuilder.MAX_UPLOAD_SIZE))
-      throw new Exception(String.format("[%s] File %s was not sent properly, please refer to HttpClient logs",
-          exchange.getIn().getHeader(MID), filename));
-          */
 
     InputStream is = exchange.getIn().getBody(InputStream.class);
-    int len = ((Number) exchange.getIn().getHeader(MainRouteBuilder.LENGTH_HEADER)).intValue();
+    int len = ((Number) exchange.getIn().getHeader(LENGTH_HEADER)).intValue();
     if (!new HttpPostFileSender(url).send(filename, pricehookId, is, len, MainRouteBuilder.MAX_UPLOAD_SIZE,
-        (String)exchange.getIn().getHeader(MID)))
+        (String)exchange.getIn().getHeader(MESSAGE_ID_HEADER), (String)exchange.getIn().getHeader(INSTANCE_ID),
+        endpointId))
       throw new Exception(String.format("[%s] File %s was not sent properly, please refer to HttpClient logs",
-          exchange.getIn().getHeader(MID), filename));
+          exchange.getIn().getHeader(MESSAGE_ID_HEADER), filename));
   }
 }

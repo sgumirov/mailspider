@@ -1,10 +1,12 @@
 package com.gumirov.shamil.partsib;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.HttpPostFileSender;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,25 +26,33 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Copyright (c) 2018 by Shamil Gumirov.
  */
 @Ignore
-public class WiremockLargeAutomationTest extends AbstractMailAutomationTest {
-  private Logger log = LoggerFactory.getLogger(WiremockLargeAutomationTest.class.getSimpleName());
+public class WiremockLargeUnitTest {
+  private static final String INSTANCE_ID = "1";
+  private static final String SOURCE_ID = "2";
+  final int port = 18088;
+  @Rule
+  public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().port(port));
+  private Logger log = LoggerFactory.getLogger(WiremockLargeUnitTest.class.getSimpleName());
   private final String endpoint = "/endpoint";
 
   @Test
   public void testWiremock() throws IOException {
-    byte[] b = new byte[22000000]; //22M
-//    byte[] b = "1234567890123456".getBytes(); //22M
-    HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:"+ getHttpMockPort()+endpoint);
-//    sender.onOutput("123.csv", "123", b, b.length, 4);
-    sender.onOutput("123.csv", "123", b, b.length, 1000000, "mid");
+    //http mock endpoint setup
+    stubFor(post(urlEqualTo(endpoint))
+        .willReturn(aResponse()
+            .withStatus(200)));
 
-/*
+    byte[] b = new byte[22000000]; //22M
+    HttpPostFileSender sender = new HttpPostFileSender("http://127.0.0.1:"+port+endpoint);
+    sender.onOutput("123.csv", "123", b, b.length, 1000000, "mailid", INSTANCE_ID, SOURCE_ID);
+
     //verify http mock endpoint
     WireMock.verify(
         22,
         WireMock.postRequestedFor(urlPathEqualTo(endpoint))
+            .withHeader("X-Instance-Id", equalTo(INSTANCE_ID))
+            .withHeader("X-Source-Endpoint-Id", equalTo(SOURCE_ID))
     );
-*/
     //verify attachments' names
     Map<String, InputStream> atts = new HashMap<>();
     Map<String, String> tags = new HashMap<>();
@@ -63,10 +73,5 @@ public class WiremockLargeAutomationTest extends AbstractMailAutomationTest {
     for (String fname : atts.keySet()) {
       log.info(fname + " : " + atts.get(fname));
     }
-  }
-
-  @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
-    return loadTagRules("prod_rules.json");
   }
 }
