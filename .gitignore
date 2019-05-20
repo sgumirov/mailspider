@@ -9,6 +9,9 @@ target/test-classes/*
 .idea/usage.statistics.xml
 .idea/tasks.xml
 .idea/uiDesigner.xml
+.idea/compiler.xml
+.idea/misc.xml
+.idea/modules.xml
 spider.log
 src/test/resources/test_mail.properties
 *.iml

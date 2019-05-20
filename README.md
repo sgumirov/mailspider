@@ -7,6 +7,7 @@ HTTP POST with 'application/octet-stream' content type).
 # Version status and important changes
 See below some version-specific details
 
+- Version 1.14: Implement sending HTTP headers to output with: endpoint ID; instance ID.
 - Version 1.13: Added forced attachments dump to disk, fixes for http sender. Incompatible API changes from base.
 - Version 1.12: Fixes date parser for "Delete Old Mail" feature route, changed timezone in logs
 - Version 1.11: Added automation test for special chars in mail filter
@@ -25,6 +26,13 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 -- Now loading pricehook config from network, see below in 'Pricehook IDs tagging config loading from network'
 - Version 1.2. Deployed with pricehook tagging.
 - Version 1.1. An officially deployed at the customer installation.
+
+### Changes in 1.14
+
+Scalability-related feature. Added sending of instance ID and message source endpoint ID with message to output in HTTP headers.
+For details see below "Instance ID".
+
+Source endpoint ID is now sent always. See details in "Source endpoint ID" section below.
 
 ### Changes in 1.13
 
@@ -57,6 +65,24 @@ config key, default value false:
 ```
 plugin.pass.when.error=false
 ```
+
+# Source endpoint ID
+
+Added in: 1.14
+
+Source endpoint ID is sent in HTTP header "X-Source-Endpoint-Id". Must be in ASCII (no unicode chars) as sent without
+encoding conversion as text.
+
+# Instance ID
+
+Added in: 1.14
+
+Instance ID (if configured) is sent to output in HTTP header "X-Instance-Id". Configured in config's option instance.id:
+```
+instance.id=partsib_main_node_01
+```
+
+Must be in ASCII (no unicode chars) as sent without encoding conversion as text.
 
 # Delete old mail
 

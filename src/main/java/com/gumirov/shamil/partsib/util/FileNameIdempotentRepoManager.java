@@ -31,7 +31,7 @@ public class FileNameIdempotentRepoManager {
     if (expression == null) {
       expression = append(
           append(
-              SimpleBuilder.simple("header."+ MainRouteBuilder.ENDPOINT_ID_HEADER),
+              SimpleBuilder.simple("header."+ MainRouteBuilder.HeaderKeys.ENDPOINT_ID_HEADER),
               SimpleBuilder.simple("-")),
           append(
               append(

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
-import static com.gumirov.shamil.partsib.MainRouteBuilder.MID;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.MESSAGE_ID_HEADER;
 
 /**
  * Supported archive singature detector. If no {@link InputStream#mark(int)} is supported, then caches the whole stream
@@ -42,7 +42,7 @@ public class ArchiveTypeDetectorProcessor implements Processor {
 
     boolean b;
     if (filename != null && excluder != null && (b = excluder.excludeName(filename.toLowerCase()))) {
-      logger.info("[" + exchange.getIn().getHeader(MID) + "]" + " Archive Detection disabled for this file (" + filename + ")" + (b ? ". FileNameExcluder was used" : ""));
+      logger.info("[" + exchange.getIn().getHeader(MESSAGE_ID_HEADER) + "]" + " Archive Detection disabled for this file (" + filename + ")" + (b ? ". FileNameExcluder was used" : ""));
       return;
     }
 
@@ -71,23 +71,23 @@ public class ArchiveTypeDetectorProcessor implements Processor {
     }
 
 
-    logger.debug("["+exchange.getIn().getHeader(MID)+"]"+" Signature read: "+bytesToHex(signature));
+    logger.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Signature read: "+bytesToHex(signature));
     if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b ) {
-      exchange.getIn().setHeader(MainRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.GZIP.toString());
-      logger.debug("["+exchange.getIn().getHeader(MID)+"]"+" GZIP detected file="+filename);
+      exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.GZIP.toString());
+      logger.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" GZIP detected file="+filename);
     }else if (compare(signature, new int[]{0x50, 0x4B, 0x03, 0x04})) {
-      exchange.getIn().setHeader(MainRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.ZIP.toString());
-      logger.debug("["+exchange.getIn().getHeader(MID)+"]"+" ZIP detected file="+filename);
+      exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.ZIP.toString());
+      logger.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" ZIP detected file="+filename);
     }else if (compare(signature, new int[]{0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00}) ||
               compare(signature, new int[]{0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x01, 0})) {
-      exchange.getIn().setHeader(MainRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.RAR.toString());
-      logger.debug("["+exchange.getIn().getHeader(MID)+"]"+" RAR detected file="+filename);
+      exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType.RAR.toString());
+      logger.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" RAR detected file="+filename);
     }else if (compare(signature, new int[]{0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c})) {
-      exchange.getIn().setHeader(MainRouteBuilder.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType._7Z.toString());
-      logger.debug("["+exchange.getIn().getHeader(MID)+"]"+" 7Z detected file="+filename);
+      exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.COMPRESSED_TYPE_HEADER_NAME, MainRouteBuilder.CompressorType._7Z.toString());
+      logger.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" 7Z detected file="+filename);
     }
     else
-      logger.info("["+exchange.getIn().getHeader(MID)+"]"+" No archive detected in file="+filename);
+      logger.info("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" No archive detected in file="+filename);
   }
 
   private static String bytesToHex(byte[] in) {
