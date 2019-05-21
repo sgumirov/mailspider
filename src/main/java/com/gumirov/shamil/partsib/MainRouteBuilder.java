@@ -71,7 +71,6 @@ public class MainRouteBuilder extends RouteBuilder {
      */
     public static final String INSTANCE_ID = "INSTANCE_ID";
 
-    public static final String SOURCE_ENDPOINT_ID = "SOURCE_ENDPOINT_ID";
     public static final String COMPRESSED_TYPE_HEADER_NAME = "compressor.type";
     /**
      * Represents on output endpoint which source endpoint was used to gather message.
