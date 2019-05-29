@@ -501,7 +501,7 @@ public class MainRouteBuilder extends RouteBuilder {
    * @param daysKeep days to keep mail
    */
   private void initDeleteOldMailPath(Endpoint email, int daysKeep) throws UnsupportedEncodingException {
-    long mailKeepHours = daysKeep*24;
+    long mailKeepHours = daysKeep * 24;
     String url = format(
             "%s?password=%s&username=%s" +
             "&consumer.delay=%s" +
@@ -529,12 +529,12 @@ public class MainRouteBuilder extends RouteBuilder {
         Util.formatParameters(email.parameters)
         );
 
-    log.info("delete mail URL="+Util.removeSensitiveData(url, "password"));
-
+    log.info("delete mail URL=" + Util.removeSensitiveData(url, "password"));
+    String deleteRouteId = "delete-old-mail-route" + email.id;
     skipNewMailProcessor = new DeleteOldMailProcessor(daysKeep);
-    from(url).routeId("delete-old-mail-route").id("delete-mail-source").
+    from(url).routeId(deleteRouteId).id("delete-mail-source" + email.id).
         process(skipNewMailProcessor). //should throw exception to skip mail.
-        id("delete-mail-processor").
+        id("delete-mail-processor" + email.id).
         to("log:DELETE_MAIL");
 
   }

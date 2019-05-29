@@ -7,7 +7,7 @@ HTTP POST with 'application/octet-stream' content type).
 # Version status and important changes
 See below some version-specific details
 
-- Version 1.14: Implement sending HTTP headers to output with: endpoint ID; instance ID.
+- Version 1.14: Implement sending HTTP headers to output with: endpoint ID; instance ID. Fix for multiple endpoints.
 - Version 1.13: Added forced attachments dump to disk, fixes for http sender. Incompatible API changes from base.
 - Version 1.12: Fixes date parser for "Delete Old Mail" feature route, changed timezone in logs
 - Version 1.11: Added automation test for special chars in mail filter
@@ -32,7 +32,9 @@ AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is ag
 Scalability-related feature. Added sending of instance ID and message source endpoint ID with message to output in HTTP headers.
 For details see below "Instance ID".
 
-Source endpoint ID is now sent always. See details in "Source endpoint ID" section below.
+Source endpoint ID is now being sent always. See details in "Source endpoint ID" section below.
+
+Fixed issue with multiple email endpoints caused by multiple "delete old mail" routes with the same ID.
 
 ### Changes in 1.13
 
