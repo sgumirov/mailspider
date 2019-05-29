@@ -1,0 +1,44 @@
+{
+  "ftp": [
+    {
+      "id": "ftp_supplier_01",
+      "url": "ftp://192.168.0.1/files/1.zip",
+      "user": "username",
+      "pwd": "password",
+      "delay": "60000"
+    },
+    {
+      "id": "ftp_supplier_dir",
+      "url": "ftp://127.0.0.1/test/",
+      "user": "anonymous",
+      "pwd": "a@google.com",
+      "delay": "60000"
+    }
+  ],
+  "http": [
+    {
+      "id": "HTTP_Optima",
+      "factory": "com.gumirov.shamil.partsib.factories.OptimaRouteFactory",
+      "url": "https://optma.ru/index.php?r=site/products",
+      "user": "partsib",
+      "pwd": "partsib5405",
+      "delay": "60000"
+    }
+  ],
+  "email": [
+    {
+      "id": "email_inbox_gmail_03",
+      "url": "imap.gmail.com",
+      "user": "pricepartsib2@gmail.com",
+      "pwd": "33334444!",
+      "delay": "240000"
+    },
+    {
+      "id": "email_inbox_gmail_08",
+      "url": "imap.gmail.com",
+      "user": "pricepartsib8@gmail.com",
+      "pwd": "33334444!",
+      "delay": "260000"
+    }
+  ]
+}

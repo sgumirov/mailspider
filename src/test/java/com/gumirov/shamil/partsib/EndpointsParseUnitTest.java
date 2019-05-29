@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 public class EndpointsParseUnitTest {
@@ -74,5 +76,29 @@ public class EndpointsParseUnitTest {
     Assert.assertEquals("username", endpoints.ftp.get(0).user);
     Assert.assertEquals("password", endpoints.ftp.get(0).pwd);
     Assert.assertEquals("60000", endpoints.ftp.get(0).delay);
+  }
+
+  @Test
+  public void testMultipleEndpointsConfig() throws IOException {
+    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("multiple_endpoints/multiple_endpoints.json"), Charset.defaultCharset());
+    ObjectMapper mapper = new ObjectMapper();
+    Endpoints endpoints = mapper.readValue(json, Endpoints.class);
+    Assert.assertEquals(2, endpoints.ftp.size());
+    Assert.assertEquals(1, endpoints.http.size());
+    Assert.assertEquals(2, endpoints.email.size());
+    Assert.assertEquals("ftp://192.168.0.1/files/1.zip", endpoints.ftp.get(0).url);
+    Assert.assertEquals("ftp_supplier_01", endpoints.ftp.get(0).id);
+    Assert.assertEquals("username", endpoints.ftp.get(0).user);
+    Assert.assertEquals("password", endpoints.ftp.get(0).pwd);
+    Assert.assertEquals("60000", endpoints.ftp.get(0).delay);
+
+    Assert.assertEquals("ftp://127.0.0.1/test/", endpoints.ftp.get(1).url);
+    Assert.assertEquals("ftp_supplier_dir", endpoints.ftp.get(1).id);
+    Assert.assertEquals("anonymous", endpoints.ftp.get(1).user);
+    Assert.assertEquals("a@google.com", endpoints.ftp.get(1).pwd);
+    Assert.assertEquals("60000", endpoints.ftp.get(1).delay);
+
+    Assert.assertEquals("email_inbox_gmail_03", endpoints.email.get(0).id);
+    Assert.assertEquals("email_inbox_gmail_08", endpoints.email.get(1).id);
   }
 }

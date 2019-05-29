@@ -358,12 +358,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
       @Override
       public Endpoints getEndpoints() {
-        Endpoints e = new Endpoints();
-        e.ftp=new ArrayList<>();
-        e.http=new ArrayList<>();
-        e.email = new ArrayList<>();
-        e.email.addAll(getEmailEndpoints());
-        return e;
+        return loadTestEndpointsConfig();
       }
 
       @Override
@@ -376,6 +371,15 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       }
     };
     return builder;
+  }
+
+  protected Endpoints loadTestEndpointsConfig() {
+    Endpoints endpoints = new Endpoints();
+    endpoints.ftp=new ArrayList<>();
+    endpoints.http=new ArrayList<>();
+    endpoints.email = new ArrayList<>();
+    endpoints.email.addAll(getEmailEndpoints());
+    return endpoints;
   }
 
   protected List<Plugin> getPluginsList() {
