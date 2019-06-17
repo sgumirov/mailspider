@@ -1,0 +1,6 @@
+[{
+  "id":"rule_1",
+  "header":"Subject",
+  "contains":"test",
+  "pricehookid":"test_1"
+}]

@@ -105,8 +105,8 @@ public class HttpPostFileSender {
       while (part < totalParts) {
         int len = (totalParts == 1 ? length : (part < totalParts-1 ? partLen :
             length % partLen == 0 ? partLen : length % partLen));
-        Util.readFully(is, b);
-        sendPart(filename, pricehookId, b, len, part, totalParts, uuid, httpclient, mid, instanceId, sourceEndpoint);
+        int actualLen = Util.readFully(is, b);
+        sendPart(filename, pricehookId, b, Math.min(len, actualLen), part, totalParts, uuid, httpclient, mid, instanceId, sourceEndpoint);
         ++part;
       }
       return true;

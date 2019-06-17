@@ -54,9 +54,10 @@ public class PluginsProcessor implements Processor {
         if (res != null && res.getResult() != null) {
           log.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" CHANGED file: "+metadata.filename);
           metadata.is = res.getInputStream();
-          //broken Collections.copy((List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER), filesToDelete);
-          for (File f : (List<File>)metadata.headers.get(FileMetaData.TEMP_FILE_HEADER)) {
-            filesToDelete.add(f);
+          if (metadata.headers.containsKey(FileMetaData.TEMP_FILE_HEADER)) {
+            for (File f : (List<File>) metadata.headers.get(FileMetaData.TEMP_FILE_HEADER)) {
+              filesToDelete.add(f);
+            }
           }
           if (res.getResult() instanceof File)
             exchange.getIn().setHeader(MainRouteBuilder.HeaderKeys.LENGTH_HEADER, ((File)res.getResult()).length());

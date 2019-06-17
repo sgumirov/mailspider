@@ -14,6 +14,12 @@ import static java.lang.String.format;
 public class Util {
   private static final String FILE_PREFIX = "mailspider_";
 
+  /**
+   * Reads stream up to end or arr length, whichever less.
+   * @param is to read from
+   * @param arr to read into
+   * @return bytes read actually
+   */
   public static int readFully(InputStream is, byte[] arr) throws IOException {
     if (arr == null || arr.length == 0) return 0;
     int i = 0, arrl = arr.length, r = 0;
