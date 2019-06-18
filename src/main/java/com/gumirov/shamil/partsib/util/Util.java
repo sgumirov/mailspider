@@ -21,11 +21,12 @@ public class Util {
    * @return bytes read actually
    */
   public static int readFully(InputStream is, byte[] arr) throws IOException {
-    if (arr == null || arr.length == 0) return 0;
+    if (arr == null) throw new IllegalArgumentException("Arr parameter must not be null");
+    if (arr.length == 0) return 0;
     int i = 0, arrl = arr.length, r = 0;
     while (i < arrl && r != -1){
       i += r;
-      r = is.read(arr, i, arrl-i);
+      r = is.read(arr, i, arrl - i);
     }
     return i;
   }

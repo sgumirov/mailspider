@@ -43,8 +43,6 @@ public class EmptyPluginOutputTest extends AbstractMailAutomationTest {
 class EmptyOutputPlugin implements Plugin {
   @Override
   public Result processFile(FileMetaData fileMetaData, Logger logger) throws Exception {
-//    File empty = File.createTempFile("Прайс ", null);
-//    fileMetaData.headers.put(FileMetaData.TEMP_FILE_HEADER, Collections.singletonList(empty));
     ByteArrayInputStream b = new ByteArrayInputStream(new byte[0]);
     fileMetaData.headers.put(LENGTH_HEADER, 100);
     return Result.create(b);

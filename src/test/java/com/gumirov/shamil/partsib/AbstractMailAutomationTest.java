@@ -39,13 +39,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * send(load(rawEmailFile)).plugins(null).expect(tag(tagExpect)).expect(attach(attachName)).assertMsg("Stutzen mail should be accepted with tag: "+tagExpect);
  */
 public abstract class AbstractMailAutomationTest extends CamelTestSupport {
-  private final int httpPort = getHttpMockPort();
   private String httpendpoint="/endpoint";
-  private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   //for greenmail. TODO check this as we don't have GreenMail here!
   private final String login = "login-id", pwd = "password", to = "partsibprice@mail.ru";
   @Rule
-  public WireMockRule httpMock = new WireMockRule(WireMockConfiguration.wireMockConfig().port(getHttpMockPort()).notifier(new ConsoleNotifier(true)));
+  public WireMockRule httpMock = new WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort());
+  {
+    httpMock.start();
+  }
+  private final int httpPort = getHttpMockPort();
+  private final String httpUrl = "http://127.0.0.1:"+ httpPort+httpendpoint;
   private static final String INSTANCE_ID = "instance.id.mailspider.test";
 
   ConfiguratorFactory configFactory = new ConfiguratorFactory(){
@@ -102,7 +105,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   public int getHttpMockPort(){
-    return 18080;
+    return httpMock.port();
   }
 
   /**

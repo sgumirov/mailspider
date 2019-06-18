@@ -69,9 +69,11 @@ public class WiremockLargeUnitTest {
     for (String fname : tags.keySet()) {
       log.info(fname + " : " + tags.get(fname));
     }
-    log.info("HTTP mock POSTed file:");
-    for (String fname : atts.keySet()) {
-      log.info(fname + " : " + atts.get(fname));
+    if (log.isTraceEnabled()) {
+      log.trace("HTTP mock POSTed file:");
+      for (String fname : atts.keySet()) {
+        log.trace(fname + " : " + atts.get(fname));
+      }
     }
   }
 }

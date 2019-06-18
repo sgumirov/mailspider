@@ -67,7 +67,7 @@ public class PluginsProcessor implements Processor {
           log.debug("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Plugin "+plugin.getClass().getSimpleName()+" DID NOT CHANGE file: "+metadata.filename);
         }
         if (metadata.headers != null) {
-          exchange.getIn().setHeaders(metadata.headers);
+          exchange.getIn().getHeaders().putAll(metadata.headers);
         } else {
           log.warn("["+exchange.getIn().getHeader(MESSAGE_ID_HEADER)+"]"+" Plugin MUST NOT return null headers: "+plugin.getClass().getSimpleName());
         }

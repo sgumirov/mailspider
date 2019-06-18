@@ -91,17 +91,15 @@ public class HttpPostFileSender {
 
   public boolean send(String filename, String pricehookId, InputStream is, int length, int partLen, String mid,
                       String instanceId, String sourceEndpoint) throws IOException {
-    CloseableHttpClient httpclient = HttpClients.createDefault();
+    CloseableHttpClient httpclient = getHttpClient();
 
+    String uuid = sessionIdGenerator.nextSessionId();
     //split
     int part = 0;
     int totalParts = length / partLen;
     if (length % partLen != 0) ++totalParts;
-    String uuid = sessionIdGenerator.nextSessionId();
     try {
-      byte[] b;
-      if (totalParts == 1) b = Util.readFully(is);
-      else b = new byte[length > partLen ? partLen : length];
+      byte[] b = new byte[length > partLen ? partLen : length];
       while (part < totalParts) {
         int len = (totalParts == 1 ? length : (part < totalParts-1 ? partLen :
             length % partLen == 0 ? partLen : length % partLen));
@@ -122,8 +120,12 @@ public class HttpPostFileSender {
     return false;
   }
 
+  protected CloseableHttpClient getHttpClient() {
+    return HttpClients.createDefault();
+  }
+
   /**
-   * Sends single part.
+   * Sends single part. Not to be called directly, but just in case it's here.
    * @param filename name of file
    * @param priceHookId tag id
    * @param b bytes to send
@@ -135,12 +137,12 @@ public class HttpPostFileSender {
    * @throws IOException if IOException happends
    * @throws IllegalStateException when API endpoint returned anything else than 200 OK response
    */
-  private void sendPart(String filename, String priceHookId, byte[] b, int len, int part, int totalParts, String uuid,
-                        CloseableHttpClient httpclient, String mid, String instanceId, String sourceEndpointId) throws IOException, IllegalStateException {
+  public void sendPart(String filename, String priceHookId, byte[] b, int len, int part, int totalParts, String uuid,
+                       CloseableHttpClient httpclient, String mid, String instanceId, String sourceEndpointId) throws IOException, IllegalStateException {
+    log.info("["+mid+"] HTTP Sending file="+filename+" pricehookId="+priceHookId+" part="+(1+part)+"/"+totalParts+" length="+len);
+
     HttpPost httppost = new HttpPost(url);
     ByteArrayEntity reqEntity = new ByteArrayEntity(b, 0, len, ContentType.APPLICATION_OCTET_STREAM);
-
-    log.info("["+mid+"] HTTP Sending file="+filename+" pricehookId="+priceHookId+" part="+(1+part)+"/"+totalParts+" length="+len);
 
     if (filename != null) httppost.setHeader("X-Filename", Base64.getEncoder().encodeToString(filename.getBytes(StandardCharsets.UTF_8)));
     if (priceHookId != null) httppost.setHeader("X-Pricehook", priceHookId);
