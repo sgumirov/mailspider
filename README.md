@@ -38,6 +38,8 @@ Fixed issue with multiple email endpoints caused by multiple "delete old mail" r
 
 Fixed issue with plugin gives empty output.
 
+Fixed bug related to parts size calculation (was masked by previous bugfix).
+
 ### Changes in 1.13
 
 - Fix for incorrect Subject encoding: non RFC-822 compliant line break between two-char unicode

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 public class HttpPostFileSenderUnitTest {
   private final int PART_LEN = 7;
   private final List<TestCase> testCases = Arrays.asList(
+      //todo check length 0
       new TestCase(1, new int[]{1}),
       new TestCase(2, new int[]{2}),
       new TestCase(5, new int[]{5}),
