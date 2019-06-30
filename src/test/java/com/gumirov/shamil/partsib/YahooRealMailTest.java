@@ -46,7 +46,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     try {
       String json = new String(Util.readFully(
           getClass().getClassLoader().getResourceAsStream("partsib_tags_config2.json")), "UTF-8");

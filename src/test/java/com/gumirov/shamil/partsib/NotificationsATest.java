@@ -40,7 +40,7 @@ public class NotificationsATest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     return loadTagRules("tagrules.json");
   }
 }

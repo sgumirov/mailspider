@@ -75,7 +75,7 @@ public class PluginTempFileDeleteATest
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     PricehookIdTaggingRule rule = new PricehookIdTaggingRule();
     rule.contains = "Price";
     rule.header = "Subject";

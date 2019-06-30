@@ -105,7 +105,7 @@ public class StutzenATest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     return loadTagRules("stutzen/prod_rules_01_08_18.json");
   }
 }

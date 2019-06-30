@@ -25,7 +25,7 @@ public class Kumir54ATest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     return loadTagRules("prod_rules.json");
   }
 }

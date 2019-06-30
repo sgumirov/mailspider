@@ -76,7 +76,7 @@ public class BergTagIssueAutomatedTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     ArrayList<PricehookIdTaggingRule> rules = new ArrayList<>(loadTagRules("prod_tagrules.json"));
     //add rule berg новосиб
     rules.addAll(loadTagRules("berg_novosib_rule_disabled_in_prod.json"));

@@ -1,7 +1,6 @@
 package com.gumirov.shamil.partsib;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -12,8 +11,9 @@ import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.util.AttachmentVerifier;
 import com.gumirov.shamil.partsib.util.EmailMessage;
-import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
+import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoader;
 import com.gumirov.shamil.partsib.util.Util;
+import com.oracle.tools.packager.Log;
 import com.sun.istack.Nullable;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
@@ -85,6 +85,10 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   private AttachmentVerifier attachmentVerifier;
   private int expectNumTotal;
+
+  protected PricehookIdTaggingRulesConfigLoader createTestPricehookConfigLoader() {
+    return (url, exchange) -> builder.getPricehookConfig();
+  }
 
   @Override
   public boolean isUseAdviceWith() {
@@ -234,8 +238,8 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
 
   /**
    * Override to modify assertion.
-   * <br/> Note: it's highly recommended to call super.assertPostConditions() otherwise know exactly what are
-   * you doing!
+   * <br/>Note: it's highly recommended to call super.assertPostConditions() otherwise know exactly what are
+   * you doing (unit test for a partial route?)!
    */
   public void assertPostConditions() throws Exception {
     log.info("Expecting {} messages", expectNumTotal);
@@ -341,12 +345,12 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     builder = new MainRouteBuilder(getConfigurator()){
       @Override
       public List<PricehookIdTaggingRule> getPricehookConfig() {
-        return getTagRules();
+        return getPricehookRules();
       }
 
       @Override
-      public PricehookIdTaggingRulesConfigLoaderProvider getConfigLoaderProvider() {
-        return url -> getPricehookConfig();
+      public PricehookIdTaggingRulesConfigLoader createPricehookConfigLoader() {
+        return createTestPricehookConfigLoader();
       }
 
       @Override
@@ -426,7 +430,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    */
   public ArrayList<Endpoint> getEmailEndpoints(){
     Endpoint email = new Endpoint();
-    email.id = "MockMailEndpoint";
+    email.id = getDefaultEmailEndpointId();
     email.url = "imap.example.com";
     email.user = "email@a.com";
     email.pwd = "pwd";
@@ -436,7 +440,11 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     }};
   }
 
-  public abstract List<PricehookIdTaggingRule> getTagRules();
+  protected String getDefaultEmailEndpointId() {
+    return "MockMailEndpoint";
+  }
+
+  public abstract List<PricehookIdTaggingRule> getPricehookRules();
 
   @Override
   protected int getShutdownTimeout() {

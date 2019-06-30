@@ -17,7 +17,7 @@ public class AvtokontinentATest extends AbstractMailAutomationTest {
   private final String rawEmail = "avtokontinent/autokontinent.txt";
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     return loadTagRules("avtokontinent/prod_rules_01_08_18.json");
   }
 }

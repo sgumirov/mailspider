@@ -52,7 +52,7 @@ public class SpecialCharsFilteringAutomatedTest extends AbstractMailAutomationTe
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     ArrayList<PricehookIdTaggingRule> list = new ArrayList<>();
     PricehookIdTaggingRule rule = new PricehookIdTaggingRule();
     rule.pricehookid = TAG1;

@@ -25,7 +25,7 @@ public class YahooRawMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     return loadTagRules("partsib_tags_config2.json");
   }
 }

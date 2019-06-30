@@ -159,18 +159,22 @@ public class MainRouteBuilder extends RouteBuilder {
     return skipNewMailProcessor == null ? 0 : skipNewMailProcessor.getPassedBy();
   }
 
-  public List<PricehookIdTaggingRule> loadPricehookConfig(String url) throws IOException {
+  public List<PricehookIdTaggingRule> loadPricehookConfig(String url, Exchange exchange) throws IOException {
     CloseableHttpClient httpclient = HttpClients.createDefault();
     HttpGet req = new HttpGet(url);
     CloseableHttpResponse res = null;
+    String sourceEndpointId = Util.getSourceEndpointId(exchange);
+    String instanceId = Util.getInstanceId(exchange);
     try {
+      if (instanceId != null) req.setHeader("X-Instance-Id", instanceId);
+      if (sourceEndpointId != null) req.setHeader("X-Source-Endpoint-Id", sourceEndpointId);
       res = httpclient.execute(req);
       HttpEntity entity = res.getEntity();
       String json = IOUtils.toString(entity.getContent());
       EntityUtils.consume(entity);
       if (json.hashCode() != cachedStringHash) {
         cachedStringHash = json.hashCode();
-        log.info("-=| Loaded pricehooks tags config has changed |=- The new one:\n{}", json);
+        log.debug("-=| Loaded pricehooks tags config has changed |=- The new one:\n{}", json);
       }
       return parseTaggingRules(json);
     } catch (Exception e){
@@ -221,7 +225,7 @@ public class MainRouteBuilder extends RouteBuilder {
       List<PricehookIdTaggingRule> pricehookRules = getPricehookConfig();
       PricehookTaggerProcessor pricehookIdTaggerProcessor = new PricehookTaggerProcessor(pricehookRules);
       PricehookIdTaggingRulesLoaderProcessor pricehookRulesConfigLoaderProcessor = 
-          new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), getConfigLoaderProvider());
+          new PricehookIdTaggingRulesLoaderProcessor(config.get("pricehook.config.url"), createPricehookConfigLoader());
       AttachmentTaggerProcessor attachmentTaggerProcessor = new AttachmentTaggerProcessor();
       SplitAttachmentsExpression splitEmailExpr = new SplitAttachmentsExpression(false);
       UnpackerSplitter unpackerSplitter = new UnpackerSplitter(new SevenZipStreamUnpacker());
@@ -310,7 +314,6 @@ public class MainRouteBuilder extends RouteBuilder {
 
       //unzip/unrar
       from("direct:packed").
-          process(exchange -> exchange.getIn().setHeader(HeaderKeys.INSTANCE_ID, instanceId)).id("SetInstanceId").
           process(compressionDetectorProcessor).id("CompressorDetector").
           choice().
             when(header(HeaderKeys.COMPRESSED_TYPE_HEADER_NAME).isNotNull()).
@@ -414,7 +417,8 @@ public class MainRouteBuilder extends RouteBuilder {
               to(eurl.apply("direct:emailreceived"));
 
           from(eurl.apply("direct:emailreceived")).routeId("received-"+email.id).
-            multicast().parallelProcessing().
+              process(exchange -> exchange.getIn().setHeader(HeaderKeys.INSTANCE_ID, instanceId)).id("SetInstanceId-"+email.id).
+              multicast().parallelProcessing().
               to(
                   eurl.apply("direct:processemail"),
                   eurl.apply("direct:notification")
@@ -549,8 +553,8 @@ public class MainRouteBuilder extends RouteBuilder {
    * Override to use own configloader (for unit-tests).
    * @return config loader
    */
-  public PricehookIdTaggingRulesConfigLoaderProvider getConfigLoaderProvider() {
-    return url -> MainRouteBuilder.this.loadPricehookConfig(url);
+  public PricehookIdTaggingRulesConfigLoader createPricehookConfigLoader() {
+    return (url, exchange) -> MainRouteBuilder.this.loadPricehookConfig(url, exchange);
   }
 
   /**

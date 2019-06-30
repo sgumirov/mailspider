@@ -26,7 +26,7 @@ import java.util.Map;
 public class MessageBindingSuiteUnitTest extends AbstractMailAutomationTest {
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     return loadTagRules("test_tag_rules.json");
   }
 

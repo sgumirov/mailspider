@@ -1,11 +1,15 @@
 package com.gumirov.shamil.partsib.util;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.Map;
 
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.ENDPOINT_ID_HEADER;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.INSTANCE_ID;
+import static com.gumirov.shamil.partsib.MainRouteBuilder.HeaderKeys.MESSAGE_ID_HEADER;
 import static java.lang.String.format;
 
 /**
@@ -69,6 +73,14 @@ public class Util {
     return msg.getMessageId();
   }
 
+  /**
+   * Helper method to get message id from exchange headers. Shortcut for: <pre>exchange.getIn().getHeader(HeaderKeys.MESSAGE_ID_HEADER)</pre>
+   * @return id or empty string if Camel exchange header is not set.
+   */
+  public static String getMessageId(Exchange exchange) {
+    return (String)exchange.getIn().getHeader(MESSAGE_ID_HEADER);
+  }
+
   public static String removeSensitiveData(String url, String field) {
     if (url.contains(field)){
       return url.substring(0, url.indexOf(field)+field.length()+1)+
@@ -113,5 +125,21 @@ public class Util {
     fos.flush();
     fos.close();
     return f;
+  }
+
+  /**
+   * Helper method to grab instance id from exchange. Shortcut for: <pre>exchange.getIn().getHeader(HeaderKeys.INSTANCE_ID, "")</pre>
+   * @return id or null if Camel exchange header is not set.
+   */
+  public static String getInstanceId(Exchange exchange) {
+    return (String)exchange.getIn().getHeader(INSTANCE_ID);
+  }
+
+  /**
+   * Helper method to grab source endpoint id from exchange. Shortcut for: <pre>exchange.getIn().getHeader(HeaderKeys.ENDPOINT_ID_HEADER)</pre>
+   * @return id or null if Camel exchange header is not set.
+   */
+  public static String getSourceEndpointId(Exchange exchange) {
+    return (String)exchange.getIn().getHeader(ENDPOINT_ID_HEADER);
   }
 }

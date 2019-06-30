@@ -71,7 +71,7 @@ public class ParallelEmailProcessingTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public List<PricehookIdTaggingRule> getTagRules() {
+  public List<PricehookIdTaggingRule> getPricehookRules() {
     PricehookIdTaggingRule rule = new PricehookIdTaggingRule();
     rule.pricehookid = TAG;
     rule.id = "id";

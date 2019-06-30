@@ -6,7 +6,7 @@ import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
-import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoaderProvider;
+import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoader;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetup;
 import org.apache.camel.*;
@@ -22,9 +22,6 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.Properties;
 
-/**
- *
- */
 public class PricehookTagFilterUnitTest extends CamelTestSupport {
   private static final String ENDPID = "PricehookTest-EMAIL-01";
   ConfiguratorFactory cfactory = new ConfiguratorFactory(){
@@ -267,8 +264,8 @@ public class PricehookTagFilterUnitTest extends CamelTestSupport {
       }
 
       @Override
-      public PricehookIdTaggingRulesConfigLoaderProvider getConfigLoaderProvider() {
-        return url -> getPricehookConfig();
+      public PricehookIdTaggingRulesConfigLoader createPricehookConfigLoader() {
+        return (url, ex) -> getPricehookConfig();
       }
 
       @Override
