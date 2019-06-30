@@ -40,6 +40,8 @@ Fixed issue with plugin gives empty output.
 
 Fixed bug related to parts size calculation (was masked by previous bugfix).
 
+Added sending of source endpoint ID and instance ID in pricehook tagging rules loader HTTP GET request's headers.
+
 ### Changes in 1.13
 
 - Fix for incorrect Subject encoding: non RFC-822 compliant line break between two-char unicode
