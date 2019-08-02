@@ -4,6 +4,11 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
+# ToDo
+
+2 Aug 2019. Replace `jackson` with `gson` due to crazy amount of CVE vulns (although only used to parse configs). This is 3rd time to 
+upgrade deps in last 6 months.
+
 # Version status and important changes
 See below some version-specific details
 
