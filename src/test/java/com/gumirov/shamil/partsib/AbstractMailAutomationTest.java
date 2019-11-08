@@ -9,12 +9,7 @@ import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.*;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.plugins.Plugin;
-import com.gumirov.shamil.partsib.util.AttachmentVerifier;
-import com.gumirov.shamil.partsib.util.EmailMessage;
-import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoader;
-import com.gumirov.shamil.partsib.util.Util;
-import com.oracle.tools.packager.Log;
-import com.sun.istack.Nullable;
+import com.gumirov.shamil.partsib.util.*;
 import org.apache.camel.*;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -113,7 +108,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   /**
-   * This impl removes real imap endpoint. Override to change. When override call setupHttpMock().
+   * Remove real imap endpoint. Override to change. When overriding call setupHttpMock().
    * @param mockRouteName
    * @param mockAfterId
    */
@@ -127,7 +122,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   /**
-   * Disables imap(s):// endpoints.
+   * Disable imap(s):// endpoints.
    */
   protected void removeSourceEndpoints(String endpointId) throws Exception {
     context.getRouteDefinition("source-" + endpointId).adviceWith(context, new AdviceWithRouteBuilder() {
@@ -138,6 +133,10 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     });
   }
 
+  /**
+   * Setup notification mock for endpoint, disable real notifications.
+   * @param endpointId endpoint
+   */
   public void setupNotificationMock(String endpointId) throws Exception {
     //mock notifications
     context.getRouteDefinition("notification-"+endpointId).adviceWith(context, new AdviceWithRouteBuilder() {
@@ -149,8 +148,13 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
     });
   }
 
-  private void setupDestinationMock(final String route, final String id) throws Exception {
-    context.getRouteDefinition(route).adviceWith(context, new AdviceWithRouteBuilder() {
+  private void setupDestinationMock(final String routeName, final String id) throws Exception {
+    if (context.getRouteDefinition(routeName) == null) {
+      StringBuilder sb = new StringBuilder();
+      context.getRouteDefinitions().forEach(routeDef -> sb.append(routeDef.getId()).append('\n'));
+      throw new IllegalArgumentException("Error: route name is wrong: "+routeName+". Full list of routes: "+sb.toString());
+    }
+    context.getRouteDefinition(routeName).adviceWith(context, new AdviceWithRouteBuilder() {
       @Override
       public void configure() {
         weaveById(id).after().to(mockEndpoint);
@@ -172,7 +176,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   public void launch(List<String> expectNames, List<String> expectTags, int expectNumTotal,
-                     @Nullable Map<EmailMessage, String> msgEndpoints)
+                     Map<EmailMessage, String> msgEndpoints)
       throws Exception
   {
     launch("acceptedmail", "taglogger", expectTags, expectNames, expectNumTotal,
@@ -184,7 +188,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
    * More useful args list. Just proxy to another launch().
    */
   public void launch(String mockRouteName, String mockAfterId, List<String> expectTags, List<String> expectNames,
-                     int expectNumTotal, String sendToEndpoint, @Nullable EmailMessage...msgs) throws Exception {
+                     int expectNumTotal, String sendToEndpoint, EmailMessage...msgs) throws Exception {
     HashMap<EmailMessage, String> map = null;
     if (msgs != null) {
       map = new HashMap<>();
@@ -195,7 +199,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   }
 
   public void launch(String mockRouteName, String mockAfterId, List<String> expectTags, List<String> expectNames,
-              int expectNumTotal, @Nullable Map<EmailMessage, String> msgEndpoints) throws Exception
+              int expectNumTotal, Map<EmailMessage, String> msgEndpoints) throws Exception
   {
     if (expectNames != null && expectNumTotal != expectNames.size() ||
         expectTags != null && expectTags.size() != expectNumTotal)

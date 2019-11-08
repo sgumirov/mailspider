@@ -6,9 +6,7 @@ import com.gumirov.shamil.partsib.util.EmailMessage;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
 import com.gumirov.shamil.partsib.util.PricehookIdTaggingRulesConfigLoader;
 import com.gumirov.shamil.partsib.util.Util;
-import com.oracle.tools.packager.Log;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;

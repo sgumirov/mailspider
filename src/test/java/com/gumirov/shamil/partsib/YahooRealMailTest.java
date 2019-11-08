@@ -42,6 +42,7 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
 
   @Override
   public void beforeLaunch(String mockRouteName, String mockAfterId) {
+    //block super call:
     //super.beforeLaunch();
   }
 

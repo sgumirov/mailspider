@@ -155,7 +155,7 @@ public class EmailRouteATest extends CamelTestSupport {
           sendEml(getClass().getClassLoader().getResourceAsStream("real-mail-4.eml"));
           sendEml(getClass().getClassLoader().getResourceAsStream("nocontent.eml"));
         },
-        30000,
+        60000,
         //check filenames
 //        validate(expectedName, 3, pricehookId),
         () -> {
