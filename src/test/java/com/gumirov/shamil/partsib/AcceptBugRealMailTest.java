@@ -1,12 +1,10 @@
 package com.gumirov.shamil.partsib;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
-import org.apache.commons.io.IOUtils;
+import com.gumirov.shamil.partsib.util.JsonParser;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -50,23 +48,21 @@ public class AcceptBugRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public ArrayList<EmailAcceptRule> getAcceptRules() {
+  public List<EmailAcceptRule> getAcceptRules() {
     return loadEmailAcceptRules("13jan_email_accept.json");
   }
 
   //todo move to parent
-  public ArrayList<EmailAcceptRule> loadEmailAcceptRules(String filename){
+  public List<EmailAcceptRule> loadEmailAcceptRules(String filename){
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(filename), "UTF-8");
-      return mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>(){});
+      return Arrays.asList(new JsonParser<EmailAcceptRule[]>().load(filename, EmailAcceptRule[].class, "UTF-8"));
     } catch (IOException e) {
       return new ArrayList<>();
     }
   }
 
   @Override
-  public ArrayList<Endpoint> getEmailEndpoints() {
+  public List<Endpoint> getEmailEndpoints() {
     Endpoint endp = new Endpoint();
     Properties p = new Properties();
     try {

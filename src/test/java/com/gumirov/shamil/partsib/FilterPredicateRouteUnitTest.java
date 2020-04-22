@@ -1,7 +1,6 @@
 package com.gumirov.shamil.partsib;
 
 import org.apache.camel.*;
-import org.apache.camel.builder.ExpressionBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mock.MockEndpoint;

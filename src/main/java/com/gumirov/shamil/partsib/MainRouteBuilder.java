@@ -1,7 +1,5 @@
 package com.gumirov.shamil.partsib;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.ConfiguratorFactory;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
@@ -138,21 +136,18 @@ public class MainRouteBuilder extends RouteBuilder {
   }
 
   public Endpoints getEndpoints() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("endpoints.config.filename") ), CHARSET);
-    return mapper.readValue(json, Endpoints.class);
+    return new JsonParser<Endpoints>().load(
+        config.get("endpoints.config.filename"), Endpoints.class, CHARSET);
   }
 
-  public ArrayList<EmailAcceptRule> getEmailAcceptRules() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("email.accept.rules.config.filename") ), CHARSET);
-    return mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>(){});
+  public List<EmailAcceptRule> getEmailAcceptRules() throws IOException {
+    return Arrays.asList(new JsonParser<EmailAcceptRule[]>().load(
+        config.get("email.accept.rules.config.filename"), EmailAcceptRule[].class, CHARSET));
   }
 
   public List<PricehookIdTaggingRule> getPricehookConfig() throws IOException {
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(config.get("pricehook.tagging.config.filename")), CHARSET);
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
+    return Arrays.asList(new JsonParser<PricehookIdTaggingRule[]>().load(
+        config.get("pricehook.tagging.config.filename"), PricehookIdTaggingRule[].class, CHARSET));
   }
 
   public int getDeletedMailCount() {
@@ -186,8 +181,7 @@ public class MainRouteBuilder extends RouteBuilder {
   }
 
   public static List<PricehookIdTaggingRule> parseTaggingRules(String json) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.readValue(json, new TypeReference<List<PricehookIdTaggingRule>>(){});
+    return Arrays.asList(new JsonParser<PricehookIdTaggingRule[]>().parse(json, PricehookIdTaggingRule[].class));
   }
 
   public int getMaxUploadSize(String maxSizeText) {
@@ -356,7 +350,7 @@ public class MainRouteBuilder extends RouteBuilder {
       if (config.is("email.enabled")) {
         // ===== prepare email accept rules
         final List<Predicate> predicatesAnyTrue = new ArrayList<>();
-        ArrayList<EmailAcceptRule> rules = getEmailAcceptRules();
+        List<EmailAcceptRule> rules = getEmailAcceptRules();
         for (EmailAcceptRule rule : rules){
           if (Configurator.isTrue(rule.ignorecase)) {
             predicatesAnyTrue.add(exchange -> exchange.getIn().getHeader(rule.header, String.class) != null &&

@@ -1,11 +1,8 @@
 package com.gumirov.shamil.partsib;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
 import com.gumirov.shamil.partsib.util.*;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,11 +25,9 @@ public class Mas5RulesTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public ArrayList<EmailAcceptRule> getAcceptRules() {
-    ObjectMapper mapper = new ObjectMapper();
+  public List<EmailAcceptRule> getAcceptRules() {
     try {
-      String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("MAS-5/email_accept_rules.json"), StandardCharsets.UTF_8);
-      return mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>(){});
+      return new JsonParser<EmailAcceptRule>().loadList("MAS-5/email_accept_rules.json", EmailAcceptRule.class, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException("Cannot read accept rules", e);
     }

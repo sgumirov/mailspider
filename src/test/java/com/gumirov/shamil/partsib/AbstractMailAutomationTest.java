@@ -358,7 +358,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
       }
 
       @Override
-      public ArrayList<EmailAcceptRule> getEmailAcceptRules() {
+      public List<EmailAcceptRule> getEmailAcceptRules() {
         return getAcceptRules();
       }
 
@@ -408,7 +408,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   /**
    * Override to create rules, this implementation accepts any letter with '@' in "From".
    */
-  public ArrayList<EmailAcceptRule> getAcceptRules() {
+  public List<EmailAcceptRule> getAcceptRules() {
     ArrayList<EmailAcceptRule> rules = new ArrayList<>();
     EmailAcceptRule r = new EmailAcceptRule();
     r.header="From";
@@ -432,7 +432,7 @@ public abstract class AbstractMailAutomationTest extends CamelTestSupport {
   /**
    * Override this if you use external server
    */
-  public ArrayList<Endpoint> getEmailEndpoints(){
+  public List<Endpoint> getEmailEndpoints(){
     Endpoint email = new Endpoint();
     email.id = getDefaultEmailEndpointId();
     email.url = "imap.example.com";

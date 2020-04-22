@@ -1,18 +1,8 @@
 package com.gumirov.shamil.partsib;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gumirov.shamil.partsib.configuration.Configurator;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoint;
-import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import com.gumirov.shamil.partsib.configuration.endpoints.PricehookIdTaggingRule;
-import com.gumirov.shamil.partsib.util.EndpointSpecificUrl;
-import com.gumirov.shamil.partsib.util.RawEmailMessage;
-import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
-import org.junit.Test;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.*;
 
 /**

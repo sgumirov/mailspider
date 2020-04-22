@@ -1,15 +1,12 @@
 package com.gumirov.shamil.partsib;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumirov.shamil.partsib.configuration.endpoints.EmailAcceptRule;
 import com.gumirov.shamil.partsib.configuration.endpoints.Endpoints;
-import org.apache.commons.io.IOUtils;
+import com.gumirov.shamil.partsib.util.JsonParser;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 public class EndpointsParseUnitTest {
@@ -24,8 +21,7 @@ public class EndpointsParseUnitTest {
   
   @Test
   public void testEmailRules() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    List<EmailAcceptRule> rules = mapper.readValue(json, new TypeReference<List<EmailAcceptRule>>() {});
+    List<EmailAcceptRule> rules = new JsonParser<EmailAcceptRule>().parseList(json, EmailAcceptRule.class);
     Assert.assertTrue(rules.size() == 1);
     Assert.assertTrue("From".equals(rules.get(0).header));
     Assert.assertTrue("rule_01".equals(rules.get(0).id));
@@ -65,9 +61,8 @@ public class EndpointsParseUnitTest {
 
   @Test
   public void testEndpoints() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
     String json = endpointsS; //IOUtils.toString(getClass().getResourceAsStream("test_local_endpoints.json"), Charset.defaultCharset());
-    Endpoints endpoints = mapper.readValue(json, Endpoints.class);
+    Endpoints endpoints = new JsonParser<Endpoints>().parse(json, Endpoints.class);
     Assert.assertTrue(endpoints.ftp.size() == 2);
     Assert.assertTrue(endpoints.http.size() == 1);
     Assert.assertTrue(endpoints.email.size() == 0);
@@ -80,9 +75,7 @@ public class EndpointsParseUnitTest {
 
   @Test
   public void testMultipleEndpointsConfig() throws IOException {
-    String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("multiple_endpoints/multiple_endpoints.json"), Charset.defaultCharset());
-    ObjectMapper mapper = new ObjectMapper();
-    Endpoints endpoints = mapper.readValue(json, Endpoints.class);
+    Endpoints endpoints = new JsonParser<Endpoints>().load("multiple_endpoints/multiple_endpoints.json", Endpoints.class);
     Assert.assertEquals(2, endpoints.ftp.size());
     Assert.assertEquals(1, endpoints.http.size());
     Assert.assertEquals(2, endpoints.email.size());

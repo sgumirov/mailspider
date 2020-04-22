@@ -49,7 +49,7 @@ public class BergTagIssueAutomatedTest extends AbstractMailAutomationTest {
     for (EmailMessage m : msgs)
       for (String name : m.attachments.keySet())
         names.add(name);
-    ArrayList<Endpoint> endpoints = getEmailEndpoints();
+    List<Endpoint> endpoints = getEmailEndpoints();
     final String ENDP1 = EndpointSpecificUrl.apply("direct:emailreceived", endpoints.get(0));
     Map<EmailMessage, String> sendTo = new HashMap<>();
     for (EmailMessage m : msgs) sendTo.put(m, ENDP1);

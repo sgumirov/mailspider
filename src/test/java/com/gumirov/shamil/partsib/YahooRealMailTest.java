@@ -60,8 +60,8 @@ public class YahooRealMailTest extends AbstractMailAutomationTest {
   }
 
   @Override
-  public ArrayList<EmailAcceptRule> getAcceptRules() {
-    ArrayList<EmailAcceptRule> list = super.getAcceptRules();
+  public List<EmailAcceptRule> getAcceptRules() {
+    List<EmailAcceptRule> list = super.getAcceptRules();
     list.get(0).contains = "yahoo.com";
     return list;
   }
