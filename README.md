@@ -4,15 +4,10 @@ Camel-based extendable system for retrieving files from email, ftp and http.
 The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
 HTTP POST with 'application/octet-stream' content type).
 
-# ToDo
-
-2 Aug 2019. Replace `jackson` with `gson` due to crazy amount of CVE vulns (although only used to parse configs). This is 3rd time to 
-upgrade deps in last 6 months.
-
 # Version status and important changes
 See below some version-specific details
 
-- Version 1.15: Security changes: replace `jackson` library with `gson` due to too frequent vuln fixes in jackson.
+- Version 1.15: Security release: replace `jackson` library with `gson` due to too frequent major CVEs reported for jackson.
 - Version 1.14: Implement sending HTTP headers to output with: endpoint ID; instance ID. Fix for multiple endpoints. Fix for empty plugin output.
 - Version 1.13: Added forced attachments dump to disk, fixes for http sender. Incompatible API changes from base.
 - Version 1.12: Fixes date parser for "Delete Old Mail" feature route, changed timezone in logs
