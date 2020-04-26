@@ -1,13 +1,23 @@
 # MailSpider
 
 Camel-based extendable system for retrieving files from email, ftp and http.
-The processing route has endpoints (ftp, http, email), plugins and output (now implemented via
-HTTP POST with 'application/octet-stream' content type).
+The processing route has endpoints (`ftp`, `http`/`https`, `imap(s)`/`pop3(s)`),
+plugins and output (now implemented via HTTP POST with `application/octet-stream` content type).
+
+## Brief description
+
+Below are a brief description of processing steps:
+- Input endpoint pull (web/email/ftp).
+- [email] Email rejection filter (ruleset based on `header` values such as `Subject.startsWith(...)` or `From.contains(.@..)`).
+- [email] Fetch attachments, unzip them if needed -> files to process.
+- Tag each file based on `Tagging Rules`.
+- Process: Determine content type, call plugins for conversion (for example, `.xlsx` -> `.csv`).
+- Send `{CSV, tags, sorce endpoint}` to the external output endpoint.
 
 # Version status and important changes
-See below some version-specific details
+See version sections below for version-specific details.
 
-- Version 1.15: Security release: replace `jackson` library with `gson` due to too frequent major CVEs reported for jackson.
+- Version 1.15: No API changes. Replace `jackson` library with `gson` due to too frequent major CVEs reported for jackson.
 - Version 1.14: Implement sending HTTP headers to output with: endpoint ID; instance ID. Fix for multiple endpoints. Fix for empty plugin output.
 - Version 1.13: Added forced attachments dump to disk, fixes for http sender. Incompatible API changes from base.
 - Version 1.12: Fixes date parser for "Delete Old Mail" feature route, changed timezone in logs
@@ -24,9 +34,14 @@ the root level (without multipart), then Camel fails to extract attachment. This
 AT for this case: EmailNestedMessageTest.testBareAttachmentIssue(). Tested is against 'issue.eml'.
 - Version 1.3. Changed name of email accept rules (".accept" added): email.accept.rules.config.filename, multiple options added, 
  added retries removed in case of output endpoint failure.
--- Now loading pricehook config from network, see below in 'Pricehook IDs tagging config loading from network'
+  - Now loading pricehook config from network, see below in 'Pricehook IDs tagging config loading from network'
 - Version 1.2. Deployed with pricehook tagging.
 - Version 1.1. An officially deployed at the customer installation.
+
+### Changes in 1.15
+
+JSON parsing library `jackson` replaced with `gson` in this release. Pushed as new release since it's a major refactoring, however internal and
+does not change any API.
 
 ### Changes in 1.14
 
