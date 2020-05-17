@@ -21,7 +21,7 @@ import java.util.HashMap;
 /**
  * Automation FTP endpoint test with local FTP daemon
  */
-@Ignore("not a UT")
+@Ignore("not a UT nor an automonous AT (needs manual ftpd config)")
 public class FTPRouteTest extends CamelTestSupport {
 
 //  static final String ftpDir = "/opt/ftp/files";
