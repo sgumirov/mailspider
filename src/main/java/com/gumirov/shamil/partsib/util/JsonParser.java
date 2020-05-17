@@ -12,7 +12,9 @@ import java.util.List;
 
 /**
  * Loads and parses json resource using Gson. Mind using -list methods to parse json arrays.
- * @param <T> class to parse
+ * Copyright (c) 2018 by Shamil Gumirov.
+ * @author shamil@gumirov.com
+ * @param <T> class to parse.
  */
 public class JsonParser<T> {
   private static Gson gson = new Gson();

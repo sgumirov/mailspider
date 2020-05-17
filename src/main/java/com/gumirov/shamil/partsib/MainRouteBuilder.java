@@ -267,7 +267,7 @@ public class MainRouteBuilder extends RouteBuilder {
                   repoMan.createExpression(),
                   FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
                       100000, 102400000)).
-              to("direct:packed");
+              to("direct:packed"); //TODO: route first to pricehook tagging if necessary for output?
           log.info("FTP source endpoint is added: "+ftp);
         }
       }
@@ -296,11 +296,12 @@ public class MainRouteBuilder extends RouteBuilder {
           builder.addRoutesToCamelContext(getContext());
 
           from("direct:httpidempotent").
+              //TODO: Enable test for idempotency and uncomment the following:
               /*idempotentConsumer(
                   repoMan.createExpression(),
                   FileIdempotentRepository.fileIdempotentRepository(repoMan.getRepoFile(),
                       100000, 102400000)).*/
-              to("direct:packed").
+              to("direct:packed"). //TODO: route first to pricehook tagging if necessary for output?
               end();
           log.info("HTTP source endpoint is added: "+http);
         }
