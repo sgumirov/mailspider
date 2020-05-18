@@ -1,0 +1,68 @@
+@startuml
+
+!include ../EIP-PlantUML/dist/EIP-PlantUML.puml
+
+MessageEndpoint(email, IMAP/POP3)
+MessageEndpoint(http, HTTP)
+MessageEndpoint(ftp, FTP)
+
+MessageEndpoint(out, "HTTP (output)")
+DeadLetterChannel(rejected, "Rejected")
+
+MessageEndpoint(external_rules, "Load external rules")
+
+MessageEndpoint(packed, "Compressed")
+MessageEndpoint(unpacked, "Decompressed")
+MessageEndpoint(emailreceived, "Received email")
+MessageEndpoint(processemail, "Email to process")
+MessageEndpoint(acceptedmail, "Accepted email")
+MessageEndpoint(notifications, "Heartbeat watchdog")
+MessageEndpoint(rejected, "Rejected")
+
+ContentFilter(accept_email, "Filter by sender")
+ContentFilter(is_tag_set, "Check if any tag is set")
+ContentFilter(file_extension, "Filter file extension")
+ContentFilter(plugins_status, "Check plugin execution result")
+
+MessageRouter(is_compressed, "Is compressed?")
+
+Splitter(watchdog, "Heartbeat")
+Splitter(unpacker, "Decompress")
+Splitter(attachments, "Extract attachments")
+
+MessageTranslator(header_decoder, "Header decoder")
+MessageTranslator(plugins, "Call content transformation plugins")
+
+DataEnricher(email_tagger, "Tag whole email", external_rules)
+DataEnricher(attachment_tagger, "Tag single attachment", external_rules)
+
+Send(email, emailreceived)
+Send(http, packed)
+Send(ftp, packed)
+
+Send(emailreceived, watchdog)
+Send(watchdog, notifications)
+Send(watchdog, processemail)
+Send(processemail, header_decoder)
+Send(header_decoder, accept_email)
+Send(accept_email, rejected)
+Send(accept_email, acceptedmail)
+Send(acceptedmail, email_tagger)
+Send(email_tagger, is_tag_set)
+Send(is_tag_set, rejected)
+Send(is_tag_set, attachments)
+Send(attachments, attachment_tagger)
+Send(attachment_tagger, packed)
+
+Send(packed, is_compressed)
+Send(is_compressed, unpacker)
+Send(is_compressed, unpacked)
+Send(unpacker, unpacked)
+Send(unpacked, file_extension)
+Send(file_extension, plugins)
+Send(file_extension, rejeected)
+Send(plugins, plugins_status)
+Send(plugins_status, rejected)
+Send(plugins_status, out)
+
+@enduml
