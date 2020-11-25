@@ -8,7 +8,7 @@ Quick-and-dirty configurable gmail-compatible ETL
 
 Project is sponsored by Partsib.
 
-High-level processing diagram:  
+High-level email processing diagram (for loading via HTTP there're other loading steps):  
 ![High level processing](processing-diagram.png)
 
 Detailed components diagram:  
