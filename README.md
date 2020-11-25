@@ -9,7 +9,10 @@ Quick-and-dirty configurable gmail-compatible ETL
 Project is sponsored by Partsib.
 
 High-level processing diagram:  
-![High level diagram](highlevel.png)
+![High level processing](processing-diagram.png)
+
+Detailed components diagram:  
+![Detailed component](highlevel.png)
 
 Detailed [changelist](CHANGES.md) is available.
 
