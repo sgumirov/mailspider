@@ -1,14 +1,17 @@
 # Mailspider
 
-Quick-and-dirty configurable gmail-compatible ETL "unpack-process-and-send-to-http".  
+Configurable gmail-IMAP-compatible ETL to periodically load file/attachment, extract, convert into CSV
+(external plugins) and store into DB. It's designed to be extendable at any step. Opensource (see below
+for license details).
+
 **Data sources**: IMAP, POP3, FTP, HTTP.  
 **Processing**: zip|rar ( xlsx, xls ) -> csv. Implemented in plugins.  
 **Output**: HTTP upload.
 
 ![Overview](overview.png)
 
-Project is sponsored by Partsib. If you need bugfix or another use-case to be implemented
-feel free to [contact me](https://shamil.gumirov.org/about).
+If you need a new feature, bugfix or any licensing-related questions, feel free to 
+[contact me](https://shamil.gumirov.org/about). I'm open to a wide range of collaboration.
 
 ## Architecture diagrams and details
 
