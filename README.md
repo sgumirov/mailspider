@@ -11,7 +11,11 @@ for license details).
 ![Overview](overview.png)
 
 If you need a new feature, bugfix or any licensing-related questions, feel free to 
-[contact me](https://shamil.gumirov.org/about). I'm open to a wide range of collaboration.
+[contact me](https://shamil.gumirov.org/about/about). I'm open to a wide range of collaboration.
+
+## Version history
+
+See [changelist](CHANGES.md).
 
 ## Architecture diagrams and details
 
@@ -20,8 +24,6 @@ High-level email processing diagram (for loading via HTTP there're other loading
 
 Detailed components diagram:  
 ![Detailed component](highlevel.png)
-
-Detailed [changelist](CHANGES.md) is available.
 
 # License
 
