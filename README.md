@@ -1,12 +1,16 @@
 # Mailspider
 
-Quick-and-dirty configurable gmail-compatible ETL
-"unpack-process-and-send-to-http".  
+Quick-and-dirty configurable gmail-compatible ETL "unpack-process-and-send-to-http".  
 **Data sources**: IMAP, POP3, FTP, HTTP.  
 **Processing**: zip|rar ( xlsx, xls ) -> csv. Implemented in plugins.  
 **Output**: HTTP upload.
 
-Project is sponsored by Partsib.
+![Overview](overview.png)
+
+Project is sponsored by Partsib. If you need bugfix or another use-case to be implemented
+feel free to [contact me](https://shamil.gumirov.org/about).
+
+## Architecture diagrams and details
 
 High-level email processing diagram (for loading via HTTP there're other loading steps):  
 ![High level processing](processing-diagram.png)
