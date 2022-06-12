@@ -1,17 +1,18 @@
+```diff
+@@ ===================================================================================== @@
+@@ Mailspider is not actively maintained (security patches will continue to be applied). @@
+@@                                                                                       @@
+@@ Note: it's better (and probably cheaper) to run similar pipeline to extract data from @@
+@@ main and web on AWS Glue or Step Functions with Lambda instead.                       @@
+@@ ===================================================================================== @@
+```
+---
+
 # Mailspider
 
 Configurable gmail-IMAP-compatible ETL to periodically load file/attachment, extract, convert into CSV
 (external plugins) and store into DB. It's designed to be extendable at any step. Opensource (see below
 for license details).
-
----
-
-# Mailspider is not actively maintained (security issues are fixed).
-
-**Note: it's better (and probably cheaper) to run similar pipeline to extract data from main and web on AWS
-Glue or Step Functions with Lambda instead.**
-
----
 
 **Data sources**: IMAP, POP3, FTP, HTTP.  
 **Processing**: zip|rar ( xlsx, xls ) -> csv. Implemented in plugins.  
